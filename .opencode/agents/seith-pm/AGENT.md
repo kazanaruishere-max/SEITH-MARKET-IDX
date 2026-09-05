@@ -57,7 +57,8 @@
 - [ ] `cargo test` pass (incl. `seith-cli`, `sectors-client` CompositeCache)
 - [ ] `uv run pytest` pass jika sentuh sidecar, `pnpm lint/typecheck` jika sentuh FE
 - [ ] `rust-reviewer` + `security-reviewer` pass (pra-freeze: security MANDATORY)
-- [ ] `Accountability Block` dengan output nyata
+- [ ] `Accountability Block` dengan output nyata + `♻️ Refactor: <apa>` wajib
+- [ ] `refactor-cleaner` PASS — `fn <50`, `file 200-400`, `nesting ≤4`, `no dead code` (Boy Scout Rule §5b)
 - [ ] `docs/*` + `AGENTS.md` sinkron (no drift)
 
 ## Output

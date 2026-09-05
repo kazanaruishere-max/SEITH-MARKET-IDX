@@ -1,6 +1,6 @@
-# 05 — 12 Anti-Pattern — Daftar Merah (Wajib Koreksi, Bukan Sekedar Implement)
+# 05 — 13 Anti-Pattern — Daftar Merah (Wajib Koreksi, Bukan Sekedar Implement)
 
-> AI yang tidak baca file ini akan mengulang 12 kesalahan yang sama → FAIL gate atau crash di juri. Tiap anti-pattern = Gejala → Akibat → Koreksi → Test yang menangkap.
+> AI yang tidak baca file ini akan mengulang 13 kesalahan yang sama → FAIL gate atau crash di juri. Tiap anti-pattern = Gejala → Akibat → Koreksi → Test yang menangkap. **Anti-pattern #13 (skip refactor) adalah pelanggaran Boy Scout Rule §5b — PM veto jika tanpa ♻️ Refactor.**
 
 ## 1. `open/high/low/close` Missing Tidak Di-exclude
 
@@ -85,6 +85,13 @@
 - Akibat: fabrikasi → PM veto, juri anggap fake demo.
 - Koreksi: tiap task ubah file akhiri `✅ Terverifikasi: <cmd> → <output> / ⚠️ Belum / 🔻 Risiko` + paste `cargo test` output.
 - Test: `seith-pm` gate cek block present.
+
+## 13. Skip Refactor — Debt Ditunda Meledak di H4/H5
+
+- Gejala: claim `selesai` tanpa `♻️ Refactor:`, `fn >50 baris`, `file >400 baris`, `dead code` dibiarkan, `cargo clippy --fix` tidak jalan.
+- Akibat: `30% Technical depth` jebol — juri lihat `clippy` warning + file 800 baris → debt H1 numpuk ke scoring/anomaly H4.
+- Koreksi: Boy Scout Rule §5b — tiap task ubah file WAJIB `cargo fmt` + `cargo clippy --fix` + hapus dead code + extract jika >50 baris + `♻️ Refactor: <apa>` di Accountability Block. Workflow `Understand → Plan → Implement → Verify → Refactor → Document`.
+- Test: `refactor-cleaner` scan `fn <50`, `file 200-400`, `nesting ≤4`, `no dead code` — PM veto jika tanpa `♻️ Refactor:`.
 
 ---
 
