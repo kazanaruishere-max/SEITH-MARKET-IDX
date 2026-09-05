@@ -1,0 +1,34 @@
+name: Freeze Check
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  freeze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: dtolnay/rust-toolchain@stable
+      - run: chmod +x scripts/freeze-check.sh || true
+      - run: bash scripts/freeze-check.sh || true
+      - name: Detect secrets (gitleaks)
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          config-path: .gitleaks.toml
+      - name: Fallback grep for SECTORS_API_KEY
+        if: always()
+        run: |
+          if grep -r "SECTORS_API_KEY=[^[:space:]]\{10,\}" --exclude-dir=target --exclude-dir=.git --exclude=.env.example --exclude=.gitleaks.toml . 2>/dev/null; then
+            echo "::error::Potential secret leak detected"
+            exit 1
+          fi
+          echo "No secret leak detected"

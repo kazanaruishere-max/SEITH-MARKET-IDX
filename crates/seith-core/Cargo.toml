@@ -1,0 +1,15 @@
+[package]
+name = "seith-core"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+chrono.workspace = true
+validator.workspace = true
+thiserror.workspace = true
+anyhow.workspace = true
+moka.workspace = true
+rusqlite.workspace = true
+tracing.workspace = true

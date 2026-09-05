@@ -1,0 +1,5 @@
+{
+  "skills": ["seith-market-intelligence"],
+  "skill_paths": [".opencode/skills"],
+  "agents": ["seith-pm"]
+}

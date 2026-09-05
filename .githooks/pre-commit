@@ -1,0 +1,9 @@
+#!/bin/sh
+set -e
+if grep -r "SECTORS_API_KEY=[^[:space:]]\{10,\}" --exclude-dir=target --exclude-dir=.git --exclude=.env.example --exclude=.gitleaks.toml . > /dev/null 2>&1; then
+  echo "BLOCKED: potential SECTORS_API_KEY leak detected"
+  grep -r "SECTORS_API_KEY=" --exclude-dir=target --exclude-dir=.git --exclude=.env.example .
+  exit 1
+fi
+cargo fmt --check || (echo "cargo fmt fail" && exit 1)
+echo "pre-commit PASS"

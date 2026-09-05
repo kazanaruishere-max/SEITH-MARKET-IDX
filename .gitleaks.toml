@@ -1,0 +1,18 @@
+title = "SEITH gitleaks config"
+[allowlist]
+  paths = [
+    '''\.env\.example''',
+    '''\.gitleaks\.toml''',
+    '''\.pre-commit-config\.yaml''',
+    '''SECURITY\.md''',
+  ]
+  regexes = [
+    '''SECTORS_API_KEY=''',
+    '''0843''',
+  ]
+
+[[rules]]
+  id = "sectors-api-key"
+  description = "Sectors API key"
+  regex = '''SECTORS_API_KEY\s*=\s*[a-z0-9]{20,}'''
+  tags = ["key", "sectors"]

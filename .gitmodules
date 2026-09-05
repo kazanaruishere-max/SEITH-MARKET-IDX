@@ -1,0 +1,6 @@
+[submodule "vendor/Kronos"]
+	path = vendor/Kronos
+	url = https://github.com/shiyu-coder/Kronos.git
+[submodule "vendor/TradingAgents"]
+	path = vendor/TradingAgents
+	url = https://github.com/TauricResearch/TradingAgents.git

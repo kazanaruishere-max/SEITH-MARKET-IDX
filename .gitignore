@@ -1,0 +1,12 @@
+/target/
+**/.venv/
+.env
+data/seith.db
+data/seith.db-*
+apps/kronos-sidecar/.venv/
+apps/analysis/.venv/
+apps/web/.next/
+apps/web/node_modules/
+.DS_Store
+__pycache__/
+*.pyc

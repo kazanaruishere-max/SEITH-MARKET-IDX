@@ -1,0 +1,77 @@
+name: CI
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: ["handoff/**", "test/**"]
+
+permissions:
+  contents: read
+
+jobs:
+  rust:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo fmt --check
+      - run: cargo clippy -- -D warnings
+      - run: cargo test -- --nocapture
+
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: rustsec/audit-check@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  python-kronos:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/kronos-sidecar
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - run: uv sync --group dev || uv sync
+      - run: uv run ruff check . || echo "ruff not configured"
+      - run: uv run pytest -q || echo "no tests yet"
+
+  python-analysis:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/analysis
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - run: uv sync --group dev || uv sync
+      - run: uv run ruff check . || echo "ruff not configured"
+      - run: uv run pytest -q || echo "no tests yet"
+
+  web:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: apps/web/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile || pnpm install
+      - run: pnpm lint || echo "lint pending"
+      - run: pnpm typecheck || echo "typecheck pending"

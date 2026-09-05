@@ -1,0 +1,20 @@
+[
+  {
+    "date": "2024-06-01",
+    "open": 9500,
+    "high": 9600,
+    "low": 9400,
+    "close": 9550,
+    "volume": null,
+    "amount": null
+  },
+  {
+    "date": "2024-06-02",
+    "open": null,
+    "high": null,
+    "low": null,
+    "close": null,
+    "volume": null,
+    "amount": null
+  }
+]

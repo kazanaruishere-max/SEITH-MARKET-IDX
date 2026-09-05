@@ -1,0 +1,11 @@
+{
+  "id": {
+    "FINANCE": { "roe": 0.12, "margin": 0.18, "leverage": 0.45, "pe": 14.2, "pb": 1.8 },
+    "ENERGY": { "roe": 0.08, "margin": 0.12, "leverage": 0.55, "pe": 9.5, "pb": 1.1 },
+    "TECH": { "roe": 0.15, "margin": 0.22, "leverage": 0.35, "pe": 22.0, "pb": 3.2 }
+  },
+  "sg": {
+    "FINANCE": { "roe": 0.11, "margin": 0.20, "leverage": 0.40, "pe": 12.8, "pb": 1.5 },
+    "TECH": { "roe": 0.13, "margin": 0.25, "leverage": 0.30, "pe": 18.5, "pb": 2.8 }
+  }
+}
