@@ -159,6 +159,13 @@ uv run python -c "import torch; import model"  # workdir apps/kronos-sidecar
 - Cleansing: `open/high/low/close` missing → exclude + `excluded:[{ticker,reason}]`; `volume/amount` missing → `0.0`; rasio missing → sector median fallback + `insufficient_data:true`.
 - Sebelum mengubah schema: baca dampak ke SEMUA consumer (api/web/sidecar/cli).
 
+### 6c. Anti AI Slop (Tier-1 — prose/UI, phased enforcement)
+
+- **Scope:** `README`, `docs/*.md` prose, dossier PDF, `apps/web` copy. Exclude `api-spec`/`adr`/`spec` yang butuh presisi teknis.
+- **Prose:** WAJIB `skill://no-ai-slop` detect sebelum merge — larang `Words to cut` (`delve, leverage, robust, cutting-edge` dll) + `Patterns to cut` (binary contrast `It's not X it's Y`, colon reveals, throat-clearing, puffery, em-dash crutch, formatting slop).
+- **UI:** `apps/web` WAJIB `skill://design-taste-frontend` atau `high-end-visual-design`/`stitch-design-taste` — cegah template generik/bento generik.
+- **Enforcement phased:** H1-H4 PR checklist warn; H5 pra-freeze CI grep banned-words hard fail + manual audit. Tier-1 = tidak block velocity, tapi `seith-phase-gate` wajib cek.
+
 ## 7. Phase Workflow & Definition of Done
 
 Workflow: `Understand → Plan → Implement → Verify → Refactor → Document`.
