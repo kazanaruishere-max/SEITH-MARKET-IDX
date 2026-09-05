@@ -31,3 +31,5 @@ pnpm lint/typecheck (jika FE) →
 - [ ] `market` enum `Id|Sg` benar
 - [ ] `docs/*` sinkron (no drift)
 - [ ] PM `seith-pm` gate PASS
+- [ ] Anti-slop: `no-ai-slop` detect pass untuk `README`/`docs/*.md` prose + `dossier` (banned: delve/leverage/robust/It's not X it's Y/colon reveal/em-dash) — Tier-1 warn H1-H4, hard fail H5
+- [ ] Design taste: `apps/web` tidak template generik (`design-taste-frontend` atau `high-end-visual-design` checked)

@@ -1,6 +1,6 @@
-# 05 — 13 Anti-Pattern — Daftar Merah (Wajib Koreksi, Bukan Sekedar Implement)
+# 05 — 14 Anti-Pattern — Daftar Merah (Wajib Koreksi, Bukan Sekedar Implement)
 
-> AI yang tidak baca file ini akan mengulang 13 kesalahan yang sama → FAIL gate atau crash di juri. Tiap anti-pattern = Gejala → Akibat → Koreksi → Test yang menangkap. **Anti-pattern #13 (skip refactor) adalah pelanggaran Boy Scout Rule §5b — PM veto jika tanpa ♻️ Refactor.**
+> AI yang tidak baca file ini akan mengulang 14 kesalahan yang sama → FAIL gate atau crash di juri. Tiap anti-pattern = Gejala → Akibat → Koreksi → Test yang menangkap. **Anti-pattern #13 (skip refactor) adalah pelanggaran Boy Scout Rule §5b — PM veto jika tanpa ♻️ Refactor. Anti-pattern #14 (AI slop) pelanggaran Tier-1 §6c — detect wajib sebelum merge prose/UI.**
 
 ## 1. `open/high/low/close` Missing Tidak Di-exclude
 
@@ -92,6 +92,13 @@
 - Akibat: `30% Technical depth` jebol — juri lihat `clippy` warning + file 800 baris → debt H1 numpuk ke scoring/anomaly H4.
 - Koreksi: Boy Scout Rule §5b — tiap task ubah file WAJIB `cargo fmt` + `cargo clippy --fix` + hapus dead code + extract jika >50 baris + `♻️ Refactor: <apa>` di Accountability Block. Workflow `Understand → Plan → Implement → Verify → Refactor → Document`.
 - Test: `refactor-cleaner` scan `fn <50`, `file 200-400`, `nesting ≤4`, `no dead code` — PM veto jika tanpa `♻️ Refactor:`.
+
+## 14. AI Slop Prose/UI — Template Generik Kena Potong Judging 30%
+
+- Gejala: prose `delve, leverage, robust, cutting-edge, paradigm shift, tapestry` + pola `It's not X it's Y / The detail that makes it: reveal / Here's the thing` + `—` em-dash crutch + formatting slop (emoji di heading, bold mid-sentence, bullet over-prose) + UI bento generik/template.
+- Akibat: `README`/`dossier`/`web copy` terdengar template AI → juri potong `30% Video storytelling` + `40% usability` credibility walau scoring jago.
+- Koreksi: `skill://no-ai-slop` detect WAJIB sebelum merge prose — larang `Words to cut` + `Patterns to cut` (binary contrast, colon reveals, throat-clearing, puffery, em-dash 1-2 max, formatting slop); UI WAJIB `skill://design-taste-frontend` atau `high-end-visual-design`/`stitch-design-taste` untuk `apps/web`.
+- Test: H1-H4 PR checklist warn `no-ai-slop detect pass`; H5 pra-freeze `grep -i "delve\|leverage\|robust\|cutting-edge\|It's not.*it's" README docs/*.md` hard fail + manual audit reviewer.
 
 ---
 
