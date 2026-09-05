@@ -237,14 +237,24 @@ main (protected, source-available, no direct commit) ← only Lead merge after s
      └─ handoff/NN-topic/t2-<subtask>
 test/<topic> (ephemeral, hanya chaos/load test, bukan fitur)
 chore/docs/fix/* (hanya jika di luar handoff, tetap via PR)
+
+.handoff/ (docs — phase-folder, branch tetap flat):
+ └─ phase-NN-topic/                  ← 1 fase = 1 folder
+     ├─ 00-overview.md                ← Goal phase, WBS, dependency H2-H5, DoD phase, peran+skill+sub-agent
+     ├─ 01-market-enum-models.md      ← task slice
+     ├─ 02-cache-trait-composite.md
+     ├─ 03-sectors-batch-client.md
+     ├─ 04-cleansing-gate-normalize.md
+     └─ 05-envelope-verification.md
 ```
 
+- **Branch tetap flat** `handoff/NN-topic` (tidak jadi `phase/NN`); folder `.handoff/phase-NN-topic/` hanya organisasi docs per phase → task = file `NN-task.md` di dalam folder.
 - **Default:** 1 handoff = 1 branch `handoff/NN-topic` + 2 worktree (`../seith-wt/handoff-NN-*`) agar 2 terminal tidak tabrak `cwd`/`target/`. Gunakan `git worktree add`.
 - **Sub-branch `handoff/NN/topic/t1` hanya jika T1/T2 garap file beda paralel** (mis. `t1-cache` vs `t2-normalize` di H1) — merge balik ke parent `handoff/NN` via PR + `code-reviewer` sebelum ke `main`.
-- **Naming:** `handoff/00-agents-sync`, `handoff/01-sectors-adapter`, `handoff/04-scoring/t1-engine`, `test/kronos-load`.
+- **Naming:** branch `handoff/00-agents-sync`, `handoff/01-sectors-adapter`, `handoff/04-scoring/t1-engine`; folder `.handoff/phase-01-sectors-adapter/` + tasks `01-..md`; `test/kronos-load`.
 - **Commit:** `type: desc` (feat/fix/test/chore/docs), no `push --force` ke `main`/`handoff/*`, rebase before merge, Accountability Block tiap task ubah file.
 - **Lifecycle:** `git worktree add ../seith-wt/handoff-NN -b handoff/NN-topic` → implement (TDD) → `cargo fmt --check && cargo clippy -- -D warnings && cargo test` (+ `uv run pytest` jika sidecar) → dual-review → Lead squash-merge ke `main` → hapus worktree/branch.
-- **Skill:** `git-worktree-manager` untuk orkestrasi worktree; setiap session eksekutor wajib `skill://seith-market-intelligence` di awal agar 1 tujuan.
+- **Skill:** `git-worktree-manager` untuk orkestrasi worktree; setiap session eksekutor wajib `skill://seith-market-intelligence` di awal agar 1 tujuan. Doc phase-folder `00-overview.md` wajib baca sebelum task `01-05`.
 
 ## 9. Docs Map
 
@@ -254,7 +264,8 @@ chore/docs/fix/* (hanya jika di luar handoff, tetap via PR)
 - `docs/tdd-plan.md` — TDD critical paths (scoring/anomaly/adapter+cleansing/kronos-bridge/dossier+CLI+9router+CompositeCache), `cargo test` + `uv pytest`
 - `docs/adr/` — keputusan arsitektur (0001 stack + cache + market, 0002 kontrak wire & vendor pinning)
 - `docs/kronos-notes.md` — distilasi whitepaper Kronos + roadmap benchmark (dari `2508.02739v1.pdf`)
-- `docs/notes/00-readme.md` + `01-tujuan-seith.md` → `05-anti-patterns.md` — **WAJIB baca sebelum Implement** (tujuan win, Kronos 512, gate MI, arsitektur, 12 anti-pattern) — ritual 3 pertanyaan, PM veto jika tanpa jejak
+- `docs/notes/00-readme.md` + `01-tujuan-seith.md` → `05-anti-patterns.md` — **WAJIB baca sebelum Implement** (tujuan win, Kronos 512, gate MI, arsitektur, 14 anti-pattern) — ritual 3 pertanyaan, PM veto jika tanpa jejak
+- `.handoff/phase-NN-topic/` — handoff per phase (folder = phase, file = task): `00-overview.md` + `01-..05-*.md` per task slice
 - `2508.02739v1.pdf` — Kronos whitepaper asli (AAAI 2026, tokenizer hierarkis K-line foundation model)
 - Skill: `.opencode/skills/seith-market-intelligence/SKILL.md` → pointer ke dokumen di atas (auto-load `00-readme.md`)
 
