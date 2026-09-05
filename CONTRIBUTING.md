@@ -1,6 +1,6 @@
 # Contributing — SEITH
 
-> Source-available, NOT community until founder opens. No PR/issue accepted before explicit open (AGENTS.md §8).
+> Licensed under AGPL-3.0 — source-available, NOT community until founder opens. No PR/issue accepted before explicit open (AGENTS.md §8). See LICENSE.
 
 ## Workflow
 - Branch `handoff/NN-topic` dari `main`, worktree `../seith-wt/handoff-NN-*` (PM `seith-pm` owns).
