@@ -4,7 +4,7 @@
 
 [![CI](https://github.com/kazanaruishere-max/SEITH-MARKET-IDX/actions/workflows/ci.yml/badge.svg)](https://github.com/kazanaruishere-max/SEITH-MARKET-IDX/actions/workflows/ci.yml)
 [![Freeze Check](https://github.com/kazanaruishere-max/SEITH-MARKET-IDX/actions/workflows/freeze-check.yml/badge.svg)](https://github.com/kazanaruishere-max/SEITH-MARKET-IDX/actions/workflows/freeze-check.yml)
-[![License: Source-Available](https://img.shields.io/badge/license-source--available-lightgrey)](LICENSE)
+[![License: AGPL-3.0](https://img.shields.io/badge/license-AGPL--3.0-blue)](LICENSE)
 [![Track: Reveal](https://img.shields.io/badge/track-3_Reveal-fbbf24)](https://hackathon.sectors.app/tracks/market-intelligence)
 [![Market: IDX](https://img.shields.io/badge/market-IDX%20primary-10b981)](docs/api-spec.md)
 [![Rust](https://img.shields.io/badge/core-Rust_Axum-orange)](Cargo.toml)
