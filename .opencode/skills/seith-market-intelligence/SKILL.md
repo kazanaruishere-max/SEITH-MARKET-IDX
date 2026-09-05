@@ -59,7 +59,8 @@ Integrasi Rust↔Python via **REST sidecar** (bukan PyO3/maturin). TradingAgents
 ## Hard Conventions (dari AGENTS.md)
 - Rust `cargo` edition 2021, `rustfmt` + `clippy`. Python HANYA sidecar via `uv`. LLM via 9router. Cache = Composite moka L1 + SQLite L2 `data/seith.db`.
 - Immutability, fn <50 baris, file 200-400 (max 800), nesting ≤4.
-- Error handling tiap level, no silent swallow. API envelope `{success,data,error,pagination}`. Repository pattern. `Cache` trait untuk L1/L2.
+- **Boy Scout Rule — Refactor wajib:** tiap task ubah file WAJIB tinggalkan lebih bersih — `cargo fmt` + `clippy --fix` + hapus dead code + extract jika >50 baris. No claim `selesai` tanpa `♻️ Refactor:` di Accountability Block (AGENTS §5b). Workflow `Understand → Plan → Implement → Verify → Refactor → Document`.
+- Error handling tiap level, no silent swallow. API envelope `{success,data,error,pagination}`. Repository pattern. `Cache` trait untuk L1/L2. `refactor-cleaner` WAJIB pasca tiap handoff (AGENTS §8 Layer 4).
 
 ## Docs Map (jangan duplikasi — baca ini)
 - `AGENTS.md` — charter, roles, Tier 0, stack §3b, workflow, branch §8b, Hybrid + 9router + CompositeCache + IDX/STI

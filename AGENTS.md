@@ -142,6 +142,12 @@ uv run python -c "import torch; import model"  # workdir apps/kronos-sidecar
 - Kronos-base 102.3M butuh torch CUDA — ditambahkan ke env kronos-sidecar saat H2 (fallback CPU/pre-compute jika tanpa GPU).
 - Redis 30MB web tidak muat IDX raw (~45MB) → jangan pakai Redis untuk raw OHLCV; Composite moka+SQLite sudah 100% gratis dan persist.
 
+### 5b. Boy Scout Rule — Refactor Wajib (Tidak Bisa Diskip)
+
+- **Refactor adalah kewajiban, bukan opsional.** Setiap task yang menyentuh file WAJIB meninggalkan code lebih bersih dari sebelumnya (Boy Scout Rule) — `fn <50 baris`, `file 200-400 baris`, `nesting ≤4`, `no dead code`, `no silent swallow`, `no duplication`.
+- Minimal per task: `cargo fmt` + `cargo clippy --fix` + hapus dead code + extract function jika >50 baris + rename yang ambigu. Tidak ada claim `selesai` tanpa `♻️ Refactor:` di Accountability Block.
+- Trade-off `+15% waktu` diterima demi `30% Technical depth` — debt yang ditunda di H1 akan meledak di H4/H5.
+
 ## 6. Contract Rules (`crates/seith-core` adalah hukum)
 
 - Model domain STRICT: `serde` + `validator`, `deny_unknown_fields`, ticker `^[A-Z0-9]{3,6}$`, timestamp `chrono::DateTime<Utc>` aware, `Market` enum `Id|Sg` (default `Id`).
@@ -155,15 +161,16 @@ uv run python -c "import torch; import model"  # workdir apps/kronos-sidecar
 
 ## 7. Phase Workflow & Definition of Done
 
-Workflow: `Understand → Plan → Implement → Verify → Document`.
+Workflow: `Understand → Plan → Implement → Verify → Refactor → Document`.
 
-Fase dinyatakan done HANYA jika semua hijau:
+Fase dinyatakan done HANYA jika semua hijau (refactor tidak bisa diskip):
 1. Test relevan lulus (output nyata, bukan asersi kosong) — `cargo test` + `uv run pytest` jika sentuh sidecar + `pnpm test` jika FE/CLI.
 2. `cargo fmt --check` dan `cargo clippy -- -D warnings` bersih di crate yang disentuh.
 3. `pnpm lint/typecheck` bersih jika sentuh FE.
 4. Review gate lewat (skill `seith-phase-gate` atau `code-reviewer` + `security-reviewer` paralel).
 5. Dokumentasi ter-update (ADR untuk keputusan, prd/spec/api-spec untuk requirement berubah).
-6. Accountability Block terisi dengan output nyata.
+6. Accountability Block terisi dengan output nyata + `♻️ Refactor: <apa>` wajib.
+7. Refactor gate lewat: `fn <50`, `file 200-400`, `nesting ≤4`, `no dead code` — `refactor-cleaner` scan pass.
 
 ## 8. Tim & Delegasi (struktur lengkap — WAJIB dipatuhi semua harness)
 
@@ -194,13 +201,13 @@ Fase dinyatakan done HANYA jika semua hijau:
 | Penjaga memori | skill `remember` + `handoff` | Fakta penting → memory; konteks sesi → handoff |
 | Gate fase | skill `seith-phase-gate` + `verification-loop` | Protokol penutupan fase (dual-review) |
 
-### Lapisan 4 — Dukungan Teknis (on-demand)
+### Lapisan 4 — Dukungan Teknis (on-demand, kecuali refactor)
 | Peran | Agent | Kapan |
 |---|---|---|
 | Fix build/boot error | `build-error-resolver` | `cargo check` fail, clippy, sidecar/9router boot |
 | Riset vendor/library | `docs-lookup` / `deep-research` | Sectors API / Kronos HF / 9router berubah |
 | Eksplorasi cepat | `explorer` | Debug area kode luas |
-| Refactoring | `refactor-cleaner` | Pasca-batch testing |
+| **Refactoring** | **`refactor-cleaner` (WAJIB)** | **Pasca tiap handoff + tiap task Boy Scout — gate wajib, bukan on-demand** |
 | Ops otonom | `loop-operator` | Monitoring pre-compute harian ranking |
 | E2E web | `e2e-runner` | CLI+FE+API Playwright (H5) |
 
