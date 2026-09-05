@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+<rect width="1200" height="630" fill="#0B0E14"/>
+<rect x="24" y="24" width="1152" height="582" rx="12" fill="#11151F" stroke="#27272a"/>
+<text x="48" y="72" font-family="JetBrains Mono, monospace" font-size="28" fill="#fbbf24" letter-spacing="6">SEITH</text>
+<text x="48" y="100" font-family="Inter, sans-serif" font-size="14" fill="#71717a">Market Intelligence for IDX — Track 3 Reveal — Bloomberg Dark</text>
+<rect x="48" y="128" width="1104" height="1" fill="#27272a"/>
+<text x="48" y="164" font-family="JetBrains Mono, monospace" font-size="12" fill="#71717a">RANKING — Mispricing Score 0-100</text>
+<g font-family="JetBrains Mono, monospace" font-size="11">
+<rect x="48" y="184" width="1104" height="32" rx="6" fill="#1A1F2E" stroke="#27272a"/><text x="64" y="204" fill="#fafafa">1  BBCA  FINANCE  82.4 ████████░░  •  Anomaly </text><text x="1040" y="204" fill="#fbbf24">82.4</text>
+<rect x="48" y="224" width="1104" height="32" rx="6" fill="#1A1F2E" stroke="#27272a"/><text x="64" y="244" fill="#fafafa">2  BBRI  FINANCE  76.1 ██████░░░░  •  QV high</text><text x="1040" y="244" fill="#fbbf24">76.1</text>
+<rect x="48" y="264" width="1104" height="32" rx="6" fill="#11151F" stroke="#27272a"/><text x="64" y="284" fill="#a1a1aa">3  BMRI  FINANCE  64.3 █████░░░░░  •  degraded</text><text x="1040" y="284" fill="#71717a">64.3</text>
+<rect x="48" y="304" width="1104" height="48" rx="6" fill="#1A1F2E" stroke="#27272a"/><text x="64" y="324" fill="#10b981">Fund: ROE 12% • Tech: Kronos +1.2% • Synth: quality value attractive</text><text x="64" y="342" fill="#71717a" font-size="10">Bukan rekomendasi investasi — informasi &amp; analisis saja</text>
+</g>
+<text x="48" y="400" font-family="JetBrains Mono, monospace" font-size="10" fill="#52525b">Sectors CompositeCache moka L1 + SQLite L2  •  Kronos-base 102.3M :8001  •  9router :20128  •  Hybrid CLI + Web</text>
+<text x="600" y="580" font-family="Inter, sans-serif" font-size="11" fill="#52525b" text-anchor="middle">Placeholder — will be replaced by real Bloomberg screenshot at H5</text>
+</svg>
