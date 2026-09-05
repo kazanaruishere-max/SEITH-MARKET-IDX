@@ -51,13 +51,13 @@ Track 3 `Reveal` rule: **What must be true = derived insight** (`hackathon.secto
 
 ```mermaid
 flowchart LR
-  S[Sectors REST/MCP<br/>1000 credits<br/>CompositeCache] --> N[Normalize & Cleansing<br/>Rust seith-core]
-  N --> K[Kronos-base :8001<br/>predict_batch 400→20<br/>T1.0 top_p0.9]
-  K --> SC[Scoring 0-100<br/>Rust 30/20/30/20]
-  SC --> R[Ranking + Flag<br/>|Z|>2]
-  R --> A[Agents Lite :8002<br/>Fund/Tech/Synth<br/>→ 9router :20128]
-  A --> D[Dossier 1-page<br/>JSON → PDF]
-  D --> H[Hybrid Delivery<br/>Axum /api/v1 + seith-cli + Next.js]
+  S["Sectors REST/MCP<br/>1000 credits<br/>CompositeCache"] --> N["Normalize & Cleansing<br/>Rust seith-core"]
+  N --> K["Kronos-base :8001<br/>predict_batch 400→20<br/>T1.0 top_p0.9"]
+  K --> SC["Scoring 0-100<br/>Rust 30/20/30/20"]
+  SC --> R["Ranking + Flag<br/>|Z| >2"]
+  R --> A["Agents Lite :8002<br/>Fund/Tech/Synth<br/>→ 9router :20128"]
+  A --> D["Dossier 1-page<br/>JSON → PDF"]
+  D --> H["Hybrid Delivery<br/>Axum /api/v1 + seith-cli + Next.js"]
 ```
 
 *Whitepaper:* [`2508.02739v1.pdf`](2508.02739v1.pdf) (AAAI 2026, hierarchical K-line tokenizer) distilled in [`docs/kronos-notes.md`](docs/kronos-notes.md).
