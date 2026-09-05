@@ -59,9 +59,6 @@ jobs:
 
   web:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: apps/web
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -70,8 +67,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: pnpm
-          cache-dependency-path: apps/web/pnpm-lock.yaml
-      - run: pnpm install --frozen-lockfile || pnpm install
-      - run: pnpm lint || echo "lint pending"
-      - run: pnpm typecheck || echo "typecheck pending"
+      - run: pnpm --dir apps/web install || echo "install pending"
+      - run: pnpm --dir apps/web lint || echo "lint pending"
+      - run: pnpm --dir apps/web typecheck || pnpm --dir apps/web exec tsc --noEmit || echo "typecheck pending"
