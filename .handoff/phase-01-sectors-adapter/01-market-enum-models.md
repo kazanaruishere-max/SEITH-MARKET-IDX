@@ -4,7 +4,7 @@
 Kunci `Market` enum `Id|Sg` (default `Id`) + strict schemas `OhlcvRow`/`Fundamentals` dengan `serde+validator deny_unknown_fields` — kontrak wire solid anti #08 median noise.
 
 ## Context
-- SSOT: `AGENTS.md §6` + `docs/spec.md §3` + `docs/api-spec.md §1` + `docs/adr/0001` + `skill://seith-market-intelligence`
+- SSOT: `AGENTS.md §6 Contract Rules + §6c Anti AI Slop Tier-1` + `docs/spec.md §3 Domains` + `docs/api-spec.md §1 Schemas` + `docs/tdd-plan.md §3` + `docs/adr/0001` + `docs/notes/00-readme.md` ritual 3Q + `skill://seith-market-intelligence` + `skill://no-ai-slop` (Tier-1 warn H1-H4, hard fail H5)
 - Dependensi: — (task pertama, blocker semua)
 - Branch: `handoff/01-sectors-adapter` atau `handoff/01-sectors-adapter/t1-core` (T1: `01+04` core)
 
@@ -34,15 +34,30 @@ Out: Cache (`02`), client (`03`), cleansing (`04`), envelope (`05`)
 cargo fmt --check → 0
 cargo clippy -p seith-core -- -D warnings → 0
 cargo test -p seith-core -- --nocapture → ≥9 passed (no assertion-less)
+skill://no-ai-slop detect → pass (Tier-1 warn, banned words/patterns clean)
+```
+
+### Accountability Block
+```
+✅ Terverifikasi: <cmd> → <output> (paste nyata, no fabrikasi)
+⚠️ Belum: integration cache key (02)
+🔻 Risiko: ticker regex over-permissive — deteksi: validator unit negative
+♻️ Refactor: extract TICKER_RE once_cell, split models.rs per struct fn<50
 ```
 
 ## Peran + Skill + Sub-agent
-| Peran | Skill | Sub-agent | Kapan |
-|---|---|---|---|
-| T1 Core | `seith-market-intelligence`+`tdd-workflow` | `tdd-guide` | TDD red-green |
-| Arsitek | `senior-architect` | `architect` | **SEBELUM** coding — audit wire + sizing |
-| `rust-reviewer` | `code-reviewer` | `code-reviewer` | crate models |
-| `refactor-cleaner` | `coding-standards` | `refactor-cleaner` | pasca task |
+| Peran | Eksekutor | Skill | Sub-agent | Kapan |
+|---|---|---|---|---|
+| Lead Otak T0 | opencode sini | `seith-market-intelligence`+`verification-loop` | — | approve 01, verify 01g tests |
+| T1 Core | sub-agent | `seith-market-intelligence`+`tdd-workflow`+`verification-loop` | `tdd-guide` | Implement→Verify→Refactor TDD red-green |
+| Arsitek | sub-agent `architect` | `senior-architect` | `architect` | **SEBELUM** coding — audit wire + file sizing |
+| Reviewer Rust | `rust-reviewer` | `code-reviewer` | `code-reviewer` | crate `seith-core` models |
+| Reviewer Security | `security-reviewer` | `security-review` | `security-reviewer` | validasi ticker `^[A-Z0-9]{3,6}$` + Market parse |
+| PM Autonomous | `seith-pm` | `git-worktree-manager`+gate | — | **veto merge jika gate/reviewer fail** |
+| Refactor WAJIB | `refactor-cleaner` | `coding-standards` | `refactor-cleaner` | pasca task — `fn<50 file200-400 nesting≤4` |
 
 ## Next Session Prompt
-`skill://seith-market-intelligence` + `handoff/01-sectors-adapter/t1-core` + `01-market-enum-models.md` + 3Q: `deny_unknown_fields` + `DateTime<Utc>` aware.
+`skill://seith-market-intelligence` + `handoff/01-sectors-adapter/t1-core` + `01-market-enum-models.md` + ritual 3Q:
+1) Gate MI mana? Fondasi Market key anti #08 median noise — tanpa ini cache campur Id/Sg.
+2) Jebakan? `deny_unknown_fields` + `DateTime<Utc>` aware vs naive + `FromStr` case-insensitive.
+3) Test FAIL apa? `ticker="ab"→422`, `unknown:1→422`, `Market::Sg serde="sg"` round-trip, `Market::from_str("xx")→Err`.

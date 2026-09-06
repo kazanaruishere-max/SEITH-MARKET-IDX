@@ -4,7 +4,7 @@
 Kunci `SectorsClient` batched per sektor, endpoint `Id` vs `Sg`, `X-API-Key` `Redacted`, `timeout 10s retry 1x`, key `market:sector:ticker:date` — hemat 1000 credits, no leak.
 
 ## Context
-- SSOT: `AGENTS.md §2 §4` + `prd §5 [1]` + `adrs 0001` + `tdd-plan §3` + `skill://seith-market-intelligence`
+- SSOT: `AGENTS.md §2 Market + §4 Secrets + §6c Anti AI Slop Tier-1` + `prd §5 [1]` + `spec §2 [1]` + `tdd-plan §3` + `docs/notes/00-readme.md` ritual 3Q + `adr 0001` + `skill://seith-market-intelligence` + `skill://no-ai-slop`
 - Dependensi: `01` Market + `02` CompositeCache
 - Branch: `handoff/01-sectors-adapter/t2-cache` (T2 lanjut `02→03`)
 
@@ -23,11 +23,12 @@ Out: cleansing (`04`), envelope (`05`)
 | 03f | `lib.rs` | `pub mod client/cache` `pub use seith_core::Market,OhlcvRow,Cache` | re-export | `cargo check` 0 |
 | 03g | `tests` | `mockito` ≥5 tests Id vs Sg, hit/miss, 422, no leak | `error Display no key` | 5 passed |
 
-## Deliverables (per Bagian)
-- 03a: `redact.rs` polish 30-40 baris
-- 03b: `config.rs` 60-90 baris, `MARKET` default `Id`, `LLM_BASE_URL` default `:20128`
-- 03c-e: `client.rs` 120-180 + `batch.rs` 40-60 baris
-- Constraint: `fn <50`, `file 200-400`, `no unwrap` reqwest `?`, `♻️ Refactor:`
+## Deliverables + Acceptance (per Bagian)
+- 03a: `redact.rs` polish 30-40 baris — Acceptance: `Debug=="***"` no leak
+- 03b: `config.rs` 60-90 baris, `MARKET` default `Id`, `LLM_BASE_URL` default `:20128` — Acceptance: `from_env missing→Err MissingKey` no echo
+- 03c-e: `client.rs` 120-180 + `batch.rs` 40-60 baris — Acceptance: `mockito Id /indonesia Sg /singapore` + `cache hit no http`
+- 03f-g: `lib.rs` re-export + `mockito ≥5`
+- Constraint: `fn <50`, `file 200-400`, `nesting ≤4`, `no unwrap` reqwest `?`, `cargo fmt+clippy` clean, `♻️ Refactor:`
 
 ## Verification
 ```
@@ -35,15 +36,31 @@ cargo fmt --check → 0
 cargo clippy -p seith-core -p sectors-client -- -D warnings → 0
 cargo test -p sectors-client -- --nocapture → ≥5 mockito passed
 rg "SECTORS_API_KEY=[a-z0-9]{10,}" → no leak
+skill://no-ai-slop detect → pass (Tier-1 warn)
+```
+
+### Accountability Block
+```
+✅ Terverifikasi: <cmd> → <output> (paste nyata)
+⚠️ Belum: batch concurrency + rate limit
+🔻 Risiko: key leak via Display — deteksi: redact test
+♻️ Refactor: extract cache_key + split client vs batch fn<50
 ```
 
 ## Peran + Skill + Sub-agent
-| Peran | Skill | Sub-agent |
-|---|---|---|
-| T2 | `seith-market-intelligence`+`tdd-workflow` | `tdd-guide` mockito |
-| `security-reviewer` | `security-review` | `security-reviewer` |
-| `rust-reviewer` | `code-reviewer` | `code-reviewer` |
-| `refactor-cleaner` | `coding-standards` | `refactor-cleaner` |
+| Peran | Eksekutor | Skill | Sub-agent | Kapan |
+|---|---|---|---|---|
+| Lead Otak T0 | opencode sini | `seith-market-intelligence`+`verification-loop` | — | approve 03 |
+| T2 Cache+Client | sub-agent | `seith-market-intelligence`+`tdd-workflow`+`verification-loop` | `tdd-guide` | TDD mockito Id vs Sg |
+| Arsitek | sub-agent `architect` | `senior-architect` | `architect` | review `client.rs` structure |
+| Reviewer Security | `security-reviewer` | `security-review` | `security-reviewer` | key env-only + redact |
+| Reviewer Rust | `rust-reviewer` | `code-reviewer` | `code-reviewer` | reqwest error handling |
+| PM Autonomous | `seith-pm` | `git-worktree-manager`+gate | — | **veto merge jika fail** |
+| Refactor WAJIB | `refactor-cleaner` | `coding-standards` | `refactor-cleaner` | pasca task |
+| Doc | `doc-updater` | `remember`+`handoff` | `doc-updater` | sinkron tdd-plan |
 
 ## Next Session Prompt
-`skill://seith-market-intelligence` + `handoff/01/t2-cache` + `03` + 3Q: `endpoint switch` + `X-API-Key` + `redact`.
+`skill://seith-market-intelligence` + `handoff/01-sectors-adapter/t2-cache` + `03-sectors-batch-client.md` + ritual 3Q:
+1) Gate MI? Sectors batch+cache hemat 1000 credits — fondasi hemat.
+2) Jebakan? `market` endpoint switch + `X-API-Key` header + key redact no leak.
+3) Test FAIL apa? `mockito Id vs Sg endpoint`, `cache hit no http`, `error Display no key`.
