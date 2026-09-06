@@ -21,7 +21,7 @@
 ## 🇬🇧 English
 
 ### Table of Contents
-1. [What is SEITH?](#what-is-seith) · 2. [Why SEITH Wins Track 3](#why-seith-wins-track-3) · 3. [Architecture](#architecture) · 4. [Pipeline — Intelligence Loop](#pipeline--intelligence-loop) · 5. [Tech Stack](#tech-stack) · 6. [Market — IDX & STI](#market--idx--sti) · 7. [Quick Start](#quick-start) · 8. [Security](#security) · 9. [Workflow — Handoff & Branch](#workflow--handoff--branch) · 10. [Judging & Video](#judging--video) · 11. [Roadmap H1–H6](#roadmap-h1h6) · 12. [Contributing & License](#contributing--license)
+1. [What is SEITH?](#what-is-seith) · 2. [Why SEITH Wins Track 3](#why-seith-wins-track-3) · 3. [Architecture](#architecture) · 4. [Pipeline — Intelligence Loop](#pipeline--intelligence-loop) · 5. [Tech Stack](#tech-stack) · 6. [Folder Structure (7 Zones)](#folder-structure-7-zones) · 7. [Market — IDX & STI](#market--idx--sti) · 8. [Quick Start](#quick-start) · 9. [Security](#security) · 10. [Workflow — Handoff & Branch](#workflow--handoff--branch) · 11. [Judging & Video](#judging--video) · 12. [Roadmap H1–H6](#roadmap-h1h6) · 13. [Contributing & License](#contributing--license)
 
 ### What is SEITH?
 
@@ -93,6 +93,41 @@ Integration via **REST sidecar** (not PyO3/maturin) — avoids `GIL+Tokio` clash
 | Test | Rust+Python+FE | `cargo test+mockito+rusqlite`, `uv pytest+ruff`, `pnpm test` |
 
 Design: **Bloomberg dark** (`#0B0E14` + `JetBrains Mono` numbers) — skill `design-taste-frontend` enforced at H5.
+
+### Folder Structure (7 Zones — WAJIB rapih, AGENTS §3c/§8c)
+
+> **Lock:** file baru di luar zona = violation → PM veto + `seith-phase-gate` FAIL. Semua AI agent bertanggung jawab penuh atas `code / logic / testing / structure & rapih` (§8c: `fn <50 file 200-400 nesting ≤4 no dead code no unwrap no silent swallow`).
+
+```
+SEITH-MARKET-IDX/
+├── crates/                          # Z1 Rust workspace — fn<50 file200-400
+│   ├── seith-core/                  # domain schemas (serde+validator), normalize+cleansing, scoring 0-100, Cache trait, config
+│   ├── sectors-client/              # Sectors REST/MCP client, CompositeCache (moka L1 + SQLite L2), batch, Market Id|Sg
+│   ├── seith-api/                   # Axum handlers, repository pattern, envelope {success,data,error,pagination}
+│   └── seith-cli/                   # CLI clap: ranking | dossier | scan (envelope identik REST)
+├── apps/                            # Z2 Intelligence + Web (isolated via uv/pnpm, no PyO3)
+│   ├── kronos-sidecar/  :8001       # Kronos-base inference HTTP bridge (uv, keep nama — alias docs kronos=quant)
+│   ├── analysis/        :8002       # TradingAgents-Lite 3-agent Fund/Tech/Synth → 9router (uv, alias research lite)
+│   └── web/             :3000       # Next.js 14 App Router + Tailwind + shadcn + Zod + recharts
+├── data/ + migrations/001_cache.sql # Z3 Runtime — L2 SQLite WAL data/seith.db (gitignore, auto-create, busy_timeout 3000)
+├── tests/fixtures/                  # Z4 Fixtures SSOT — bbca-ohlcv-400.json / dbs-sg-400.json / illiquid / sector-median per market
+├── docs/ + research/ + vendor/      # Z5 Knowledge — prd/spec/api-spec/tdd-plan/adr/kronos-notes/notes 00-05 + notebook + Kronos/TradingAgents pin (ADR 0002)
+├── .handoff/phase-NN-topic/         # Z6 Governance — 1 phase = 1 folder: 00-overview.md + 01-05-*.md per task (template phase-template/)
+└── scripts/ + .opencode/ + .github/ + .githooks/  # Z7 Ops & Harness — check-9router, CI 6 contexts, PM seith-pm, skills, hooks (/.wt/ gitignore)
+    + root: Cargo.toml/lock, rustfmt.toml, clippy.toml, .python-version (3.12), .env.example, .gitignore, .gitleaks.toml, AGENTS.md, README.md, LICENSE, 2508.02739v1.pdf
+```
+
+| Zona | Path | Rule |
+|---|---|---|
+| Z1 | `crates/*` | `seith-core` tidak import `sectors-client`; delivery via `seith-api` envelope |
+| Z2 | `apps/*` | `uv` workdir isolasi: `uv sync` HARUS dari `apps/kronos-sidecar` / `apps/analysis`, bukan root — Rust ↔ Python via REST sidecar |
+| Z3 | `data/` + `migrations/` | `data/seith.db` gitignore, survives restart, `/.wt/` vs `../seith-wt/` worktree juga gitignore |
+| Z4 | `tests/fixtures/` | Fixtures SSOT — BBCA/SG/illiquid cleanse test |
+| Z5 | `docs/` + `vendor/` | Docs SSOT → code; `vendor/*` read-only pin, jangan `git pull` tanpa ADR |
+| Z6 | `.handoff/` | `phase-NN-topic/00-overview.md` wajib baca sebelum task `01-05` — ritual 3Q |
+| Z7 | `scripts/` + `.opencode/` | CI `rust/audit/python-kronos/python-analysis/web/freeze` + gitleaks + no-ai-slop Tier-1 |
+
+Cross-zona import liar → PM veto. Lihat `AGENTS.md §3c` + `docs/spec.md §7b` untuk lock lengkap.
 
 ### Market — IDX & STI
 
