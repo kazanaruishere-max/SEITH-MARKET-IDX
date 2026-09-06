@@ -4,7 +4,7 @@
 Kunci `normalize.rs` cleansing: `OHLC` wajib else `excluded`, `volume→0`, `rasio→median per market + insufficient_data`, `x/y_timestamp` derived, `lookback>512→422` — pipeline tidak crash #01-04.
 
 ## Context
-- SSOT: `AGENTS.md §6` + `spec §2 [2]` + `api-spec §5` + `tdd-plan §3-7` + `fixtures illiquid+sector-median` + `skill://seith-market-intelligence`
+- SSOT: `AGENTS.md §6 Cleansing + §6c Anti AI Slop Tier-1` + `spec §2 [2] Normalize & Cleansing Gate` + `api-spec §5 Sectors→Core mapping` + `tdd-plan §3-7 Cleansing` + `docs/notes/00-readme.md` ritual 3Q + `fixtures illiquid-ohlcv.json+sector-median.json per market` + `skill://seith-market-intelligence` + `skill://no-ai-slop`
 - Dependensi: `01` Market + `03` raw Vec<OhlcvRow>
 - Branch: `handoff/01-sectors-adapter/t1-core` (T1: `01+04`)
 
@@ -23,9 +23,10 @@ Out: Cache (`02`), fetch (`03`), envelope (`05`)
 | 04f | `normalize.rs` | `fn validate_lookback(lookback,pred_len:usize)->Result<(),ValidationError>` `>512→Err 422 max_context 512` | `520→422`, `400→ok` | `520→422` |
 | 04g | `tests` | `#[cfg(test)]` ≥7 | `illiquid excluded`, `volume 0`, `roe median`, `x/y_timestamp`, `lookback 422`, `insufficient_data` | 7 passed |
 
-## Deliverables (per Bagian)
-- 04a: `models.rs` +20 baris
-- 04b-f: `normalize.rs` 150-220 baris total, `fn <50` each, `no unwrap` `?`, `immutable` clone, `tracing::warn!` jika excluded
+## Deliverables + Acceptance (per Bagian)
+- 04a: `models.rs` +20 baris — Acceptance: `serde round-trip` Excluded/CleansedBatch
+- 04b-f: `normalize.rs` 150-220 baris total, `fn <50` each, `no unwrap` `?`, `immutable` clone, `tracing::warn!` jika excluded — Acceptance: `illiquid.json→excluded len1`, `volume null→0.0`, `520→422`
+- 04g: `tests` ≥7
 - Fixtures: `illiquid-ohlcv.json` 2 rows + `sector-median.json` `{FINANCE:{id:{roe:8.5}, sg:{roe:9.2}}}`
 - Constraint: `file 200-400`, `nesting ≤4`, `cargo fmt+clippy` clean, `♻️ Refactor:`
 
@@ -35,15 +36,30 @@ cargo fmt --check → 0
 cargo clippy -p seith-core -- -D warnings → 0
 cargo test -p seith-core -- --nocapture → ≥7 passed
 rg "unwrap\(\)" crates/seith-core/src/normalize.rs → 0
+skill://no-ai-slop detect → pass (Tier-1 warn)
+```
+
+### Accountability Block
+```
+✅ Terverifikasi: <cmd> → <output> (paste nyata)
+⚠️ Belum: Axum 422 integration (05)
+🔻 Risiko: median per market campur — deteksi: roe null Id vs Sg beda
+♻️ Refactor: extract is_missing_ohlc + sector_median map fn<50
 ```
 
 ## Peran + Skill + Sub-agent
-| Peran | Skill | Sub-agent |
-|---|---|---|
-| T1 | `seith-market-intelligence`+`tdd-workflow` | `tdd-guide` illiquid |
-| `rust-reviewer` | `code-reviewer` | `code-reviewer` |
-| `security-reviewer` | `security-review` | `security-reviewer` |
-| `refactor-cleaner` | `coding-standards` | `refactor-cleaner` |
+| Peran | Eksekutor | Skill | Sub-agent | Kapan |
+|---|---|---|---|---|
+| Lead Otak T0 | opencode sini | `seith-market-intelligence`+`verification-loop` | — | approve 04 |
+| T1 Core | sub-agent | `seith-market-intelligence`+`tdd-workflow`+`verification-loop` | `tdd-guide` | TDD illiquid fixtures |
+| Reviewer Rust | `rust-reviewer` | `code-reviewer` | `code-reviewer` | `normalize.rs` pure fn |
+| Reviewer Security | `security-reviewer` | `security-review` | `security-reviewer` | `lookback>512→422` validate |
+| PM Autonomous | `seith-pm` | `git-worktree-manager`+gate | — | **veto merge jika fail** |
+| Refactor WAJIB | `refactor-cleaner` | `coding-standards` | `refactor-cleaner` | pasca task |
+| Doc | `doc-updater` | `remember`+`handoff` | `doc-updater` | sinkron spec |
 
 ## Next Session Prompt
-`skill://seith-market-intelligence` + `handoff/01/t1-core` + `04` + 3Q: `max_context 512` + `median per market` + `x/y_timestamp`.
+`skill://seith-market-intelligence` + `handoff/01-sectors-adapter/t1-core` + `04-cleansing-gate-normalize.md` + ritual 3Q:
+1) Gate MI? Anti-crash #01-04 — pipeline tidak panic illiquid, fondasi H4.
+2) Jebakan? `max_context 512` + sector median per market #08 + `x/y_timestamp` derived.
+3) Test FAIL apa? `illiquid-ohlcv.json→excluded`, `volume null→0`, `lookback 520→422`.
