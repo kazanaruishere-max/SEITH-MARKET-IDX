@@ -1,6 +1,7 @@
 pub mod cache;
 pub mod config;
 pub mod market;
+pub mod models;
 pub mod normalize;
 pub mod redact;
 pub mod scoring;
