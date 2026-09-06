@@ -4,13 +4,13 @@
 Kunci `Market` enum `Id|Sg` (default `Id`) + strict schemas `OhlcvRow`/`Fundamentals` dengan `serde+validator deny_unknown_fields` — kontrak wire solid anti #08 median noise.
 
 ## Context
-- SSOT: `AGENTS.md §6 Contract Rules + §6c Anti AI Slop Tier-1` + `docs/spec.md §3 Domains` + `docs/api-spec.md §1 Schemas` + `docs/tdd-plan.md §3` + `docs/adr/0001` + `docs/notes/00-readme.md` ritual 3Q + `skill://seith-market-intelligence` + `skill://no-ai-slop` (Tier-1 warn H1-H4, hard fail H5)
+- SSOT: `AGENTS.md §3c Seven Zones + §6/§6c/§8c` + `docs/spec.md §3 Domains + §7b Zones` + `docs/api-spec.md §1 Schemas` + `docs/tdd-plan.md §3` + `docs/adr/0001` + `docs/notes/00-readme.md` ritual 3Q + `skill://seith-market-intelligence` + `skill://no-ai-slop` (Tier-1 warn H1-H4, hard fail H5) — 7 Zones zona 1 domain
 - Dependensi: — (task pertama, blocker semua)
 - Branch: `handoff/01-sectors-adapter` atau `handoff/01-sectors-adapter/t1-core` (T1: `01+04` core)
 
 ## Scope In / Out
-In: `seith-core/src/market.rs`, `models.rs`, `lib.rs` + tests
-Out: Cache (`02`), client (`03`), cleansing (`04`), envelope (`05`)
+In: `seith-core/src/market.rs`, `models.rs`, `lib.rs` + tests — zona 1 domain `crates/seith-core` (7 Zones §3c)
+Out: Cache (`02`), client (`03`), cleansing (`04`), envelope (`05`) — cross-zona `seith-core` ↛ `sectors-client` dilarang
 
 ## Bagian — Surgical Breakdown (WAJIB dipisah, 1 bagian = 1 fn/struct <50 baris)
 | Bag | File | Struktur / Fn | Acceptance | Test FAIL |
@@ -35,6 +35,7 @@ cargo fmt --check → 0
 cargo clippy -p seith-core -- -D warnings → 0
 cargo test -p seith-core -- --nocapture → ≥9 passed (no assertion-less)
 skill://no-ai-slop detect → pass (Tier-1 warn, banned words/patterns clean)
+refactor-cleaner scan §8c → pass (fn<50 file200-400 nesting≤4 no dead code)
 ```
 
 ### Accountability Block
@@ -54,7 +55,9 @@ skill://no-ai-slop detect → pass (Tier-1 warn, banned words/patterns clean)
 | Reviewer Rust | `rust-reviewer` | `code-reviewer` | `code-reviewer` | crate `seith-core` models |
 | Reviewer Security | `security-reviewer` | `security-review` | `security-reviewer` | validasi ticker `^[A-Z0-9]{3,6}$` + Market parse |
 | PM Autonomous | `seith-pm` | `git-worktree-manager`+gate | — | **veto merge jika gate/reviewer fail** |
-| Refactor WAJIB | `refactor-cleaner` | `coding-standards` | `refactor-cleaner` | pasca task — `fn<50 file200-400 nesting≤4` |
+| Refactor WAJIB | `refactor-cleaner` | `coding-standards` | `refactor-cleaner` | pasca task — `fn<50 file200-400 nesting≤4` + scan §8c |
+
+> §8c: semua agent bertanggung jawab penuh code/logic/testing/structure & rapih (§8c)
 
 ## Next Session Prompt
 `skill://seith-market-intelligence` + `handoff/01-sectors-adapter/t1-core` + `01-market-enum-models.md` + ritual 3Q:

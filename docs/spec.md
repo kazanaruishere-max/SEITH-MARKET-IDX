@@ -111,4 +111,16 @@ Formula: `score = 0.30*ER_norm + 0.20*(100-|Z|_norm) + 0.30*QV + 0.20*SM`, clamp
 
 ## 7. Handoff Slice (Founder Model)
 
-H1 Sectors Adapter+Cache (Rust CompositeCache + Market enum) → H2 Kronos Service (sidecar :8001 + bridge) → H3 Agents Surgery (Lite → 9router :20128) → H4 Scoring/Ranking (Rust) → H5 Hybrid Delivery (Rust API + seith-cli + FE + Dossier PDF, market flag) → H6 Freeze Kit (repo public, teaser 1m + judging 3m CLI+Web, freeze). Tiap handoff = branch `handoff/NN-topic` + doc `.handoff/handoff-NN-topic.md` + wajib `skill://seith-market-intelligence` + `verification-loop`.
+H1 Sectors Adapter+Cache (Rust CompositeCache + Market enum) → H2 Kronos Service (sidecar :8001 + bridge) → H3 Agents Surgery (Lite → 9router :20128) → H4 Scoring/Ranking (Rust) → H5 Hybrid Delivery (Rust API + seith-cli + FE + Dossier PDF, market flag) → H6 Freeze Kit (repo public, teaser 1m + judging 3m CLI+Web, freeze). Tiap handoff = branch `handoff/NN-topic` + doc `.handoff/phase-NN-topic/00-overview.md` (7 Zones §3c, §8c ownership) + wajib `skill://seith-market-intelligence` + `verification-loop`.
+
+### 7b. Seven Zones (terkunci — lihat AGENTS.md §3c/§8c)
+
+1. `crates/{seith-core,sectors-client,seith-api,seith-cli}` — Rust workspace (`fn <50 file 200-400`, `seith-core` tidak import `sectors-client`)
+2. `apps/{kronos-sidecar,analysis,web}` — Sidecars `uv` :8001/:8002 + Web `pnpm` :3000 (keep nama existing, alias docs `kronos=quant`, `analysis=research lite`)
+3. `data/` + `migrations/001_cache.sql` — L2 WAL `data/seith.db` gitignore `busy_timeout 3000`
+4. `tests/fixtures/` — BBCA/SG/illiquid/sector-median per market (fixtures SSOT)
+5. `docs/` + `research/` + `vendor/` — Knowledge SSOT + pin read-only (ADR 0002)
+6. `.handoff/phase-NN-topic/` — Governance (`00-overview.md` + `01-05-*.md`, `phase-template/`)
+7. `scripts/` + `.opencode/` + `.github/` + `.githooks/` — Ops & Harness (CI 6 contexts, PM `seith-pm`, skills, hooks `/.wt/` ignore)
+
+Cross-zona import liar = violation → PM veto + `seith-phase-gate` FAIL. Semua AI agent bertanggung jawab penuh atas `code/logic/testing/structure & rapih` (AGENTS §8c).

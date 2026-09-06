@@ -4,13 +4,13 @@
 Kunci `Envelope<T> {success,data,error,pagination}` + `Repository` WAL + `GET /health` + `?market` `422` + `X-Schema-Version` — fondasi verifiable hybrid REST↔CLI tanpa drift #10.
 
 ## Context
-- SSOT: `AGENTS.md §6 envelope + §6c Anti AI Slop Tier-1 + §7 DoD` + `spec §2 [8] Hybrid Delivery` + `api-spec §1-3 Schemas+Envelope+Market param` + `adr 0002 SCHEMA_VERSION` + `tdd-plan §4-6 Layers Integration` + `docs/notes/00-readme.md` ritual 3Q + `skill://seith-market-intelligence` + `skill://no-ai-slop` + `verification-loop`
+- SSOT: `AGENTS.md §3c Seven Zones + §6 envelope + §6c Anti AI Slop + §8c Agent Ownership` + `spec §2 [8] Hybrid Delivery + §7b Zones` + `api-spec §1-3 Schemas+Envelope+Market param` + `adr 0002 SCHEMA_VERSION` + `tdd-plan §4-6 Layers Integration` + `docs/notes/00-readme.md` ritual 3Q + `skill://seith-market-intelligence` + `skill://no-ai-slop` + `verification-loop`
 - Dependensi: `01` Market + `02` Cache + `03` Client + `04` Cleansing — closing phase, merge T1+T2 dulu
 - Branch: `handoff/01-sectors-adapter` parent (05 di parent setelah T1+T2 merge)
 
 ## Scope In / Out
-In: `seith-api/envelope.rs`, `repository.rs`, `lib.rs` (+ `handlers.rs`), `seith-core/config+redact` polish
-Out: scoring H4, Kronos H2, Agents H3, seith-cli full H5, FE H5
+In: zona 1 delivery `seith-api/envelope.rs, repository.rs, lib.rs, handlers.rs` + zona 1 `seith-core/config+redact` polish (7 Zones §3c)
+Out: scoring H4 (zona 1), Kronos H2 (zona 2 `apps/kronos-sidecar`), Agents H3 (zona 2 `apps/analysis`), `seith-cli` full H5 + `apps/web` FE H5 (zona 1+2) — cross-zona import dilarang §3c
 
 ## Bagian — Surgical Breakdown
 | Bag | File | Struktur / Fn | Acceptance | Test FAIL |
@@ -29,7 +29,7 @@ Out: scoring H4, Kronos H2, Agents H3, seith-cli full H5, FE H5
 - 05c: `lib.rs` 60-90 baris — Acceptance: `router health 200` + `X-Schema-Version`
 - 05d: `handlers.rs` 60-90 baris guard `lookback>512→422` + `?market` `422` — Acceptance: `sg 200 xx 422`
 - 05e-g: `verify + tests + contract` stub
-- Constraint: `fn <50`, `file 200-400`, `nesting ≤4`, `no unwrap` `?`, `cargo fmt+clippy` clean, `♻️ Refactor:`
+- Constraint: `fn <50`, `file 200-400`, `nesting ≤4`, `no unwrap` `?`, `cargo fmt+clippy` clean, 7 Zones `seith-api` zona 1 + `data/` zona 3, `♻️ Refactor:` — §8c
 
 ## Verification
 ```
@@ -37,7 +37,8 @@ cargo fmt --check → 0
 cargo clippy -p seith-core -p seith-api -p sectors-client -- -D warnings → 0
 cargo test -p seith-api -- --nocapture → ≥4 passed
 cargo test -- --nocapture → pass
-sqlite3 data/seith.db "SELECT name FROM sqlite_master WHERE type='table';" → ohlcv fundamentals ranking_cache
+sqlite3 data/seith.db "SELECT name FROM sqlite_master WHERE type='table';" → ohlcv fundamentals ranking_cache (zona 3)
+refactor-cleaner scan §8c → fn<50 file200-400 nesting≤4 pass
 skill://no-ai-slop detect → pass (Tier-1 warn)
 ```
 
@@ -56,7 +57,10 @@ skill://no-ai-slop detect → pass (Tier-1 warn)
 | PM Autonomous | `seith-pm` | `git-worktree-manager`+gate `fmt/clippy/test` | — | merge `t1-core`+`t2-cache`→parent → PR, **veto jika gate fail** |
 | Reviewer Rust | `rust-reviewer` | `code-reviewer` | `code-reviewer` | `seith-api` envelope+handlers |
 | Reviewer Security | `security-reviewer` | `security-review` | `security-reviewer` | market `422` + `redact` no leak |
-| Refactor WAJIB | `refactor-cleaner` | `coding-standards` | `refactor-cleaner` | pasca phase — `fn<50 file200-400` |
+| Refactor WAJIB | `refactor-cleaner` | `coding-standards` | `refactor-cleaner` | pasca phase — `fn<50 file200-400` §8c |
+| Doc + Handoff | `doc-updater` | `remember`+`handoff` | `doc-updater` | sinkron `api-spec §1-3` + tdd-plan — 7 Zones |
+
+> §8c Ownership: semua agent bertanggung jawab penuh `code/logic/testing/structure & rapih` — `fn<50 file200-400` + 7 Zones; PM veto jika tidak rapih
 | Desainer Test | `tdd-guide` | `tdd-guide` | `tdd-guide` | `axum-test` matrix + fixtures |
 | Doc + Handoff | `doc-updater` | `remember`+`handoff` | `doc-updater` | sinkron `api-spec §1-3` + tdd-plan |
 | Arsitek | `architect` | `senior-architect` | `architect` | review `envelope.rs` + `handlers.rs` |

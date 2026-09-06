@@ -3,8 +3,8 @@
 .env
 data/seith.db
 data/seith.db-*
-apps/kronos-sidecar/.venv/
-apps/analysis/.venv/
+/.wt/
+_test_out.txt
 apps/web/.next/
 apps/web/node_modules/
 .DS_Store

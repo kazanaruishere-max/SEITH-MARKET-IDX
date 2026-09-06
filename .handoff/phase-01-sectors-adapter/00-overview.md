@@ -4,7 +4,7 @@
 Kunci fondasi Phase 1: Sectors batch + CompositeCache L1→L2→Sectors + Market enum Id|Sg + cleansing gate (OHLC wajib exclude, volume→0, rasio→median+insufficient_data, lookback>512→422) + envelope — pipeline tidak crash di illiquid, cache >80% hit, offline demo survive restart tanpa paid Redis.
 
 ## Context
-- SSOT: `AGENTS.md §2-6c, §8b` + `docs/prd.md §5-6 Pipeline [1]-[2]` + `docs/spec.md §2-5 Domains+DataFlow` + `docs/api-spec.md §1-4 Schemas+Cache` + `docs/tdd-plan.md §2-7 Critical Paths 3` + `docs/kronos-notes.md` `max_context 512` + `docs/notes/00-readme.md` ritual 3Q + `docs/adr/0001-stack 0002-wire` + `migrations/001_cache.sql`
+- SSOT: `AGENTS.md §2-6c, §3c Seven Zones, §8b Branch, §8c Agent Ownership` + `docs/prd.md §5-6 Pipeline [1]-[2]` + `docs/spec.md §2-5 Domains+DataFlow + §7b Zones` + `docs/api-spec.md §1-4 Schemas+Cache` + `docs/tdd-plan.md §2-7 Critical Paths 3` + `docs/kronos-notes.md` `max_context 512` + `docs/notes/00-readme.md` ritual 3Q + `docs/adr/0001-stack 0002-wire` + `migrations/001_cache.sql` + 7 Zones
 - Skill wajib tiap session T1/T2: `skill://seith-market-intelligence` (awal) + `skill://tdd-workflow` + `skill://verification-loop` (akhir) + `skill://no-ai-slop` Tier-1 prose check
 - Branch: `handoff/01-sectors-adapter` (flat, AGENTS §8b) — docs folder: `.handoff/phase-01-sectors-adapter/` (1 fase = 1 folder, 5 tasks). Template: `.handoff/phase-template/00-overview.md`
 - Market: `enum Market {Id, Sg}` default `Id` — STI stretch H5 tidak default, hemat 1000 credits, cegah median noise (AGENTS §2, prd §9, ADR 0001)
@@ -13,8 +13,8 @@ Kunci fondasi Phase 1: Sectors batch + CompositeCache L1→L2→Sectors + Market
 - Fixtures ready: `tests/fixtures/bbca-ohlcv-400.json`, `illiquid-ohlcv.json` (volume null, ROE null, OHLC null), `dbs-sg-ohlcv-400.json`, `sector-median.json` (per market)
 
 ## Scope In / Out
-In: `crates/seith-core` (`market.rs` Market enum + `models.rs` strict serde+validator `deny_unknown_fields` + `cache.rs` trait `Cache` + `MokaCache/SqliteCache/CompositeCache` + `normalize.rs` cleansing gate + `config.rs` fail-fast + `redact.rs`), `crates/sectors-client` (REST batch client per market, retry, batch per sector, `market:sector:ticker:date` key, TTL 24h/1h, `data/seith.db` WAL `busy_timeout 3000`), `crates/seith-api` envelope `{success,data,error,pagination}` minimal + repository pattern stub, `migrations/001_cache.sql` verify, fixtures + contract tests, `seith-core→sectors-client→seith-api` dependency solid.
-Out: Kronos sidecar `:8001` + `kronos-bridge` (H2), `tradingagents-lite :8002 → 9router :20128` (H3), scoring 0-100 + ranking + anomaly flag (H4), dossier/PDF + `seith-cli` + Next.js FE + WS (H5), freeze kit video/docs (H6) — tidak disentuh Phase 1 agar fondasi tidak bocor.
+In (7 Zones — file baru di luar zona = violation PM veto): `crates/seith-core` (zona 1 domain, `market.rs` + `models.rs` + `cache.rs` + `normalize.rs` + `config.rs` + `redact.rs`), `crates/sectors-client` (zona 1 infra, `cache/{moka,sqlite,composite}.rs` + `client.rs` + `batch.rs`, key `market:sector:ticker:date`), `crates/seith-api` (zona 1 delivery, `envelope.rs` + `repository.rs` + `handlers.rs`), `data/` + `migrations/001_cache.sql` (zona 3 WAL `busy_timeout 3000`), `tests/fixtures/` (zona 4), `docs/` (zona 5 SSOT), `.handoff/phase-01-sectors-adapter/` (zona 6)
+Out: `apps/kronos-sidecar` `:8001` + `kronos-bridge` (H2, zona 2), `apps/analysis` `:8002 → 9router` (H3, zona 2), scoring 0-100 + ranking + anomaly flag (H4, zona 1), dossier/PDF + `seith-cli` + `apps/web` (H5, zona 1+2), freeze kit (H6, zona 7) — tidak disentuh Phase 1 (zona terpisah, §3c). Keep nama `apps/kronos-sidecar` + `apps/analysis` (hindari break uv workdir).
 
 ## WBS — Task Breakdown (1 task = 1 file, surgical slice)
 | # | Task file | Slice | Deliverable inti | Dependensi |
@@ -28,16 +28,17 @@ Out: Kronos sidecar `:8001` + `kronos-bridge` (H2), `tradingagents-lite :8002 �
 Dependensi antar-fase: **H1 (fondasi cache+models+cleansing) → H2 (Kronos sidecar :8001, bridge butuh Ohlcv clean + `lookback≤512` guard) → H3 (Agents Lite :8002→9router, gunakan ranking) → H4 (Scoring 0-100, rank, flag `|Z|>2`, butuh ER dari Kronos + QV dari fundamentals) → H5 (Hybrid `seith-cli` + Axum `/api/v1/*` + FE Bloomberg + dossier PDF, pakai `?market` param) → H6 (Freeze kit)**. Debt H1 (skip `Cache` trait / market key / cleansing) meledak di H4/H5 — Boy Scout Rule §5b wajib.
 
 ## Definition of Done — Phase 01
-Fase 01 done HANYA jika semua hijau (AGENTS §7 + §5b + §6c):
-1. `cargo fmt --check` bersih per crate (`seith-core`, `sectors-client`, `seith-api`)
-2. `cargo clippy -- -D warnings` bersih per crate — no `unwrap` di cleansing, no dead code
-3. `cargo test -- --nocapture` pass — assertion meaningful (no assertion-less), coverage meaningful critical path `adapter+cleansing+CompositeCache+market` ≥80% meaningful
-4. Per task `fn <50 baris`, `file 200-400 baris typical max 800`, `nesting ≤4`, `no dead code`, `no silent swallow`, `immutable return` — `refactor-cleaner` scan pass + `♻️ Refactor: <apa>` per task di Accountability Block
-5. Dual-review pass: `rust-reviewer` (`code-reviewer`) + `security-reviewer` (`security-review`) paralel — cek `1-6` + `6-8` anti-pattern #01-#10
-6. `seith-phase-gate` + `verification-loop` pass (paste output nyata, no fabrikasi)
-7. Docs sinkron: `docs/spec.md §5`, `docs/api-spec.md §4`, `docs/tdd-plan.md §3` + ADR jika keputusan — `doc-updater` cek drift
-8. Anti-slop Tier-1 warn: `skill://no-ai-slop` detect pass untuk prose handoff/docs (H5 hard fail nanti) — checklist PR
-9. Accountability Block per task: `✅ Terverifikasi: <cmd> → <output> / ⚠️ Belum / 🔻 Risiko / ♻️ Refactor:`
+Fase 01 done HANYA jika semua hijau (AGENTS §7 + §5b + §6c + §8c + §3c):
+1. `cargo fmt --check` bersih per crate (`seith-core`, `sectors-client`, `seith-api`) — zona 1
+2. `cargo clippy -- -D warnings` bersih per crate — no `unwrap` di cleansing, no dead code — §8c
+3. `cargo test -- --nocapture` pass — assertion meaningful (no assertion-less), critical path `adapter+cleansing+CompositeCache+market` ≥80% meaningful — §8c Testing
+4. Per task `fn <50 baris`, `file 200-400 typical max 800`, `nesting ≤4`, `no dead code`, `no silent swallow`, `immutable return` + **7 Zones §3c** — `refactor-cleaner` scan pass + `♻️ Refactor: <apa>` per task di Accountability Block — §8c Structure & Rapih
+5. Dual-review pass: `rust-reviewer` (`code-reviewer`) + `security-reviewer` (`security-review`) paralel — cek `1-6` + `6-8` anti-pattern #01-#10 — §8c Logic
+6. `seith-phase-gate` + `verification-loop` pass (paste output nyata, no fabrikasi) + `gitleaks` no leak — §8c
+7. Docs sinkron: `docs/spec.md §5+§7b`, `docs/api-spec.md §4`, `docs/tdd-plan.md §3` + `AGENTS §3c` + ADR jika keputusan — `doc-updater` cek drift — 7 Zones map
+8. Anti-slop Tier-1 warn: `skill://no-ai-slop` detect pass untuk prose handoff/docs (H5 hard fail nanti) — checklist PR — §6c + §8c
+9. Accountability Block per task: `✅ Terverifikasi: <cmd> → <output> / ⚠️ Belum / 🔻 Risiko / ♻️ Refactor:` + **semua AI agent bertanggung jawab penuh atas `code/logic/testing/structure & rapih` (§8c)** — PM veto jika tidak rapih
+10. File baru WAJIB di zona benar (1-7 §3c) — cross-zona import liar = violation → PM veto + gate FAIL
 
 ## Peran + Skill + Sub-agent Matrix (Wajib — AGENTS §8)
 | Peran | Eksekutor | Skill WAJIB | Sub-agent | Kapan — Phase 01 |
@@ -55,13 +56,13 @@ Fase 01 done HANYA jika semua hijau (AGENTS §7 + §5b + §6c):
 | **Doc + Handoff** | `doc-updater` | `remember` + `handoff` | `doc-updater` | sinkron `prd/spec/api-spec/tdd-plan/adr` tiap merge phase, memory penting |
 | Review diff besar | `code-review` | — | `code-review` | batch commit besar / pra-merge ke main |
 
-## Branch & Worktree (AGENTS §8b — Fondasi Solid)
-- Branch flat: `handoff/01-sectors-adapter` (dari `main`) — `git worktree add ../seith-wt/handoff-01 -b handoff/01-sectors-adapter`
-- Paralel opsional T1/T2 (file beda, tidak tabrak `target/`/`data/seith.db`):
-  - `T1: 01-market + 04-cleansing` (`seith-core/src/market.rs, models.rs, normalize.rs`) → `handoff/01-sectors-adapter/t1-core`
-  - `T2: 02-cache + 03-client` (`sectors-client/src/cache/*, client.rs`) → `handoff/01-sectors-adapter/t2-cache`
-  - Lifecycle: `git worktree add ../seith-wt/handoff-01-t1 -b handoff/01-sectors-adapter/t1-core` (paralel) → TDD red-green → `cargo fmt --check && cargo clippy -- -D warnings && cargo test` → dual-review `rust-reviewer ∥ security-reviewer` → PR ke parent `handoff/01` → `code-reviewer` → squash-merge → hapus worktree → parent → PR ke `main` → `seith-phase-gate` → Lead squash-merge → hapus worktree
-- Tiap session T1/T2 wajib `skill://seith-market-intelligence` di awal + baca `docs/notes/00-readme.md` ritual 3Q; tiap commit `type: desc` (`feat/fix/test/chore/docs`) + Accountability Block + `♻️ Refactor:`
+## Branch & Worktree (AGENTS §8b + §3c + §8c — Fondasi Solid)
+- Branch flat: `handoff/01-sectors-adapter` (dari `main`) — `git worktree add ../seith-wt/handoff-01 -b handoff/01-sectors-adapter` — `/.wt/` gitignore (AGENTS §8b)
+- Paralel opsional T1/T2 (file beda, 7 Zones terpisah, tidak tabrak `target/`/`data/seith.db`):
+  - `T1: 01-market + 04-cleansing` (zona 1 `seith-core/src/market.rs, models.rs, normalize.rs`) → `handoff/01-sectors-adapter/t1-core`
+  - `T2: 02-cache + 03-client` (zona 1 `sectors-client/src/cache/*, client.rs` + zona 3 `migrations/001_cache.sql`) → `handoff/01-sectors-adapter/t2-cache`
+  - Lifecycle: `git worktree add ../seith-wt/handoff-01-t1 -b handoff/01-sectors-adapter/t1-core` (paralel) → TDD red-green → `cargo fmt --check && cargo clippy -- -D warnings && cargo test` → `refactor-cleaner` §8c → dual-review `rust-reviewer ∥ security-reviewer` → PR ke parent `handoff/01` → `code-reviewer` → squash-merge → hapus worktree → parent → PR ke `main` → `seith-phase-gate` (§8c) → Lead squash-merge → hapus worktree
+- Tiap session T1/T2 wajib `skill://seith-market-intelligence` di awal + baca `docs/notes/00-readme.md` ritual 3Q + **semua AI agent bertanggung jawab penuh atas `code/logic/testing/structure & rapih` (§8c)**; tiap commit `type: desc` (`feat/fix/test/chore/docs`) + Accountability Block `✅/⚠️/🔻/♻️` + 7 Zones-aware
 
 ## Verification — Phase 01 (paste output nyata, no fabrikasi)
 ```
