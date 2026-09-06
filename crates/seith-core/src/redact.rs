@@ -1,3 +1,27 @@
+use std::ops::Deref;
+
+#[derive(Clone)]
+pub struct Redacted(pub String);
+
+impl Deref for Redacted {
+    type Target = String;
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl std::fmt::Debug for Redacted {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "***")
+    }
+}
+
+impl std::fmt::Display for Redacted {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "***")
+    }
+}
+
 pub fn redact(s: &str) -> String {
     if s.len() <= 4 {
         "***".to_string()
@@ -18,13 +42,4 @@ pub fn sanitize_error(msg: &str) -> String {
         }
     }
     out
-}
-
-#[derive(Debug, Clone)]
-pub struct Redacted<T>(pub T);
-
-impl<T: std::fmt::Display> std::fmt::Display for Redacted<T> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "***")
-    }
 }

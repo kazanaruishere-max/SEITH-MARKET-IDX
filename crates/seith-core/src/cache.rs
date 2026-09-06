@@ -11,17 +11,18 @@ where
     K: Hash + Eq + Send + Sync + 'static,
     V: Clone + Send + Sync + 'static;
 
-pub struct SqliteCache {
-    pub path: String,
-}
-
-pub struct CompositeCache<K, V>
+impl<K, V> MokaCache<K, V>
 where
     K: Hash + Eq + Send + Sync + 'static,
     V: Clone + Send + Sync + 'static,
 {
-    pub l1: MokaCache<K, V>,
-    pub l2: SqliteCache,
+    pub fn new(max_capacity: u64) -> Self {
+        Self(
+            moka::sync::Cache::builder()
+                .max_capacity(max_capacity)
+                .build(),
+        )
+    }
 }
 
 impl<K, V> Cache<K, V> for MokaCache<K, V>
@@ -37,5 +38,31 @@ where
     }
     fn invalidate(&self, key: &K) {
         self.0.invalidate(key);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn moka_round_trip() {
+        let c: MokaCache<String, String> = MokaCache::new(100);
+        c.set("k".to_string(), "v".to_string());
+        assert_eq!(c.get(&"k".to_string()), Some("v".to_string()));
+    }
+
+    #[test]
+    fn moka_missing_none() {
+        let c: MokaCache<String, String> = MokaCache::new(100);
+        assert_eq!(c.get(&"nope".to_string()), None);
+    }
+
+    #[test]
+    fn moka_invalidate() {
+        let c: MokaCache<String, String> = MokaCache::new(100);
+        c.set("k".to_string(), "v".to_string());
+        c.invalidate(&"k".to_string());
+        assert_eq!(c.get(&"k".to_string()), None);
     }
 }
