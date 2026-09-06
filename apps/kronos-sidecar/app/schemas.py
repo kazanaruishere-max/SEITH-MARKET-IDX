@@ -35,6 +35,10 @@ class PredictRequest(BaseModel):
             raise ValueError("df must not be empty")
         if len(self.df) + self.pred_len > 512:
             raise ValueError("max_context 512")
+        if len(self.x_timestamp) != len(self.df):
+            raise ValueError("equal lookback")
+        if len(self.y_timestamp) != self.pred_len:
+            raise ValueError("equal lookback")
         return self
 
 
@@ -64,4 +68,9 @@ class PredictBatchRequest(BaseModel):
             raise ValueError("equal lookback")
         if len(self.y_timestamps) != len(self.dfs):
             raise ValueError("equal lookback")
+        for i, df in enumerate(self.dfs):
+            if len(self.x_timestamps[i]) != len(df):
+                raise ValueError("equal lookback")
+            if len(self.y_timestamps[i]) != self.pred_len:
+                raise ValueError("equal lookback")
         return self

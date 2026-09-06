@@ -123,7 +123,7 @@ fn validate_predict(input: &PredictInput) -> Result<(), KronosError> {
     if input.df.len() != input.x_timestamp.len() {
         return Err(KronosError::Validation("equal lookback".to_string()));
     }
-    if input.df.len() != input.y_timestamp.len() {
+    if input.y_timestamp.len() != input.pred_len as usize {
         return Err(KronosError::Validation("equal lookback".to_string()));
     }
     Ok(())
@@ -153,6 +153,14 @@ fn validate_batch(input: &PredictBatchInput) -> Result<(), KronosError> {
     }
     if input.y_timestamps.len() != input.dfs.len() {
         return Err(KronosError::Validation("equal lookback".to_string()));
+    }
+    for (i, df) in input.dfs.iter().enumerate() {
+        if input.x_timestamps[i].len() != df.len() {
+            return Err(KronosError::Validation("equal lookback".to_string()));
+        }
+        if input.y_timestamps[i].len() != input.pred_len as usize {
+            return Err(KronosError::Validation("equal lookback".to_string()));
+        }
     }
     Ok(())
 }
@@ -324,7 +332,7 @@ mod tests {
             market: Market::Id,
             dfs: vec![rows],
             x_timestamps: ts(1, 500),
-            y_timestamps: ts(1, 500),
+            y_timestamps: ts(1, 20),
             pred_len: 20,
             t: 1.0,
             top_p: 0.9,
@@ -342,7 +350,7 @@ mod tests {
             market: Market::Id,
             dfs: vec![a, b],
             x_timestamps: vec![vec![1; 400], vec![1; 400]],
-            y_timestamps: vec![vec![1; 400], vec![1; 400]],
+            y_timestamps: vec![vec![1; 20], vec![1; 20]],
             pred_len: 20,
             t: 1.0,
             top_p: 0.9,
@@ -366,7 +374,7 @@ mod tests {
             market: Market::Id,
             dfs: vec![rows],
             x_timestamps: ts(1, 400),
-            y_timestamps: ts(1, 400),
+            y_timestamps: ts(1, 20),
             pred_len: 20,
             t: 1.0,
             top_p: 0.9,
@@ -391,7 +399,7 @@ mod tests {
             market: Market::Sg,
             dfs: vec![rows],
             x_timestamps: ts(1, 400),
-            y_timestamps: ts(1, 400),
+            y_timestamps: ts(1, 20),
             pred_len: 20,
             t: 1.0,
             top_p: 0.9,
@@ -413,7 +421,7 @@ mod tests {
             market: Market::Id,
             dfs: vec![rows],
             x_timestamps: ts(1, 400),
-            y_timestamps: ts(1, 400),
+            y_timestamps: ts(1, 20),
             pred_len: 20,
             t: 1.0,
             top_p: 0.9,
@@ -439,7 +447,7 @@ mod tests {
             market: Market::Id,
             dfs: vec![rows],
             x_timestamps: ts(1, 400),
-            y_timestamps: ts(1, 400),
+            y_timestamps: ts(1, 20),
             pred_len: 20,
             t: 1.0,
             top_p: 0.9,
@@ -456,7 +464,7 @@ mod tests {
             market: Market::Id,
             dfs: vec![rows],
             x_timestamps: ts(1, 400),
-            y_timestamps: ts(1, 400),
+            y_timestamps: ts(1, 20),
             pred_len: 20,
             t: 1.0,
             top_p: 0.9,
