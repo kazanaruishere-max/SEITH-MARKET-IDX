@@ -4,13 +4,13 @@
 Kunci `normalize.rs` cleansing: `OHLC` wajib else `excluded`, `volume→0`, `rasio→median per market + insufficient_data`, `x/y_timestamp` derived, `lookback>512→422` — pipeline tidak crash #01-04.
 
 ## Context
-- SSOT: `AGENTS.md §6 Cleansing + §6c Anti AI Slop Tier-1` + `spec §2 [2] Normalize & Cleansing Gate` + `api-spec §5 Sectors→Core mapping` + `tdd-plan §3-7 Cleansing` + `docs/notes/00-readme.md` ritual 3Q + `fixtures illiquid-ohlcv.json+sector-median.json per market` + `skill://seith-market-intelligence` + `skill://no-ai-slop`
+- SSOT: `AGENTS.md §3c Seven Zones + §6 Cleansing + §6c Anti AI Slop + §8c Agent Ownership` + `spec §2 [2] Normalize & Cleansing Gate + §7b Zones` + `api-spec §5 Sectors→Core mapping` + `tdd-plan §3-7 Cleansing` + `docs/notes/00-readme.md` ritual 3Q + `fixtures illiquid-ohlcv.json+sector-median.json per market` + `skill://seith-market-intelligence` + `skill://no-ai-slop`
 - Dependensi: `01` Market + `03` raw Vec<OhlcvRow>
 - Branch: `handoff/01-sectors-adapter/t1-core` (T1: `01+04`)
 
 ## Scope In / Out
-In: `seith-core/normalize.rs`, `models.rs` tambahan `Excluded/CleansedBatch/SectorMedian`
-Out: Cache (`02`), fetch (`03`), envelope (`05`)
+In: `seith-core/normalize.rs`, `models.rs` tambahan `Excluded/CleansedBatch/SectorMedian` — zona 1 domain (pure fn, no IO, §3c)
+Out: Cache (`02`, zona 1 infra + zona 3 `data/`), fetch (`03`, zona 1), envelope (`05`, zona 1 delivery) — cross-zona import dilarang §3c
 
 ## Bagian — Surgical Breakdown
 | Bag | File | Struktur / Fn | Acceptance | Test FAIL |
@@ -24,11 +24,11 @@ Out: Cache (`02`), fetch (`03`), envelope (`05`)
 | 04g | `tests` | `#[cfg(test)]` ≥7 | `illiquid excluded`, `volume 0`, `roe median`, `x/y_timestamp`, `lookback 422`, `insufficient_data` | 7 passed |
 
 ## Deliverables + Acceptance (per Bagian)
-- 04a: `models.rs` +20 baris — Acceptance: `serde round-trip` Excluded/CleansedBatch
+- 04a: `models.rs` +20 baris — Acceptance: `serde round-trip` Excluded/CleansedBatch — zona 1 domain
 - 04b-f: `normalize.rs` 150-220 baris total, `fn <50` each, `no unwrap` `?`, `immutable` clone, `tracing::warn!` jika excluded — Acceptance: `illiquid.json→excluded len1`, `volume null→0.0`, `520→422`
 - 04g: `tests` ≥7
-- Fixtures: `illiquid-ohlcv.json` 2 rows + `sector-median.json` `{FINANCE:{id:{roe:8.5}, sg:{roe:9.2}}}`
-- Constraint: `file 200-400`, `nesting ≤4`, `cargo fmt+clippy` clean, `♻️ Refactor:`
+- Fixtures: `illiquid-ohlcv.json` 2 rows + `sector-median.json` `{FINANCE:{id:{roe:8.5}, sg:{roe:9.2}}}` — zona 4 `tests/fixtures/`
+- Constraint: `file 200-400`, `nesting ≤4`, `no unwrap` `?`, `cargo fmt+clippy` clean, 7 Zones `crates/seith-core` zona 1, `♻️ Refactor:` — §8c
 
 ## Verification
 ```
@@ -36,6 +36,7 @@ cargo fmt --check → 0
 cargo clippy -p seith-core -- -D warnings → 0
 cargo test -p seith-core -- --nocapture → ≥7 passed
 rg "unwrap\(\)" crates/seith-core/src/normalize.rs → 0
+refactor-cleaner scan §8c → fn<50 file200-400 nesting≤4 pass
 skill://no-ai-slop detect → pass (Tier-1 warn)
 ```
 
@@ -55,8 +56,10 @@ skill://no-ai-slop detect → pass (Tier-1 warn)
 | Reviewer Rust | `rust-reviewer` | `code-reviewer` | `code-reviewer` | `normalize.rs` pure fn |
 | Reviewer Security | `security-reviewer` | `security-review` | `security-reviewer` | `lookback>512→422` validate |
 | PM Autonomous | `seith-pm` | `git-worktree-manager`+gate | — | **veto merge jika fail** |
-| Refactor WAJIB | `refactor-cleaner` | `coding-standards` | `refactor-cleaner` | pasca task |
-| Doc | `doc-updater` | `remember`+`handoff` | `doc-updater` | sinkron spec |
+| Refactor WAJIB | `refactor-cleaner` | `coding-standards` | `refactor-cleaner` | pasca task — `fn<50 file200-400` §8c |
+| Doc | `doc-updater` | `remember`+`handoff` | `doc-updater` | sinkron spec §7b — 7 Zones |
+
+> §8c Ownership: semua agent bertanggung jawab penuh `code/logic/testing/structure & rapih` — `fn<50 file200-400` + 7 Zones; PM veto jika tidak rapih
 
 ## Next Session Prompt
 `skill://seith-market-intelligence` + `handoff/01-sectors-adapter/t1-core` + `04-cleansing-gate-normalize.md` + ritual 3Q:

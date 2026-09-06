@@ -60,8 +60,8 @@ Sectors REST/MCP (1000 credits, CompositeCache, batch) ─┐
 | Path | Isi | Env |
 |---|---|---|
 | `crates/seith-core` | Domain schemas (serde+validator), normalize+cleansing, scoring 0-100, `Cache` trait, config | Rust workspace |
-| `crates/seith-api` | Axum handlers, repository pattern, envelope | Rust workspace |
 | `crates/sectors-client` | Sectors REST/MCP client, CompositeCache (moka L1 + SQLite L2 `data/seith.db`), batch, `Market` enum Id/Sg | Rust workspace |
+| `crates/seith-api` | Axum handlers, repository pattern, envelope | Rust workspace |
 | `crates/seith-cli` | CLI hybrid (`clap`): `ranking`, `dossier`, `scan` | Rust workspace |
 | `apps/kronos-sidecar` | Kronos-base inference HTTP bridge `:8001` | `apps/kronos-sidecar/.venv` (uv) |
 | `apps/analysis` | TradingAgents-Lite (copy workflow, Fund/Tech/Synth `:8002` → 9router) | `apps/analysis/.venv` (uv) |
@@ -71,6 +71,20 @@ Sectors REST/MCP (1000 credits, CompositeCache, batch) ─┐
 | `docs/` | prd/spec/api-spec/tdd-plan + adr | - |
 | `research/` | Notebook eksperimen | - |
 | `.handoff/` | Handoff docs per session | - |
+
+### 3c. Seven Zones — Struktur Folder Lock (WAJIB rapih, §8c)
+
+Struktur root terkunci 7 zona — file baru di luar zona = violation → PM veto:
+
+1. `crates/{seith-core,sectors-client,seith-api,seith-cli}` — Rust workspace (domain/infra/delivery, `fn <50 file 200-400`)
+2. `apps/{kronos-sidecar,analysis,web}` — Intelligence sidecars (`uv` :8001/:8002) + Web (`pnpm` :3000), keep nama existing (hindari break `uv` workdir), alias docs `kronos=quant`, `analysis=research lite`
+3. `data/` + `migrations/001_cache.sql` — Runtime L2 SQLite WAL (`data/seith.db` gitignore, auto-create, `busy_timeout 3000`)
+4. `tests/fixtures/` — BBCA/SG/illiquid/sector-median per market (fixtures SSOT)
+5. `docs/` + `research/` + `vendor/` — Knowledge SSOT (prd/spec/api-spec/tdd-plan/adr) + notebook + pin read-only
+6. `.handoff/phase-NN-topic/` — Governance (1 fase=1 folder, `00-overview.md` + `01-05-*.md` per task, template `phase-template/`)
+7. `scripts/` + `.opencode/` + `.github/` + `.githooks/` — Ops & Harness (check-9router, CI 6 contexts, PM `seith-pm`, skills)
+
+Cross-zona import liar dilarang: `seith-core` tidak import `sectors-client`; `apps/*` tidak import `crates/*` langsung selain via `seith-api` envelope.
 
 ### 3b. Tech Stack & Framework (locked)
 
@@ -255,6 +269,18 @@ chore/docs/fix/* (hanya jika di luar handoff, tetap via PR)
 - **Commit:** `type: desc` (feat/fix/test/chore/docs), no `push --force` ke `main`/`handoff/*`, rebase before merge, Accountability Block tiap task ubah file.
 - **Lifecycle:** `git worktree add ../seith-wt/handoff-NN -b handoff/NN-topic` → implement (TDD) → `cargo fmt --check && cargo clippy -- -D warnings && cargo test` (+ `uv run pytest` jika sidecar) → dual-review → Lead squash-merge ke `main` → hapus worktree/branch.
 - **Skill:** `git-worktree-manager` untuk orkestrasi worktree; setiap session eksekutor wajib `skill://seith-market-intelligence` di awal agar 1 tujuan. Doc phase-folder `00-overview.md` wajib baca sebelum task `01-05`.
+- **Worktree gitignore:** `/.wt/` wajib di `.gitignore` (worktree di `../seith-wt/handoff-NN-*` atau `/.wt/`). `_test_out.txt` juga ignore.
+
+### 8c. Agent Code Ownership — Semua AI Agent Bertanggung Jawab Penuh (WAJIB Terstruktur & Rapih)
+
+Setiap AI agent (T0/T1/T2 + `seith-pm` + `architect/planner/tdd-guide/code-reviewer/security-reviewer/refactor-cleaner/doc-updater`) **BERTANGGUNG JAWAB PENUH** atas:
+
+1. **Code** — `fn <50 baris`, `file 200-400 typical max 800`, `nesting ≤4`, `no dead code`, `no silent swallow`, `no unwrap` (use `Result`/`?`), `no duplication`, `immutable return` (clone, bukan mutate). Cross-zona import dilarang (§3c).
+2. **Logic** — correctness sesuai `docs/prd/spec/api-spec/tdd-plan + adr + notes 00-05`; `deny_unknown_fields`, `DateTime<Utc>` aware, `Market` default `Id`, `cache_key market:sector:ticker:date`, cleansing gate `OHLC→excluded/volume→0/median→insufficient_data/lookback>512→422`; tidak tebak — baca SSOT dulu.
+3. **Testing** — TDD red→green→refactor; `cargo test` + `uv run pytest` + `pnpm test` hijau dengan assertion meaningful (bukan kosmetik); critical path `adapter/cleansing/cache/kronos-bridge/dossier` ≥80% meaningful; `mockito/wiremock/respx` untuk Sectors/Kronos/9router; `sqlite3` persist check; `Accountability Block ✅/⚠️/🔻/♻️` paste output nyata — no fabrikasi.
+4. **Structure & Rapih** — ikuti **7 Zones §3c**; file baru wajib di zona benar; `cargo fmt --check` 0 + `cargo clippy -- -D warnings` 0 + `pnpm lint/typecheck` 0; `refactor-cleaner` scan pass; `skill://no-ai-slop` Tier-1 prose/UI (H1-H4 warn, H5 hard fail) + `design-taste-frontend` untuk `apps/web`; `gitleaks` no leak; `Accountability Block` + `♻️ Refactor: <apa>` wajib tiap task.
+
+Pelanggaran = **PM veto merge ke `main`** + `seith-phase-gate` FAIL. Lead (T0) verifikasi ulang semua delegasi — delegasi bukan alasan lepas tanggung jawab.
 
 ## 9. Docs Map
 
