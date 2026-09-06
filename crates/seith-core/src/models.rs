@@ -49,6 +49,13 @@ pub struct SectorMedian {
     pub pb: f64,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct Excluded {
+    pub ticker: String,
+    pub reason: String,
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
