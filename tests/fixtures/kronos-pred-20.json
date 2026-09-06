@@ -1,0 +1,22 @@
+[
+  {"open": 104.09, "high": 104.61, "low": 103.57, "close": 104.09, "volume": 0.0, "amount": 0.0, "timestamp": 400},
+  {"open": 104.19, "high": 104.72, "low": 103.67, "close": 104.19, "volume": 0.0, "amount": 0.0, "timestamp": 401},
+  {"open": 104.30, "high": 104.82, "low": 103.78, "close": 104.30, "volume": 0.0, "amount": 0.0, "timestamp": 402},
+  {"open": 104.40, "high": 104.92, "low": 103.88, "close": 104.40, "volume": 0.0, "amount": 0.0, "timestamp": 403},
+  {"open": 104.51, "high": 105.03, "low": 103.99, "close": 104.51, "volume": 0.0, "amount": 0.0, "timestamp": 404},
+  {"open": 104.61, "high": 105.14, "low": 104.09, "close": 104.61, "volume": 0.0, "amount": 0.0, "timestamp": 405},
+  {"open": 104.72, "high": 105.24, "low": 104.19, "close": 104.72, "volume": 0.0, "amount": 0.0, "timestamp": 406},
+  {"open": 104.82, "high": 105.34, "low": 104.30, "close": 104.82, "volume": 0.0, "amount": 0.0, "timestamp": 407},
+  {"open": 104.92, "high": 105.45, "low": 104.40, "close": 104.92, "volume": 0.0, "amount": 0.0, "timestamp": 408},
+  {"open": 105.03, "high": 105.55, "low": 104.51, "close": 105.03, "volume": 0.0, "amount": 0.0, "timestamp": 409},
+  {"open": 105.13, "high": 105.66, "low": 104.61, "close": 105.13, "volume": 0.0, "amount": 0.0, "timestamp": 410},
+  {"open": 105.24, "high": 105.77, "low": 104.72, "close": 105.24, "volume": 0.0, "amount": 0.0, "timestamp": 411},
+  {"open": 105.34, "high": 105.87, "low": 104.82, "close": 105.34, "volume": 0.0, "amount": 0.0, "timestamp": 412},
+  {"open": 105.45, "high": 105.97, "low": 104.92, "close": 105.45, "volume": 0.0, "amount": 0.0, "timestamp": 413},
+  {"open": 105.55, "high": 106.08, "low": 105.03, "close": 105.55, "volume": 0.0, "amount": 0.0, "timestamp": 414},
+  {"open": 105.66, "high": 106.19, "low": 105.13, "close": 105.66, "volume": 0.0, "amount": 0.0, "timestamp": 415},
+  {"open": 105.76, "high": 106.29, "low": 105.24, "close": 105.76, "volume": 0.0, "amount": 0.0, "timestamp": 416},
+  {"open": 105.87, "high": 106.40, "low": 105.34, "close": 105.87, "volume": 0.0, "amount": 0.0, "timestamp": 417},
+  {"open": 105.97, "high": 106.50, "low": 105.45, "close": 105.97, "volume": 0.0, "amount": 0.0, "timestamp": 418},
+  {"open": 106.08, "high": 106.61, "low": 105.55, "close": 106.08, "volume": 0.0, "amount": 0.0, "timestamp": 419}
+]
