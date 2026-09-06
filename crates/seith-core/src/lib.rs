@@ -1,5 +1,6 @@
 pub mod cache;
 pub mod config;
+pub mod kronos;
 pub mod market;
 pub mod models;
 pub mod normalize;
