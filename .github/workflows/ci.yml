@@ -56,8 +56,8 @@ jobs:
         with:
           enable-cache: true
       - run: uv sync --group dev || uv sync
-      - run: uv run ruff check . || echo "ruff not configured"
-      - run: uv run pytest -q || echo "no tests yet"
+      - run: uv run ruff check .
+      - run: uv run pytest -q --cov
 
   web:
     runs-on: ubuntu-latest
