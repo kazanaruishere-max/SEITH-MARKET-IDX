@@ -1468,13 +1468,16 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "chrono",
+ "mockito",
  "moka",
  "once_cell",
  "regex",
+ "reqwest",
  "rusqlite",
  "serde",
  "serde_json",
  "thiserror",
+ "tokio",
  "tracing",
  "validator",
 ]
