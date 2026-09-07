@@ -19,7 +19,7 @@ Out: New logic (01-03), sidecars `:8001/:8002` live (mock only)
 | 04d | `pnpm lint && pnpm typecheck && pnpm test` `apps/web` | `0 + 0 + 3` | `fail→FAIL` |
 | 04e | `uv run pytest -q` `kronos 17 + analysis 17` | `17+17` | `drift→FAIL` |
 | 04f | `gitleaks detect --no-git` + `grep SECTORS_API_KEY` + `freeze-check.sh` | `0 + 0 + 0` | `leak→FAIL` |
-| 04g | `gh api repos/.../branches/main/protection` + `gh api repos/... --jq .private + .created_at` | `strict:true 6 + public + 2026` | `private→FAIL` |
+| 04g | `gh api repos/.../branches/main/protection` + `gh api repos/... --jq .private + .created_at` + `curl http://localhost:20128/v1/models →200 or degraded:true mocked` (api-spec §10 9router) | `strict:true 6 + public + 2026 + 9router 200/degraded` | `private→FAIL` |
 | 04h | `refactor-cleaner fn<50 file200-400 nesting≤4` + `doc-updater drift` + `arch+security` PASS | pass | `fail→FAIL` |
 
 ## Deliverables

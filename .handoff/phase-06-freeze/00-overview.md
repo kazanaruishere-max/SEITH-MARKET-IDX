@@ -48,11 +48,12 @@ Dependensi antar-fase: `H5 DONE Hybrid (Axum 7 routes + CLI + Web) → H6 THIS F
 | PM Autonomous | `seith-pm` | `git-worktree-manager`+gate `fmt/clippy/test` + `senior-pm` | `seith-pm` | orkestrasi `handoff/06-freeze` + veto if gate fail |
 | Arsitek | `architect` | `senior-architect` | `architect` | **SEBELUM freeze** — sign-off struktur + 7 Zones |
 | Planner | `planner` | `tdd-workflow` | `planner` | forward `H6 → Submit` checklist |
-| Eksekutor T1 | sub-agent | `seith-market-intelligence`+`tdd-workflow`+`verification-loop`+`git-worktree-manager` | `explore` | 01 docs sync + 03 video |
+| Eksekutor T1 | sub-agent | `seith-market-intelligence`+`tdd-workflow`+`verification-loop`+`git-worktree-manager`+`no-ai-slop`+`design-taste-frontend`+`seith-phase-gate` | `explore` | 01 docs sync + 03 video |
 | Reviewer Rust | `rust-reviewer` | `code-reviewer` | `code-reviewer` | crate `seith-core` + `seith-api` gate — `no-ai-slop` |
 | Reviewer Security | `security-reviewer` | `security-review` | `security-reviewer` | **mandatory pra-freeze** — secrets/gitleaks/validation |
 | Refactor WAJIB | `refactor-cleaner` | `coding-standards` | `refactor-cleaner` | pasca tiap task — `design-taste` untuk docs if needed |
-| Doc | `doc-updater` | `remember`+`handoff` | `doc-updater` | sinkron docs tiap merge — `adr/0006` |
+| Doc | `doc-updater` | `remember`+`handoff`+`no-ai-slop`+`design-taste-frontend` | `doc-updater` | sinkron docs tiap merge — `adr/0006` — Tier-1 prose Z5 |
+| Gate Fase | `seith-phase-gate` | `seith-phase-gate`+`verification-loop` | — | penutupan fase dual-review `rust-reviewer ∥ security-reviewer` |
 
 ## Branch & Worktree
 - Branch flat `handoff/06-freeze` dari `main eafaea2` — `git worktree add ../seith-wt/handoff-06 -b handoff/06-freeze` — `/.wt/` gitignore — `handoff/05` removed
