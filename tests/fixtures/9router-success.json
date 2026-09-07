@@ -1,0 +1,21 @@
+{
+  "id": "chatcmpl-test-success",
+  "object": "chat.completion",
+  "created": 1700000000,
+  "model": "gpt-4o-mini",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "ROE 18.00% margin 12.00% leverage 1.5x — fundamental kuat, valuasi sekapur baruang."
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 80,
+    "completion_tokens": 24,
+    "total_tokens": 104
+  }
+}

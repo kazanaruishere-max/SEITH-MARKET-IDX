@@ -1,0 +1,8 @@
+{
+  "error": {
+    "message": "9router service overloaded / rate limit / model unavailable",
+    "type": "server_error",
+    "param": null,
+    "code": 503
+  }
+}
