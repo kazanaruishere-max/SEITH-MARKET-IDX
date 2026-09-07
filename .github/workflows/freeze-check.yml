@@ -16,8 +16,8 @@ jobs:
         with:
           fetch-depth: 0
       - uses: dtolnay/rust-toolchain@stable
-      - run: chmod +x scripts/freeze-check.sh || true
-      - run: bash scripts/freeze-check.sh || true
+      - run: chmod +x scripts/freeze-check.sh
+      - run: bash scripts/freeze-check.sh
       - name: Detect secrets (gitleaks)
         uses: gitleaks/gitleaks-action@v2
         env:
