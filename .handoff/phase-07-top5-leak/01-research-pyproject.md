@@ -13,14 +13,14 @@ Out: `apps/kronos-sidecar` `apps/analysis` no edit, `crates/*` `apps/web` verify
 ## Bagian — Surgical
 | Bag | File | Cmd / Content | Acceptance | Test FAIL |
 |---|---|---|---|---|
-| 01a | `research/pyproject.toml` | `name research` `requires-python >=3.11` `dependencies = jupyterlab + ipykernel + plotly + pandas (+ polars optional)` `uv` isolated | `uv --project research sync 0` | `sync fail→FAIL` |
+| 01a | `research/pyproject.toml` | `name research` `requires-python >=3.11` `dependencies = jupyterlab + ipykernel + plotly==5.* + pandas (+ polars optional)` `uv` isolated pinned | `uv --project research sync 0` | `sync fail→FAIL` |
 | 01b | `research/.python-version` | `3.11` or `3.12` | `uv --project research run python --version` | `no version→FAIL` |
 | 01c | guard | `grep plotly apps/kronos-sidecar/pyproject.toml → 0` | `0` `apps/kronos-sidecar` no `plotly/jupyter` | `found→FAIL` |
 | 01d | verify | `uv --project research run jupyter --version + uv --project research run python -c "import plotly"` | `0` | `import fail→FAIL` |
 
 ## Deliverables + Acceptance
-- `research/pyproject.toml` 30L — `jupyterlab>=4 ipykernel>=6 plotly>=5 pandas polars` — `uv --project research sync` 0 — `apps/kronos-sidecar` clean `grep 0`
-- `research/.python-version` — `3.11`
+- `research/pyproject.toml` 30L — `jupyterlab>=4 ipykernel>=6 plotly==5.* pandas polars` pinned — `uv --project research sync` 0 — `apps/kronos-sidecar` clean `grep 0`
+- `research/.python-version` — `3.11` single source
 - Constraint: `file 200-400` n/a, `no dead code` + `♻️ Refactor:` + `no-ai-slop` — 7 Zones isolated — PM veto if mixed
 
 ## Verification

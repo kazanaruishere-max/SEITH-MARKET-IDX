@@ -4,7 +4,7 @@
 `research/money-leak-backtest.ipynb` 7 cells `plotly` `actual zinc vs forecast amber dashed + ±2σ red 10%` + `StackedBar 30/20/30/20` + `hist |Z|>2` — load `fixtures/bbca-400/sector-median/illiquid/kronos-pred-20.json` 0 credit + `20 ticker Excel venue` placeholder `read_excel`.
 
 ## Context
-- SSOT: `docs/research/ 3 files de244cd` + `vendor/Kronos examples prediction_example.py matplotlib 3.9.3` → `plotly` upgrade path + `docs/spec.md §2[3] Kronos 400→20 T1.0/p0.9 §4 Scoring 0-100 §2[5] Ranking+Flag |Z|>2 vs vol>2σ` + `crates/seith-core/src/{scoring,anomaly,normalize,kronos} + tests/fixtures/` + `research/pyproject.toml` 01
+- SSOT: `docs/research/ 3 files de244cd` + `vendor/Kronos examples prediction_example.py matplotlib 3.9.3` → `plotly` upgrade path + `docs/spec.md §2[3] Kronos 400→20 T1.0/p0.9 §4 Scoring 0-100 §2[5] Ranking+Flag |Z|>2 vs vol>2σ` + `crates/seith-core/src/{scoring,anomaly,normalize,kronos} + tests/fixtures/` + `research/pyproject.toml` 01 + `skill://seith-kronos` + `skill://seith-market-intelligence` + `skill://verification-loop` + `skill://git-worktree-manager` + `skill://no-ai-slop`
 
 ## Scope In / Out
 In: Z5 `research/money-leak-backtest.ipynb` 7 cells `plotly offline` + optional `research/money-leak-backtest.py` export `jupyter nbconvert` — Z5 only
@@ -24,7 +24,7 @@ Out: `apps/kronos-sidecar` no edit, `apps/web` (03), `crates/*` verify only, `da
 ## Deliverables + Acceptance
 - `research/money-leak-backtest.ipynb` `nbformat 4` valid — 7 cells `plotly offline fig.show()` — `uv --project research run jupyter nbconvert --to notebook --execute --allow-errors` 0 — 0 Sectors hit `KRONOS_MOCK` comment — `20 ticker Excel` `read_excel` placeholder
 - `research/money-leak-backtest.py` optional export via `nbconvert`
-- Constraint: `file 200-400` per ipynb meta, `cell <50`, `plotly==* pinned` `ponytail: matplotlib 3.9.3 vendor, upgrade to plotly when Z-band needed` — `no-ai-slop`
+- Constraint: `file 200-400` per ipynb meta, `cell <50`, `plotly==5.* pinned` `ponytail: matplotlib 3.9.3 vendor, upgrade to plotly when Z-band needed` — `no-ai-slop` — `research/pyproject.toml plotly==5.*` single source + `research/.python-version 3.11`
 
 ## Verification
 ```
