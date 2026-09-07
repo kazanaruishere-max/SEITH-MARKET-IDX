@@ -6,7 +6,9 @@ function mockFetch(json: unknown) {
 }
 
 describe("lib/api", () => {
-  beforeEach(() => vi.restoreAllMocks());
+  beforeEach(() => {
+    vi.restoreAllMocks();
+  });
 
   it("ranking sg returns sg", async () => {
     mockFetch({ success: true, data: { market: "sg", items: [{ ticker: "DBS", market: "sg", mispricingScore: 80 }], disclaimer: "Bukan rekomendasi investasi. Informasi & analisis saja." }, pagination: { page: 1, pageSize: 20, total: 1 } });
