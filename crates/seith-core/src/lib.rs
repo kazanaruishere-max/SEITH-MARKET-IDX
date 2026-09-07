@@ -1,4 +1,5 @@
 pub mod analysis;
+pub mod anomaly;
 pub mod cache;
 pub mod config;
 pub mod kronos;
