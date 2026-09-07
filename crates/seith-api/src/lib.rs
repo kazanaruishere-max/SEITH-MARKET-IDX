@@ -1,3 +1,4 @@
+pub mod analysis;
 pub mod envelope;
 pub mod handlers;
 pub mod kronos;
