@@ -2,6 +2,7 @@ pub mod analysis;
 pub mod anomaly;
 pub mod cache;
 pub mod config;
+pub mod dossier;
 pub mod kronos;
 pub mod market;
 pub mod models;
