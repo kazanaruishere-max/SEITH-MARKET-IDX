@@ -7,6 +7,10 @@ data/seith.db-*
 _test_out.txt
 apps/web/.next/
 apps/web/node_modules/
+apps/web/tsconfig.tsbuildinfo
 .DS_Store
 __pycache__/
 *.pyc
+apps/analysis/uv.lock
+apps/kronos-sidecar/uv.lock
+apps/web/pnpm-lock.yaml
