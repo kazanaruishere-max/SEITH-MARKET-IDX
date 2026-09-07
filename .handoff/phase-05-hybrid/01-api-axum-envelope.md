@@ -7,13 +7,13 @@ Expand `crates/seith-api` — 6 endpoints Axum `/api/v1/*` envelope `{success,da
 - SSOT: `docs/api-spec.md §1 envelope §3 endpoints §4 schemas §6 Repository §7 mapping` + `docs/spec.md §2[8] Hybrid` + `AGENTS.md §3c Z1 §6 contract §6c no-ai-slop` + `crates/seith-api/src/{lib 24L,envelope 119L,handlers 87L,repository}` existing + `crates/seith-core/src/market.rs Market::from_str` + `SCHEMA_VERSION 1.0.0`
 
 ## Scope In / Out
-In: Z1 `crates/seith-api/src/{handlers.rs, lib.rs, envelope.rs, dossier.rs}` + `crates/seith-api/tests/api.rs` — Axum handlers only
+In: Z1 `crates/seith-api/src/{handlers.rs, lib.rs, envelope.rs}` + `crates/seith-api/tests/api.rs` — Axum handlers only
 Out: `seith-cli` (02), `seith-core/dossier.rs` compose logic (02), `apps/web` (03), sidecars `:8001/:8002` (verify only)
 
 ## Bagian — Surgical (1 bag = 1 fn ≤50 baris)
 | Bag | File | Fn / Struct | Acceptance | Test FAIL |
 |---|---|---|---|---|
-| 01a | `handlers.rs` | `RankingQuery {market,sector,sort,order,page,pageSize} + fn ranking(State, Query)` validate `Market::from_str` 422 + `lookback>512→422` + `pageSize max50 clamp` return `Envelope::ok_with_pagination(data,pagination)` + `disclaimer` | `?market=sg` ok, `?market=xx→422 VALIDATION_ERROR`, `pageSize 100→50` | `invalid market 200→FAIL` |
+| 01a | `handlers.rs` | `RankingQuery {market,sector,sort,order,page,pageSize} + fn ranking(State, Query)` validate `Market::from_str` 422 + `lookback>512→422` + `pageSize max50 clamp` + `deny_unknown_fields 422` + `sort/order enum` return `Envelope::ok_with_pagination(data,pagination)` + `disclaimer` | `?market=sg` ok, `?market=xx→422 VALIDATION_ERROR`, `pageSize 100→50`, `?sort=bad→422` | `invalid market 200→FAIL` |
 | 01b | `handlers.rs` | `fn score(State, Path<ticker>, Query<market>)` ticker `^[A-Z0-9]{3,6}$` normalize `BBCA.JK→BBCA` 422 if fail, market default Id, repo fetch → 404 `TICKER_NOT_FOUND` if exclude, else `Envelope::ok(ScoreResponse{mispricingScore,components,anomaly,disclaimer})` | `BBCA.JK→BBCA 200`, `BOGUS→404` | `BBCA.JK 422→FAIL` |
 | 01c | `handlers.rs` | `fn dossier(State, Path<ticker>, Query{market,format})` `format=json|pdf` default json, json → `Envelope::ok(DossierJson{peerComparison,kronos,chartPoints,research})`, pdf → `Content-Type: application/pdf` bytes | `?format=pdf → pdf header`, `?format=json → envelope` | `pdf returns json→FAIL` |
 | 01d | `handlers.rs` | `fn anomalies(State, Query{market,sector,minZ,page,pageSize})` filter `|Z|>minZ default 2.0` sort `|Z| desc` per market + pagination | `minZ=1.5 returns more` | `sort asc→FAIL` |
@@ -47,10 +47,10 @@ curl /api/v1/ranking?market=sg&pageSize=100 → pageSize 50 clamp
 | Peran | Eksekutor | Skill | Sub-agent | Kapan |
 |---|---|---|---|---|
 | Lead | opencode | `seith-market-intelligence` | — | approve 01 |
-| T1 API | sub-agent | `seith-market-intelligence`+`tdd-workflow` | `tdd-guide` | TDD envelope+market 422 |
+| T1 API | sub-agent | `seith-market-intelligence`+`tdd-workflow`+`verification-loop`+`git-worktree-manager`+`no-ai-slop` | `tdd-guide` | TDD envelope+market 422 |
 | Arsitek | `architect` | `senior-architect` | `architect` | SEBELUM 01 — audit 7 Zones |
-| Reviewer Rust | `rust-reviewer` | `code-reviewer` | `code-reviewer` | handlers edge |
-| PM | `seith-pm` | `git-worktree-manager`+gate | — | veto jika gate fail |
+| Reviewer Rust | `rust-reviewer` | `code-reviewer` | `code-reviewer` | handlers edge — `no-ai-slop` Tier-1 |
+| PM | `seith-pm` | `git-worktree-manager`+gate `fmt/clippy/test` | — | veto jika gate fail — `security-reviewer` mandatory |
 
 ## Next
 `skill://seith-market-intelligence` + `handoff/05-hybrid-t1-api` + `01-api-axum-envelope.md` + ritual 3Q: gate MI mana? envelope derived only. jebakan? market 422 + pageSize max50 + x-schema-version. test FAIL? invalid market→422, pageSize clamp, ticker 404.

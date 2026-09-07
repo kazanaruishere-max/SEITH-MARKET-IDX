@@ -43,9 +43,9 @@ curl /api/v1/ranking?market=sg → sg items
 ## Peran + Skill
 | Peran | Eksekutor | Skill | Sub-agent | Kapan |
 |---|---|---|---|---|
-| T1 Web | sub-agent | `seith-market-intelligence`+`frontend-patterns` | `explore` | TDD lib/api.ts mock |
-| Reviewer | `code-reviewer` | `code-reviewer` | `code-reviewer` | components |
-| PM | `seith-pm` | gate | — | veto if web lint fail |
+| T1 Web | sub-agent | `seith-market-intelligence`+`tdd-workflow`+`verification-loop`+`git-worktree-manager`+`design-taste-frontend`+`no-ai-slop` | `explore` | TDD lib/api.ts mock |
+| Reviewer Rust | `rust-reviewer` | `code-reviewer` | `code-reviewer` | components — `no-ai-slop`+`design-taste-frontend` |
+| PM | `seith-pm` | `git-worktree-manager`+gate `fmt/clippy/test` | — | veto if web lint fail |
 
 ## Next
 `skill://seith-market-intelligence` + `handoff/05-hybrid-t1-api` + `03-web-nextjs.md` + ritual 3Q: gate? `consume Rust API only`. jebakan? `market sg vs id, disclaimer always`. test FAIL? `sg param, pdf link, disclaimer present`.

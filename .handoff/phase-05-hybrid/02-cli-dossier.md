@@ -45,9 +45,9 @@ cargo run -p seith-cli -- dossier BBCA.JK --pdf --market id → %PDF
 ## Peran + Skill
 | Peran | Eksekutor | Skill | Sub-agent | Kapan |
 |---|---|---|---|---|
-| T2 CLI | sub-agent | `seith-market-intelligence`+`tdd-workflow` | `tdd-guide` | TDD cli envelope+market |
-| Reviewer Rust | `rust-reviewer` | `code-reviewer` | `code-reviewer` | cli edge |
-| PM | `seith-pm` | gate | — | veto |
+| T2 CLI | sub-agent | `seith-market-intelligence`+`tdd-workflow`+`verification-loop`+`git-worktree-manager`+`no-ai-slop` | `tdd-guide` | TDD cli envelope+market |
+| Reviewer Rust | `rust-reviewer` | `code-reviewer` | `code-reviewer` | cli edge — `no-ai-slop` Tier-1 |
+| PM | `seith-pm` | `git-worktree-manager`+gate `fmt/clippy/test` | — | veto jika gate fail |
 
 ## Next
 `skill://seith-market-intelligence` + `handoff/05-hybrid-t2-cli` + `02-cli-dossier.md` + ritual 3Q: gate? `cli --json ≡ REST envelope`. jebakan? `BBCA.JK normalize + market 422 + --pdf %PDF`. test FAIL? `51 tickers→422`, `bad market→422`.

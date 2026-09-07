@@ -18,7 +18,7 @@ Out: New feature code (01-03), sidecar logic `:8001/:8002` (mock only)
 | 04c | `cargo test -- --nocapture` workspace `81→99+` (5 envelope + 6 api + 4 cli + 6 ranking 04) | all passed | `1 fail→FAIL` |
 | 04d | `pnpm lint && pnpm typecheck && pnpm test` in `apps/web` | 0 + 3 passed | `lint fail→FAIL` |
 | 04e | `uv run pytest -q` in `apps/kronos-sidecar` + `apps/analysis` | 17+17 unchanged | `drift→FAIL` |
-| 04f | Contract `cargo run -p seith-cli -- ranking --market sg --json` vs `curl /api/v1/ranking?market=sg` envelope `success/data/pagination/disclaimer/x-schema-version` identik — mockito | identik | `drift→FAIL` |
+| 04f | Contract `cargo run -p seith-cli -- ranking --market sg --json` vs `curl /api/v1/ranking?market=sg` + `tests/fixtures/ranking-snapshot.json` (Z4) envelope `success/data/pagination/disclaimer/x-schema-version` identik — mockito | identik | `drift→FAIL` |
 | 04g | `gitleaks detect --no-git` + `refactor-cleaner fn<50 file200-400 nesting≤4` + `doc-updater` `spec/api-spec/tdd-plan/README 7 Zones` sinkron | 0 + pass | `leak→FAIL` |
 
 ## Deliverables
