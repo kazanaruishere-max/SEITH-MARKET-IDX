@@ -34,15 +34,18 @@ fn with_schema(body: serde_json::Value, status: StatusCode) -> Response {
 }
 
 fn err_body(code: &str, msg: impl Into<String>) -> serde_json::Value {
-    serde_json::to_value(Envelope::<serde_json::Value>::err(code, msg)).unwrap()
+    serde_json::to_value(Envelope::<serde_json::Value>::err(code, msg))
+        .unwrap_or_else(|_| json!({"success": false, "error": {"code": "SERIALIZE_ERROR"}}))
 }
 
 fn ok_body<T: Serialize>(data: T) -> serde_json::Value {
-    serde_json::to_value(Envelope::ok(data)).unwrap()
+    serde_json::to_value(Envelope::ok(data))
+        .unwrap_or_else(|_| json!({"success": false, "error": {"code": "SERIALIZE_ERROR"}}))
 }
 
 fn ok_paginated_body<T: Serialize>(data: T, pagination: Pagination) -> serde_json::Value {
-    serde_json::to_value(Envelope::ok_with_pagination(data, pagination)).unwrap()
+    serde_json::to_value(Envelope::ok_with_pagination(data, pagination))
+        .unwrap_or_else(|_| json!({"success": false, "error": {"code": "SERIALIZE_ERROR"}}))
 }
 
 fn error_response(status: StatusCode, code: &str, msg: impl Into<String>) -> Response {
@@ -73,6 +76,56 @@ fn clamp_page_size(v: Option<u32>) -> u32 {
         Some(n) => n,
         None => 20,
     }
+}
+
+fn check_lookback(v: Option<u16>) -> Option<Response> {
+    if let Some(n) = v {
+        if n > 512 {
+            return Some(error_response(
+                StatusCode::UNPROCESSABLE_ENTITY,
+                "VALIDATION_ERROR",
+                "max_context 512 exceeded",
+            ));
+        }
+    }
+    None
+}
+
+fn check_sort(v: &Option<String>) -> Option<Response> {
+    if let Some(s) = v {
+        if s != "mispricing" && s != "anomaly" {
+            return Some(error_response(
+                StatusCode::UNPROCESSABLE_ENTITY,
+                "VALIDATION_ERROR",
+                format!("invalid sort '{s}'"),
+            ));
+        }
+    }
+    None
+}
+
+fn check_order(v: &Option<String>) -> Option<Response> {
+    if let Some(o) = v {
+        if o != "desc" && o != "asc" {
+            return Some(error_response(
+                StatusCode::UNPROCESSABLE_ENTITY,
+                "VALIDATION_ERROR",
+                format!("invalid order '{o}'"),
+            ));
+        }
+    }
+    None
+}
+
+fn check_format(v: &str) -> Option<Response> {
+    if v != "json" && v != "pdf" {
+        return Some(error_response(
+            StatusCode::UNPROCESSABLE_ENTITY,
+            "VALIDATION_ERROR",
+            format!("invalid format '{v}'"),
+        ));
+    }
+    None
 }
 
 #[derive(Debug, Deserialize)]
@@ -142,14 +195,8 @@ pub async fn ranking(
             )
         }
     };
-    if let Some(lb) = q.lookback {
-        if lb > 512 {
-            return error_response(
-                StatusCode::UNPROCESSABLE_ENTITY,
-                "VALIDATION_ERROR",
-                "max_context 512 exceeded",
-            );
-        }
+    if let Some(r) = check_lookback(q.lookback) {
+        return r;
     }
     let market = match parse_market(q.market) {
         Ok(m) => m,
@@ -157,23 +204,11 @@ pub async fn ranking(
             return error_response(StatusCode::UNPROCESSABLE_ENTITY, "VALIDATION_ERROR", msg)
         }
     };
-    if let Some(ref s) = q.sort {
-        if s != "mispricing" && s != "anomaly" {
-            return error_response(
-                StatusCode::UNPROCESSABLE_ENTITY,
-                "VALIDATION_ERROR",
-                format!("invalid sort '{s}'"),
-            );
-        }
+    if let Some(r) = check_sort(&q.sort) {
+        return r;
     }
-    if let Some(ref o) = q.order {
-        if o != "desc" && o != "asc" {
-            return error_response(
-                StatusCode::UNPROCESSABLE_ENTITY,
-                "VALIDATION_ERROR",
-                format!("invalid order '{o}'"),
-            );
-        }
+    if let Some(r) = check_order(&q.order) {
+        return r;
     }
     let page = q.page.unwrap_or(1).max(1);
     let page_size = clamp_page_size(q.page_size);
@@ -252,12 +287,8 @@ pub async fn dossier(
         }
     };
     let fmt = q.format.unwrap_or_else(|| "json".to_string());
-    if fmt != "json" && fmt != "pdf" {
-        return error_response(
-            StatusCode::UNPROCESSABLE_ENTITY,
-            "VALIDATION_ERROR",
-            format!("invalid format '{fmt}'"),
-        );
+    if let Some(r) = check_format(&fmt) {
+        return r;
     }
     if fmt == "pdf" {
         let pdf = b"%PDF-1.4 SEITH dossier\n%%EOF";
@@ -330,23 +361,11 @@ pub async fn scan(
             "tickers 1-50 required",
         );
     }
-    if let Some(lb) = b.lookback {
-        if lb > 512 {
-            return error_response(
-                StatusCode::UNPROCESSABLE_ENTITY,
-                "VALIDATION_ERROR",
-                "max_context 512 exceeded",
-            );
-        }
+    if let Some(r) = check_lookback(b.lookback) {
+        return r;
     }
-    if let Some(pl) = b.pred_len {
-        if pl > 512 {
-            return error_response(
-                StatusCode::UNPROCESSABLE_ENTITY,
-                "VALIDATION_ERROR",
-                "max_context 512 exceeded",
-            );
-        }
+    if let Some(r) = check_lookback(b.pred_len) {
+        return r;
     }
     let market = match parse_market(b.market) {
         Ok(m) => m,
