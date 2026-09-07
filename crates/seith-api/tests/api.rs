@@ -162,3 +162,151 @@ async fn contract_cli_rest_envelope_identical() {
     assert!(cli.success);
     assert_eq!(cli.data.unwrap()["ticker"], "BBCA");
 }
+
+#[tokio::test]
+async fn ranking_page_size_clamp_50() {
+    let resp = app()
+        .oneshot(
+            Request::builder()
+                .uri("/api/v1/ranking?market=sg&pageSize=100")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(resp.status(), StatusCode::OK);
+    let v = body_json(resp).await;
+    assert_eq!(v["pagination"]["pageSize"], 50);
+    assert_eq!(
+        v["data"]["disclaimer"],
+        "Bukan rekomendasi investasi. Informasi & analisis saja."
+    );
+}
+
+#[tokio::test]
+async fn ranking_sort_bad_422() {
+    let resp = app()
+        .oneshot(
+            Request::builder()
+                .uri("/api/v1/ranking?sort=bad")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(resp.status(), StatusCode::UNPROCESSABLE_ENTITY);
+    assert_eq!(resp.headers().get("x-schema-version").unwrap(), "1.0.0");
+}
+
+#[tokio::test]
+async fn ranking_unknown_field_422() {
+    let resp = app()
+        .oneshot(
+            Request::builder()
+                .uri("/api/v1/ranking?unknown=1")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(resp.status(), StatusCode::UNPROCESSABLE_ENTITY);
+}
+
+#[tokio::test]
+async fn score_bbca_jk_normalized_200() {
+    let resp = app()
+        .oneshot(
+            Request::builder()
+                .uri("/api/v1/tickers/BBCA.JK/score")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(resp.status(), StatusCode::OK);
+    let h = resp
+        .headers()
+        .get("x-schema-version")
+        .unwrap()
+        .to_str()
+        .unwrap()
+        .to_string();
+    let v = body_json(resp).await;
+    assert_eq!(h, "1.0.0");
+    assert_eq!(v["data"]["ticker"], "BBCA");
+    assert_eq!(
+        v["data"]["disclaimer"],
+        "Bukan rekomendasi investasi. Informasi & analisis saja."
+    );
+}
+
+#[tokio::test]
+async fn score_bogus_404() {
+    let resp = app()
+        .oneshot(
+            Request::builder()
+                .uri("/api/v1/tickers/BOGUS/score")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(resp.status(), StatusCode::NOT_FOUND);
+    let v = body_json(resp).await;
+    assert_eq!(v["error"]["code"], "TICKER_NOT_FOUND");
+}
+
+#[tokio::test]
+async fn dossier_pdf_header() {
+    let resp = app()
+        .oneshot(
+            Request::builder()
+                .uri("/api/v1/tickers/BBCA/dossier?format=pdf")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(resp.status(), StatusCode::OK);
+    assert_eq!(resp.headers().get("x-schema-version").unwrap(), "1.0.0");
+    assert_eq!(
+        resp.headers().get("content-type").unwrap(),
+        "application/pdf"
+    );
+    let bytes = resp.into_body().collect().await.unwrap().to_bytes();
+    assert!(bytes.starts_with(b"%PDF"));
+}
+
+#[tokio::test]
+async fn anomalies_market_xx_422() {
+    let resp = app()
+        .oneshot(
+            Request::builder()
+                .uri("/api/v1/anomalies?market=xx")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(resp.status(), StatusCode::UNPROCESSABLE_ENTITY);
+}
+
+#[tokio::test]
+async fn scan_excluded_present() {
+    let body = serde_json::json!({"tickers":["BBCA","bad!"],"market":"id"});
+    let resp = app()
+        .oneshot(
+            Request::builder()
+                .uri("/api/v1/scan")
+                .method("POST")
+                .header("content-type", "application/json")
+                .body(Body::from(body.to_string()))
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(resp.status(), StatusCode::OK);
+    let v = body_json(resp).await;
+    assert_eq!(v["data"]["excluded"][0]["ticker"], "bad!");
+    assert_eq!(v["data"]["degraded"], true);
+}
