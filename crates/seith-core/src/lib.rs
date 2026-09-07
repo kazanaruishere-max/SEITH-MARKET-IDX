@@ -5,6 +5,7 @@ pub mod kronos;
 pub mod market;
 pub mod models;
 pub mod normalize;
+pub mod ranking;
 pub mod redact;
 pub mod scoring;
 
