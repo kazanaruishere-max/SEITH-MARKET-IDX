@@ -1,53 +1,40 @@
-use clap::{Parser, Subcommand};
+mod cli;
+mod commands;
 
-#[derive(Parser)]
-#[command(name = "seith", version, about = "SEITH Market Intelligence CLI")]
-struct Cli {
-    #[command(subcommand)]
-    command: Commands,
-    #[arg(long, default_value = "id", value_parser = clap::value_parser!(String))]
-    market: String,
-}
-
-#[derive(Subcommand)]
-enum Commands {
-    Ranking {
-        #[arg(long)]
-        sector: Option<String>,
-    },
-    Dossier {
-        ticker: String,
-        #[arg(long)]
-        pdf: bool,
-    },
-    Scan {
-        #[arg(long)]
-        tickers: String,
-    },
-}
+use clap::Parser;
+use cli::{Cli, Commands};
+use std::io::Write;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
     match cli.command {
-        Commands::Ranking { sector } => {
-            println!(
-                "{}",
-                serde_json::json!({"success": true, "data": {"market": cli.market, "sector": sector}})
-            );
+        Commands::Ranking { sector, market, .. } => {
+            let s = commands::ranking::run_validated(&cli.market, market.as_deref(), sector);
+            println!("{s}");
         }
-        Commands::Dossier { ticker, pdf } => {
-            println!(
-                "{}",
-                serde_json::json!({"success": true, "data": {"ticker": ticker, "pdf": pdf, "market": cli.market}})
-            );
+        Commands::Score { ticker, market, .. } => {
+            let s = commands::score::run_validated(&cli.market, market.as_deref(), ticker);
+            println!("{s}");
         }
-        Commands::Scan { tickers } => {
-            let list: Vec<&str> = tickers.split(',').collect();
-            println!(
-                "{}",
-                serde_json::json!({"success": true, "data": {"tickers": list, "market": cli.market}})
-            );
+        Commands::Dossier {
+            ticker,
+            pdf,
+            market,
+            ..
+        } => {
+            let b = commands::dossier::run_validated(&cli.market, market.as_deref(), ticker, pdf);
+            if pdf && b.starts_with(b"%PDF") {
+                std::io::stdout().write_all(&b)?;
+            } else {
+                println!("{}", String::from_utf8_lossy(&b));
+            }
+        }
+        Commands::Scan {
+            tickers, market, ..
+        } => {
+            let s = commands::scan::run_validated(&cli.market, market.as_deref(), tickers);
+            println!("{s}");
         }
     }
     Ok(())
