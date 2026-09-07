@@ -1,3 +1,4 @@
+pub mod analysis;
 pub mod cache;
 pub mod config;
 pub mod kronos;
