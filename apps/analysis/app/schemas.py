@@ -6,13 +6,16 @@ clean. Ticker regex `^[A-Z0-9]{3,6}$` mirrors `seith-core` Rust domain rule.
 """
 from __future__ import annotations
 
+import os
 from enum import Enum
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-DISCLAIMER_DEFAULT = (
-    "Bukan rekomendasi investasi. Informasi & analisis saja."
-)
+DISCLAIMER_DEFAULT = "Bukan rekomendasi investasi. Informasi & analisis saja."
+
+
+def _default_model() -> str:
+    return os.getenv("SEITH_LLM_MODEL", "SEITH-MARKET-IDX")
 
 
 class MarketEnum(str, Enum):
@@ -39,6 +42,7 @@ class KronosSignalIn(BaseModel):
 
 class SynthesizeRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
+    model: str | None = Field(default=None, max_length=64)
     market: MarketEnum
     ticker: str
     fundamentals: FundamentalsIn
@@ -59,6 +63,9 @@ class SynthesizeRequest(BaseModel):
         if self.sector != self.fundamentals.sector:
             raise ValueError("sector mismatch")
         return self
+
+    def llm_model(self) -> str:
+        return self.model or _default_model()
 
 
 class SynthesizeResponse(BaseModel):

@@ -14,7 +14,6 @@ from ._chat import post_chat
 
 logger = logging.getLogger(__name__)
 
-
 def _payload(req: SynthesizeRequest) -> str:
     s = req.kronos_signal
     return (
@@ -23,10 +22,9 @@ def _payload(req: SynthesizeRequest) -> str:
         f"volatility {s.volatility}."
     )
 
-
 async def run(req: SynthesizeRequest, llm_url: str) -> str:
     """Return technical memo; on 9router failure fall back to template."""
-    memo = await post_chat(llm_url, "technical", _payload(req))
+    memo = await post_chat(llm_url, "technical", _payload(req), model=req.llm_model())
     if memo:
         return inject_disclaimer(memo)
     logger.info("technical template fallback for %s", req.ticker)

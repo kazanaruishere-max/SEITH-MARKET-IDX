@@ -24,6 +24,9 @@ pub trait AnalysisRepository: Send + Sync {
 pub struct AnalysisClient {
     http: Client,
     base_url: String,
+    model: String,
+    fallback_model: String,
+    api_key: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -45,6 +48,7 @@ struct KronosSignalWire {
 
 #[derive(Debug, Clone, Serialize)]
 struct SynthesizeWire {
+    model: String,
     market: String,
     ticker: String,
     fundamentals: FundamentalsWire,
@@ -135,14 +139,41 @@ impl AnalysisClient {
         if url.is_empty() {
             return Err(AnalysisError::Validation("base_url empty".to_string()));
         }
+        let model =
+            std::env::var("SEITH_LLM_MODEL").unwrap_or_else(|_| "SEITH-MARKET-IDX".to_string());
+        let fallback_model = std::env::var("SEITH_LLM_FALLBACK_MODEL")
+            .unwrap_or_else(|_| "Seith-AI-Trading".to_string());
+        let api_key = std::env::var("SEITH_API_KEY").unwrap_or_default();
         Ok(Self {
             http,
             base_url: url,
+            model,
+            fallback_model,
+            api_key,
         })
+    }
+
+    pub fn with_model(mut self, model: impl Into<String>) -> Self {
+        self.model = model.into();
+        self
+    }
+
+    pub fn with_fallback_model(mut self, m: impl Into<String>) -> Self {
+        self.fallback_model = m.into();
+        self
+    }
+
+    pub fn with_api_key(mut self, k: impl Into<String>) -> Self {
+        self.api_key = k.into();
+        self
     }
 
     pub fn base_url(&self) -> &str {
         &self.base_url
+    }
+
+    pub fn model(&self) -> &str {
+        &self.model
     }
 
     async fn post_json<T, R>(&self, path: &str, body: &T) -> Result<R, AnalysisError>
@@ -153,13 +184,21 @@ impl AnalysisClient {
         let url = format!("{}{}", self.base_url, path);
         let mut last_err: Option<AnalysisError> = None;
         for attempt in 0..2 {
-            let res = self.http.post(&url).json(body).send().await;
+            let mut req = self.http.post(&url).json(body);
+            if !self.api_key.is_empty() {
+                req = req.header("Authorization", format!("Bearer {}", self.api_key));
+            }
+            let res = req.send().await;
             match res {
                 Ok(r) => {
                     if !r.status().is_success() {
                         let s = r.status().as_u16();
                         if s == 422 {
                             return Err(AnalysisError::Validation("validation error".to_string()));
+                        }
+                        if (s == 429 || (500..=599).contains(&s)) && attempt == 0 {
+                            last_err = Some(AnalysisError::Upstream(format!("status {s}")));
+                            continue;
                         }
                         return Err(AnalysisError::Upstream(format!("status {s}")));
                     }
@@ -187,6 +226,7 @@ impl AnalysisRepository for AnalysisClient {
     async fn synthesize(&self, input: SynthesizeInput) -> Result<SynthesizeOutput, AnalysisError> {
         validate_ticker(&input.ticker)?;
         let wire = SynthesizeWire {
+            model: self.model.clone(),
             market: input.market.as_str().to_string(),
             ticker: input.ticker.clone(),
             fundamentals: FundamentalsWire {
@@ -294,7 +334,8 @@ mod tests {
             .mock("POST", "/synthesize")
             .match_body(mockito::Matcher::PartialJson(json!({
                 "market": "id",
-                "ticker": "BBCA"
+                "ticker": "BBCA",
+                "model": "SEITH-MARKET-IDX"
             })))
             .with_status(200)
             .with_header("content-type", "application/json")
@@ -326,7 +367,8 @@ mod tests {
             .mock("POST", "/synthesize")
             .match_body(mockito::Matcher::PartialJson(json!({
                 "market": "sg",
-                "ticker": "D05"
+                "ticker": "D05",
+                "model": "SEITH-MARKET-IDX"
             })))
             .with_status(200)
             .with_header("content-type", "application/json")
@@ -413,5 +455,20 @@ mod tests {
         assert!(out.technical_memo.contains("2.35"));
         assert!(out.synthesizer_memo.contains("Anomali Terdeteksi"));
         assert_eq!(out.disclaimer, DISCLAIMER);
+    }
+
+    #[test]
+    fn env_model_default() {
+        std::env::remove_var("SEITH_LLM_MODEL");
+        let c = AnalysisClient::new("http://localhost:8002").unwrap();
+        assert_eq!(c.model(), "SEITH-MARKET-IDX");
+    }
+
+    #[test]
+    fn env_model_override() {
+        std::env::set_var("SEITH_LLM_MODEL", "SEITH-MARKET-IDX");
+        let c = AnalysisClient::new("http://localhost:8002").unwrap();
+        assert_eq!(c.model(), "SEITH-MARKET-IDX");
+        std::env::remove_var("SEITH_LLM_MODEL");
     }
 }

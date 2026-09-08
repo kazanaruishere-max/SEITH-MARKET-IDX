@@ -14,7 +14,6 @@ from ._chat import post_chat
 
 logger = logging.getLogger(__name__)
 
-
 def _payload(req: SynthesizeRequest, fundamental: str, technical: str) -> str:
     return (
         f"Ticker: {req.ticker} pasar {req.market.value} sektor {req.sector}. "
@@ -24,7 +23,6 @@ def _payload(req: SynthesizeRequest, fundamental: str, technical: str) -> str:
         "(netral/buy/caution) berdasarkan data numerik di atas."
     )
 
-
 async def run(
     req: SynthesizeRequest,
     llm_url: str,
@@ -33,7 +31,7 @@ async def run(
 ) -> str:
     """Return synthesizer memo; on 9router failure fall back to template."""
     memo = await post_chat(
-        llm_url, "synthesizer", _payload(req, fundamental, technical)
+        llm_url, "synthesizer", _payload(req, fundamental, technical), model=req.llm_model()
     )
     if memo:
         return inject_disclaimer(memo)
