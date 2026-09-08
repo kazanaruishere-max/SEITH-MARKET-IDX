@@ -21,8 +21,8 @@ impl Market {
 
     pub fn base_path(&self) -> &'static str {
         match self {
-            Self::Id => "/v2/indonesia/transaction/daily",
-            Self::Sg => "/v2/singapore/transaction/daily",
+            Self::Id => "/v2/daily",
+            Self::Sg => "/v2/sgx/daily",
         }
     }
 
@@ -73,8 +73,8 @@ mod tests {
 
     #[test]
     fn base_path_per_market() {
-        assert_eq!(Market::Id.base_path(), "/v2/indonesia/transaction/daily");
-        assert_eq!(Market::Sg.base_path(), "/v2/singapore/transaction/daily");
+        assert_eq!(Market::Id.base_path(), "/v2/daily");
+        assert_eq!(Market::Sg.base_path(), "/v2/sgx/daily");
     }
 
     #[test]

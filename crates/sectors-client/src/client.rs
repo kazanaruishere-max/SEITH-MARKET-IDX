@@ -68,11 +68,11 @@ impl SectorsClient {
     }
 
     async fn fetch_http(&self, market: Market, ticker: &str) -> Result<String, SectorsError> {
-        let url = format!("{}?ticker={ticker}", self.endpoint(&market));
+        let url = format!("{}/{ticker}/", self.endpoint(&market));
         let resp = self
             .http
             .get(&url)
-            .header("X-API-Key", self.api_key.0.as_str())
+            .header("Authorization", self.api_key.0.as_str())
             .send()
             .await
             .map_err(|e| SectorsError::Upstream(e.to_string()))?;
@@ -81,7 +81,7 @@ impl SectorsClient {
                 .text()
                 .await
                 .map_err(|e| SectorsError::Upstream(e.to_string())),
-            401 => Err(SectorsError::Auth),
+            401 | 403 => Err(SectorsError::Auth),
             404 => Err(SectorsError::NotFound),
             422 => Err(SectorsError::Validation("invalid ticker".into())),
             429 => Err(SectorsError::RateLimit),
@@ -93,7 +93,6 @@ impl SectorsClient {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use mockito::Matcher;
 
     fn client(server_url: &str) -> SectorsClient {
         SectorsClient::new(server_url, "test-key-12345678901234567890", ":memory:")
@@ -103,9 +102,8 @@ mod tests {
     async fn fetch_id_endpoint() {
         let mut server = mockito::Server::new_async().await;
         let m = server
-            .mock("GET", "/v2/indonesia/transaction/daily")
-            .match_query(Matcher::UrlEncoded("ticker".into(), "BBCA".into()))
-            .match_header("x-api-key", "test-key-12345678901234567890")
+            .mock("GET", "/v2/daily/BBCA/")
+            .match_header("authorization", "test-key-12345678901234567890")
             .with_status(200)
             .with_body(r#"{"ticker":"BBCA"}"#)
             .create_async()
@@ -120,15 +118,15 @@ mod tests {
     async fn fetch_sg_endpoint() {
         let mut server = mockito::Server::new_async().await;
         let m = server
-            .mock("GET", "/v2/singapore/transaction/daily")
-            .match_query(Matcher::UrlEncoded("ticker".into(), "DBS".into()))
+            .mock("GET", "/v2/sgx/daily/D05/")
+            .match_header("authorization", "test-key-12345678901234567890")
             .with_status(200)
-            .with_body(r#"{"ticker":"DBS"}"#)
+            .with_body(r#"{"ticker":"D05"}"#)
             .create_async()
             .await;
         let c = client(&server.url());
-        let body = c.fetch_ohlcv(Market::Sg, "DBS", "FINANCE").await.unwrap();
-        assert_eq!(body, r#"{"ticker":"DBS"}"#);
+        let body = c.fetch_ohlcv(Market::Sg, "D05", "FINANCE").await.unwrap();
+        assert_eq!(body, r#"{"ticker":"D05"}"#);
         m.assert_async().await;
     }
 
@@ -136,8 +134,8 @@ mod tests {
     async fn cache_hit_no_http() {
         let mut server = mockito::Server::new_async().await;
         let m = server
-            .mock("GET", "/v2/indonesia/transaction/daily")
-            .match_query(Matcher::UrlEncoded("ticker".into(), "BBCA".into()))
+            .mock("GET", "/v2/daily/BBCA/")
+            .match_header("authorization", "test-key-12345678901234567890")
             .with_status(200)
             .with_body("cached-body")
             .expect(1)
@@ -155,8 +153,8 @@ mod tests {
     async fn maps_422_validation() {
         let mut server = mockito::Server::new_async().await;
         server
-            .mock("GET", "/v2/indonesia/transaction/daily")
-            .match_query(Matcher::UrlEncoded("ticker".into(), "BAD".into()))
+            .mock("GET", "/v2/daily/BAD/")
+            .match_header("authorization", "test-key-12345678901234567890")
             .with_status(422)
             .create_async()
             .await;
@@ -172,8 +170,8 @@ mod tests {
     async fn maps_401_auth_no_leak() {
         let mut server = mockito::Server::new_async().await;
         server
-            .mock("GET", "/v2/indonesia/transaction/daily")
-            .match_query(Matcher::UrlEncoded("ticker".into(), "BBCA".into()))
+            .mock("GET", "/v2/daily/BBCA/")
+            .match_header("authorization", "test-key-12345678901234567890")
             .with_status(401)
             .create_async()
             .await;
