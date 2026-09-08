@@ -40,10 +40,16 @@ curl -H "Authorization: Bearer SEITH_KEY" http://localhost:20128/v1/chat/complet
 cargo run -p seith-api --bin serve (8181) → /api/v1/health 200 x-schema-version 1.0.0
 cargo run -p seith-cli -- ranking --sector FINANCE --market id → {"success":true,"data":{...}} + disclaimer
 cargo run -p seith-cli -- dossier BBCA --pdf → %PDF or JSON with data.disclaimer
-sqlite3 data/seith.db "SELECT count(*) FROM ohlcv" → >0 or 0 with reason
-cargo fmt --check → 0 / cargo clippy -- -D warnings → 0 / cargo test → 143 passed / uv run pytest -q --cov → 17 passed 96% / pnpm lint/typecheck → 0
+sqlite3 data/seith.db "SELECT count(*) FROM ohlcv" → >0 or 0 with reason (lazy, observe only)
+cargo fmt --check → 0 / cargo clippy --all-targets -- -D warnings → 0 / cargo test → 145 passed / uv --project apps/analysis run pytest -q --cov → 17 passed 96% / pnpm lint/typecheck → 0
 gitleaks detect --no-git -v → 0 leak
 ```
+
+## Accountability Block — Task 04 (PM §7 DoD #8)
+- ✅ Terverifikasi: `pwsh scripts/load-env.ps1 → SECTORS 64 SEITH 35 MODEL SEITH-MARKET-IDX` masked + `Sectors BBCA Authorization /v2/daily/BBCA/ → 200 rows=61 close 5650` + `9router SEITH-MARKET-IDX PONG 200 nvidia/nemotron-3.5-lightning:free cost 0 PID 10152` + `cargo fmt --check → 0` + `cargo clippy --all-targets -- -D warnings → 0` (fixed `":memory:"` + `slice::from_ref`) + `cargo test → 145 passed` (20+7+16+86) + `uv pytest 17 passed 96%` + `pnpm lint 0` + `research/validation-report.md 73 lines + validation-dossier.pdf %PDF 556` + `disclaimer` in both + `.env gitignored Redacted`
+- ⚠️ Belum: `serve 8181 persistent` + `data/seith.db 0 rows` — ranking stub `items:[]` wire deferred to Phase 09 PR34, sqlite3 not in PATH Windows — acceptable for BBCA doc phase
+- 🔻 Risiko: WAF 403 error 1010 on batch 100 + 9router free chain rotation dots-studio ↔ nvidia + port 8080 taken httpd 5076 — mitigasi `SEITH_API_BIND=8181` + `excluded:[{ticker,reason}]` + `SEITH_LLM_FALLBACK_MODEL`
+- ♻️ Refactor: dossier `run_validated` envelope konsisten `success/data/disclaimer` + `market Id default` — `fn<50 file<400 nesting≤2` pass, keep `BBCA only` narrow
 
 ## Peran + Skill + Sub-agent
 | Peran | Eksekutor | Skill | Sub-agent | Kapan |

@@ -34,14 +34,18 @@ Out: Z1 `crates/sectors-client/*` (T1), `crates/seith-core/src/market.rs` (T1), 
 ```
 cargo fmt --check → 0
 cargo clippy -p seith-core -p seith-api -- -D warnings → 0
-cargo test -p seith-core -p seith-api -- --nocapture → 84+7 passed
-uv --project apps/analysis run pytest -q --cov → 17 passed 96% (test_three_agent + test_contract)
+cargo test → 145 passed (post-merge ab411df + clippy fix)
+uv --project apps/analysis run pytest -q --cov → 17 passed 96% (test_three_agent + test_contract) — pyproject dev pytest-cov>=5
 # live (masked, founder key after rotation):
-# curl -H "Authorization: Bearer $SEITH_KEY" http://localhost:20128/v1/chat/completions -d '{"model":"SEITH-MARKET-IDX",...}' → 200 PONG x-used-model nvidia/nemotron-3.5-lightning:free
+# curl -H "Authorization: Bearer $SEITH_KEY" http://localhost:20128/v1/chat/completions -d '{"model":"SEITH-MARKET-IDX","messages":[{"role":"user","content":"PONG"}],"max_tokens":8}' → 200 PONG x-used-model nvidia/nemotron-3.5-lightning:free cost 0 (401 without key expected → fallback Seith-AI-Trading)
 pnpm lint/typecheck → 0 (if web touched, else skip)
-gitleaks detect --no-git → 0 leak (SEITH_API_KEY not in repo)
+gitleaks detect --no-git → 0 leak (SEITH_API_KEY in .env gitignored, Redacted in Display)
 ```
-+ Accountability Block: `✅ Terverifikasi: <cmd> → <output> / ⚠️ Belum / 🔻 Risiko / ♻️ Refactor: <apa>`
+## Accountability Block — Task 02 (PM §7 DoD #8)
+- ✅ Terverifikasi: `cargo fmt --check → 0`, `cargo clippy -p seith-core -p seith-api -- -D warnings → 0`, `cargo test → 145 passed`, `uv --project apps/analysis run pytest -q --cov → 17 passed 96%`, `ruff check → 0`, `9router PID 22484 :20128` alive probe `200 COMBO_FOUND SEITH-MARKET-IDX 8 free + Seith-AI-Trading 7`
+- ⚠️ Belum: `curl Bearer SEITH_API_KEY 200 PONG live` — perlu key founder post-rotation (401 tanpa key wajar, covered di 04-e2e)
+- 🔻 Risiko: rate limit 429/5xx di 9router free chain — deteksi `x-used-model` header, fallback `SEITH_LLM_FALLBACK_MODEL=Seith-AI-Trading` per attempt log `logger.debug`
+- ♻️ Refactor: `_chat.py` RUF034 `return ""` explicit + `SynthesizeWire model` field + `fundamental/technical/synthesizer` pass model + `schemas.py model` enum + `config.rs seith_llm_model` default — `fn<50 file<400 nesting≤3` pass
 
 ## Peran + Skill + Sub-agent
 | Peran | Eksekutor | Skill | Sub-agent | Kapan |

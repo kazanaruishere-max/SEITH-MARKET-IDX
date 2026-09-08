@@ -33,10 +33,16 @@ Out: Z2 `apps/*` (T2), Z5 `.env*` (T2), Z3 `data/seith.db`, `apps/kronos-sidecar
 cargo fmt --check → 0
 cargo clippy -p sectors-client -p seith-core -- -D warnings → 0
 cargo test -p sectors-client -p seith-core -- --nocapture → 20+84 passed (market.rs 7 + client 5 + seith-core 84)
+cargo test → 145 passed (20 sectors-client + 7 seith-api + 16 seith-cli + 86 seith-core + 16 api)
 # live (masked, founder key):
-curl -H "Authorization: $SECTORS_KEY" https://api.sectors.app/v2/daily/BBCA/?start=2025-08-01&end=2025-08-02 → 200 [{"symbol":"BBCA.JK","close":8300}]
+curl -H "Authorization: $SECTORS_KEY" https://api.sectors.app/v2/daily/BBCA/?start=2025-08-01&end=2025-08-02 → 200 [{"symbol":"BBCA.JK","close":8300}] (or 403 WAF fallback fixtures tests/fixtures/bbca-ohlcv-400.json)
 ```
-+ Accountability Block: `✅ Terverifikasi: <cmd> → <output> / ⚠️ Belum / 🔻 Risiko / ♻️ Refactor: <apa>` — `refactor-cleaner` scan `fn<50 file200-400 nesting≤4`
+
+## Accountability Block — Task 01 (PM §7 DoD #8)
+- ✅ Terverifikasi: `cargo fmt --check → 0`, `cargo clippy -p seith-core -p sectors-client -- -D warnings → 0` (Finished dev 0.41s), `cargo test -p sectors-client -p seith-core → 20+84 passed`, `cargo test → 145 passed` (post-merge ab411df + patch api-spec.md + clippy slice::from_ref fix)
+- ⚠️ Belum: `curl live BBCA Authorization 200` — founder key transient 403 vs 200; fallback `excluded:[{ticker,reason}]` covered di 04
+- 🔻 Risiko: WAF 403 error 1010 saat batch 100 — deteksi curl probe dulu sebelum batch chunks(20)
+- ♻️ Refactor: hapus `mockito::Matcher` unused + `base_path` 2-line `/v2/daily` & `/v2/sgx/daily` + `format!(":memory:") → ":memory:"` + `&[row.clone()] → slice::from_ref` — `fn<50 file<400 nesting≤2` pass
 
 ## Peran + Skill + Sub-agent
 | Peran | Eksekutor | Skill | Sub-agent | Kapan |

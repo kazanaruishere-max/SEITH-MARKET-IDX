@@ -32,16 +32,21 @@ Out: Full 900 ticker scan (defer), ValuationGapMap/Screener (H7b), `apps/kronos-
 ## Verification
 ```
 cargo fmt --check → 0
-cargo clippy -- -D warnings → 0
-cargo test → 143 passed
-uv --project apps/analysis run pytest -q --cov → 17 passed 96%
-# live BBCA (founder key):
-curl -H "Authorization: $SECTORS_KEY" https://api.sectors.app/v2/daily/BBCA/ → 200 BBCA.JK 8300
-curl -H "Authorization: Bearer $SEITH_KEY" http://localhost:20128/v1/chat/completions -d '{"model":"SEITH-MARKET-IDX",...}' → 200 PONG x-used-model
-cargo run -p seith-cli -- ranking --sector FINANCE → items contains BBCA (or graceful empty)
-cargo run -p seith-cli -- dossier BBCA --pdf → %PDF or JSON with disclaimer
-sqlite3 data/seith.db "SELECT count(*) FROM ohlcv" → >0 (if Sectors hit)
+cargo clippy --all-targets -- -D warnings → 0 (fixed slice::from_ref + ":memory:" + Matcher unused in 01)
+cargo test → 143 → 145 passed (post-merge ab411df: 20 sectors-client + 7 seith-api + 16 seith-cli + 86 seith-core + 16 api)
+uv --project apps/analysis run pytest -q --cov → 17 passed 96% (test_three_agent + test_contract)
+pnpm lint → 0 / pnpm typecheck → 0 (if web touched, else skip)
+# live BBCA (founder key, BBCA only — BMRI/BBRI 403 WAF defer):
+curl -H "Authorization: $SECTORS_KEY" https://api.sectors.app/v2/daily/BBCA/?start=2025-08-01&end=2025-08-02 → 200 [{"symbol":"BBCA.JK","close":8300}] 1 credit (or 403 fallback fixtures/bbca-ohlcv-400.json)
+curl -H "Authorization: Bearer $SEITH_KEY" http://localhost:20128/v1/chat/completions -d '{"model":"SEITH-MARKET-IDX","messages":[{"role":"user","content":"PONG"}],"max_tokens":8}' → 200 PONG x-used-model nvidia/nemotron-3.5-lightning:free cost 0
+# E2E (04-e2e-execution): ranking --sector FINANCE → success true (items BBCA or graceful [] + disclaimer); dossier BBCA --pdf → %PDF + Bukan rekomendasi; data/seith.db 0 rows stub (ranking handler items:[] wire defer PR34), sqlite3 not in PATH Windows
 ```
+
+## Accountability Block — Task 03 (spec only, execution in 04)
+- ✅ Terverifikasi: `cargo fmt --check → 0`, `cargo clippy --all-targets -- -D warnings → 0` (post clippy fix), `cargo test → 145 passed`, `uv pytest 17 passed`, docs/api-spec.md §7 synced
+- ⚠️ Belum: live E2E execution — deferred to `04-e2e-execution.md` (BBCA 61 rows, PONG, dossier %PDF proven there with `research/validation-report.md`)
+- 🔻 Risiko: ranking `items:[]` stub + DB 0 until handler wired — mitigasi fixtures fallback + 04 verification table with credit/billed notes
+- ♻️ Refactor: spec only, no code — DRY with 04, keep surgical table narrow (4 bags)
 
 ## Peran + Skill + Sub-agent
 | Peran | Eksekutor | Skill | Sub-agent | Kapan |
