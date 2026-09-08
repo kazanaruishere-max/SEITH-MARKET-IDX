@@ -14,7 +14,6 @@ from ._chat import post_chat
 
 logger = logging.getLogger(__name__)
 
-
 def _payload(req: SynthesizeRequest) -> str:
     f = req.fundamentals
     return (
@@ -23,10 +22,9 @@ def _payload(req: SynthesizeRequest) -> str:
         f"PE {f.pe} PB {f.pb}."
     )
 
-
 async def run(req: SynthesizeRequest, llm_url: str) -> str:
     """Return fundamental memo; on 9router failure fall back to template."""
-    memo = await post_chat(llm_url, "fundamental", _payload(req))
+    memo = await post_chat(llm_url, "fundamental", _payload(req), model=req.llm_model())
     if memo:
         return inject_disclaimer(memo)
     logger.info("fundamental template fallback for %s", req.ticker)

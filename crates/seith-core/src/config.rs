@@ -6,6 +6,9 @@ use std::str::FromStr;
 #[derive(Debug, Clone)]
 pub struct AppConfig {
     pub sectors_api_key: Redacted,
+    pub seith_api_key: Redacted,
+    pub seith_llm_model: String,
+    pub seith_llm_fallback_model: String,
     pub market: Market,
     pub llm_base_url: String,
     pub kronos_url: String,
@@ -25,6 +28,11 @@ impl AppConfig {
         if raw_key.len() < 20 {
             anyhow::bail!("SECTORS_API_KEY too short");
         }
+        let seith_api_key = std::env::var("SEITH_API_KEY").unwrap_or_default();
+        let seith_llm_model =
+            std::env::var("SEITH_LLM_MODEL").unwrap_or_else(|_| "SEITH-MARKET-IDX".to_string());
+        let seith_llm_fallback_model = std::env::var("SEITH_LLM_FALLBACK_MODEL")
+            .unwrap_or_else(|_| "Seith-AI-Trading".to_string());
         let market = std::env::var("MARKET")
             .map(|v| Market::from_str(&v))
             .unwrap_or(Ok(Market::default()))
@@ -37,6 +45,9 @@ impl AppConfig {
             std::env::var("ANALYSIS_URL").unwrap_or_else(|_| "http://localhost:8002".to_string());
         Ok(Self {
             sectors_api_key: Redacted(raw_key),
+            seith_api_key: Redacted(seith_api_key),
+            seith_llm_model,
+            seith_llm_fallback_model,
             market,
             llm_base_url,
             kronos_url,
