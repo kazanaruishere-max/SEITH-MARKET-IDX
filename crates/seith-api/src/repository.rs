@@ -255,9 +255,9 @@ mod tests {
 
     #[test]
     fn memory_round_trip() {
-        let repo = SqliteRepository::new(format!(":memory:"));
+        let repo = SqliteRepository::new(":memory:");
         let row = sample_row("BBCA", Market::Id);
-        let n = repo.save_ohlcv(&[row.clone()]).unwrap();
+        let n = repo.save_ohlcv(std::slice::from_ref(&row)).unwrap();
         assert_eq!(n, 1);
         let got = repo.get_ohlcv(Market::Id, "BBCA").unwrap();
         assert_eq!(got.len(), 1);
@@ -267,11 +267,11 @@ mod tests {
 
     #[test]
     fn insert_or_replace() {
-        let repo = SqliteRepository::new(format!(":memory:"));
+        let repo = SqliteRepository::new(":memory:");
         let mut row = sample_row("BBRI", Market::Id);
-        repo.save_ohlcv(&[row.clone()]).unwrap();
+        repo.save_ohlcv(std::slice::from_ref(&row)).unwrap();
         row.close = 200.0;
-        repo.save_ohlcv(&[row.clone()]).unwrap();
+        repo.save_ohlcv(std::slice::from_ref(&row)).unwrap();
         let got = repo.get_ohlcv(Market::Id, "BBRI").unwrap();
         assert_eq!(got.len(), 1);
         assert_eq!(got[0].close, 200.0);
