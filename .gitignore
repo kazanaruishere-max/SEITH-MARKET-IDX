@@ -1,6 +1,9 @@
 /target/
 **/.venv/
 .env
+.env.local
+apps/*/.env
+apps/*/.env.local
 data/seith.db
 data/seith.db-*
 /.wt/
@@ -14,3 +17,8 @@ __pycache__/
 apps/analysis/uv.lock
 apps/kronos-sidecar/uv.lock
 apps/web/pnpm-lock.yaml
+api.log
+api.err.log
+serve.log
+serve.err.log
+research/probe-api.ps1
