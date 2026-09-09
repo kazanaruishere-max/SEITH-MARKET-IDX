@@ -1,0 +1,21 @@
+{
+  "as_of": "2026-09-08",
+  "universe": 100,
+  "market": "id",
+  "credit_cost": 0,
+  "source": "stub docs-only — real after handoff/09 impl (chunks20×5 200 credits, L2 WAL, Kronos 400→20 mock)",
+  "items": [
+    {"ticker":"BBCA","market":"id","sector":"FINANCE","close":8300,"mispricingScore":72.5,"components":{"expected_return":55,"anomaly_z":1.2,"quality_value":60,"sector_mom":70},"anomaly":{"z":1.2,"flag":false,"reason":""},"rank":1,"degraded":false},
+    {"ticker":"BMRI","market":"id","sector":"FINANCE","close":5200,"mispricingScore":68.0,"components":{"expected_return":50,"anomaly_z":0.8,"quality_value":58,"sector_mom":65},"anomaly":{"z":0.8,"flag":false,"reason":""},"rank":2,"degraded":false},
+    {"ticker":"BBRI","market":"id","sector":"FINANCE","close":4100,"mispricingScore":65.0,"components":{"expected_return":48,"anomaly_z":0.5,"quality_value":55,"sector_mom":62},"anomaly":{"z":0.5,"flag":false,"reason":""},"rank":3,"degraded":false}
+  ],
+  "metrics": {"hit_rate":0.62,"drawdown":-0.08,"sharpe":1.1,"top5_forward_20d":0.12,"totalReturn":0.45,"cumulative":1.45,"win_rate":0.58},
+  "equity_curve": [
+    {"date":"2025-08-01","return":0.01,"bench":-0.002},
+    {"date":"2025-08-08","return":0.02,"bench":0.005}
+  ],
+  "excluded": [],
+  "degraded": false,
+  "disclaimer": "Bukan rekomendasi investasi. Informasi & analisis saja.",
+  "note": "stub 3 items — full 100 after handoff/09 impl, validate jq .items | length → 100"
+}

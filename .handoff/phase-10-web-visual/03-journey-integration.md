@@ -43,9 +43,12 @@ gitleaks detect → 0
 - ♻️ Refactor: keep journey narrow, DRY with 01+02
 
 ## Peran + Skill + Sub-agent
-| Peran | Eksekutor | Skill | Sub-agent |
-|---|---|---|---|
-| Journey Lead | T0 | `seith-market-intelligence` + `verification-loop` + `design-taste-frontend` | — |
+| Peran | Eksekutor | Skill | Sub-agent | Kapan |
+|---|---|---|---|---|
+| T1 Journey | sub-agent | `seith-market-intelligence` + `verification-loop` + `design-taste-frontend` + `no-ai-slop` | `explore` | docs-only 03 — journey hero→ranking→dossier→backtest |
+| Founder | User | — | — | approve hero TopLeaks vs full backtest page priority |
+| Designer | `design-taste-frontend` | `design-taste-frontend` + `no-ai-slop` | — | audit journey Bloomberg dark `#0B0E14` |
+| Doc | `doc-updater` | `remember`+`handoff`+`no-ai-slop` | `doc-updater` | sinkron apps/web journey |
 
 ## Next Session Prompt
 `skill://seith-market-intelligence` + branch `handoff/10-web-visual` + task `03-journey-integration.md` + ritual 3Q + `skill://design-taste-frontend`

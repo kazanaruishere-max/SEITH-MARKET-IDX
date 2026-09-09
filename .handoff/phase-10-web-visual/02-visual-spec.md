@@ -43,9 +43,12 @@ gitleaks detect → 0
 - ♻️ Refactor: keep visual narrow, DRY with 01+03, `file200-400` future
 
 ## Peran + Skill + Sub-agent
-| Peran | Eksekutor | Skill | Sub-agent |
-|---|---|---|---|
-| Designer FE | `design-taste-frontend` | `design-taste-frontend` + `no-ai-slop` | — |
+| Peran | Eksekutor | Skill | Sub-agent | Kapan |
+|---|---|---|---|---|
+| T1 FE | sub-agent | `seith-market-intelligence` + `design-taste-frontend` + `no-ai-slop` + `verification-loop` | `explore` | docs-only 02 — visual spec Bloomberg `#0B0E14` |
+| Founder | User | — | — | approve TopLeaks hero vs full backtest priority |
+| Designer | `design-taste-frontend` | `design-taste-frontend` + `no-ai-slop` | — | audit visual vs Bloomberg dark |
+| Doc | `doc-updater` | `remember`+`handoff`+`no-ai-slop` | `doc-updater` | sinkron apps/web design |
 
 ## Next Session Prompt
 `skill://seith-market-intelligence` + branch `handoff/10-web-visual` + task `02-visual-spec.md` + `skill://design-taste-frontend` + ritual 3Q

@@ -43,10 +43,12 @@ gitleaks detect --no-git -v → 0 leak
 - ♻️ Refactor: docs-only — keep contract narrow, DRY with 02+03
 
 ## Peran + Skill + Sub-agent
-| Peran | Eksekutor | Skill | Sub-agent |
-|---|---|---|---|
-| API Designer | `architect` | `senior-architect` + `no-ai-slop` | — |
-| Docs | `doc-updater` | `remember`+`handoff`+`no-ai-slop` | — |
+| Peran | Eksekutor | Skill | Sub-agent | Kapan |
+|---|---|---|---|---|
+| T1 Docs | sub-agent | `seith-market-intelligence` + `no-ai-slop` + `verification-loop` + `remember`+`handoff`+`no-ai-slop` | `doc-updater` | docs-only 01 — api-contract Top5 backtest |
+| Founder | User | — | — | approve Top5 vs full backtest priority |
+| Architect | `architect` | `senior-architect` + `no-ai-slop` | `architect` | SEBELUM 01 — audit envelope + Bloomberg dark |
+| Doc | `doc-updater` | `remember`+`handoff`+`no-ai-slop` | `doc-updater` | sinkron docs/api-spec §3 |
 
 ## Next Session Prompt
 `skill://seith-market-intelligence` + branch `handoff/10-web-visual` + task `01-api-contract.md` + ritual 3Q

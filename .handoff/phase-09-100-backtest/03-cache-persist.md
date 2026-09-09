@@ -39,9 +39,12 @@ cargo fmt --check → 0 / cargo clippy --all-targets → 0 / cargo test → 145 
 - ♻️ Refactor: docs-only — keep narrow, DRY with 01+02
 
 ## Peran + Skill + Sub-agent
-| Peran | Eksekutor | Skill | Sub-agent |
-|---|---|---|---|
-| Docs | `doc-updater` | `remember`+`handoff` | — |
+| Peran | Eksekutor | Skill | Sub-agent | Kapan |
+|---|---|---|---|---|
+| T1 Docs | sub-agent | `seith-market-intelligence` + `verification-loop` + `remember`+`handoff`+`no-ai-slop` | `doc-updater` | docs-only 03 — cache WAL spec |
+| Founder | User | — | — | approve TTL 86400/3600 vs live freshness |
+| Doc | `doc-updater` | `remember`+`handoff`+`no-ai-slop` | `doc-updater` | sinkron migrations/001_cache.sql |
+| Refactor | `refactor-cleaner` | `coding-standards` | `refactor-cleaner` | docs-only: N/A fn<50, keep ♻️ DRY with 01+02 |
 
 ## Next Session Prompt
 `skill://seith-market-intelligence` + branch `handoff/09-100-backtest` + task `03-cache-persist.md` + ritual 3Q
