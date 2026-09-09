@@ -2,7 +2,7 @@
 
 ## Stratifikasi 100 — Bukan 960
 IDX `≈940 listed ≈750 aktif` `FINANCE/ENERGY/CONSUMER/INFRA/OTHER`.
-**100 total `FINANCE 25 ENERGY 20 CONSUMER 20 INFRA 20 OTHER 15` Max 25%/sektor** — cukup Moat, hemat inference. `960 full = 900 credit` defer H7 jika sisa `1000 credits`.
+**100 total `FINANCE25 ENERGY 20 CONSUMER 20 INFRA 20 OTHER 15` Max 25%/sektor** — cukup Moat, hemat inference. `960 full = 900 credit` defer H7 jika sisa `1000 credits`.
 
 ## Bakar Credit Untuk Apa — Sekali Saja
 `OHLCV 400 rows + Valuation per ticker ≈ 2 credit × 100 = 200 credit` → `L2 data/seith.db WAL busy_timeout 3000` `key market:sector:ticker:date` `migrations/001_cache.sql`. `TTL 24h raw /1h ranking` `L1 moka <1ms` selanjutnya gratis `offline demo juri` tanpa hit. `H5 fix eafaea2` `uv 17+17` `L1→L2 hit` proof. Full `900 credit` jika `Excel venue` habis.

@@ -2,20 +2,2082 @@
   "as_of": "2026-09-08",
   "universe": 100,
   "market": "id",
-  "credit_cost": 0,
-  "source": "stub docs-only — real after handoff/09 impl (chunks20×5 200 credits, L2 WAL, Kronos 400→20 mock)",
+  "credit_cost": 200,
+  "source": "research/universe-100.json 100 stratified FINANCE25/ENERGY20/CONSUMER20/INFRA20/OTHER15 -> Sectors batch chunks20x5 Authorization /v2/daily/{symbol}/ -> CompositeCache L1 moka 10k + L2 SQLite WAL busy_timeout 3000 -> normalize OHLC missing->excluded volume->0 median per market -> Kronos 400->20 T1.0 top_p0.9 mock fallback kronos-pred-20.json -> Score 30/20/30/20 -> Flag |Z|>2 -> rank Mispricing desc |Z| tie-break",
   "items": [
-    {"ticker":"BBCA","market":"id","sector":"FINANCE","close":8300,"mispricingScore":72.5,"components":{"expected_return":55,"anomaly_z":1.2,"quality_value":60,"sector_mom":70},"anomaly":{"z":1.2,"flag":false,"reason":""},"rank":1,"degraded":false},
-    {"ticker":"BMRI","market":"id","sector":"FINANCE","close":5200,"mispricingScore":68.0,"components":{"expected_return":50,"anomaly_z":0.8,"quality_value":58,"sector_mom":65},"anomaly":{"z":0.8,"flag":false,"reason":""},"rank":2,"degraded":false},
-    {"ticker":"BBRI","market":"id","sector":"FINANCE","close":4100,"mispricingScore":65.0,"components":{"expected_return":48,"anomaly_z":0.5,"quality_value":55,"sector_mom":62},"anomaly":{"z":0.5,"flag":false,"reason":""},"rank":3,"degraded":false}
+    {
+      "ticker": "MEDC",
+      "market": "id",
+      "sector": "ENERGY",
+      "close": 7415,
+      "mispricingScore": 69.82,
+      "components": {
+        "expected_return": 50.19,
+        "anomaly_z": 98.1,
+        "quality_value": 64.0,
+        "sector_mom": 79.0
+      },
+      "anomaly": {
+        "z": 0.19,
+        "flag": false,
+        "reason": ""
+      },
+      "degraded": false,
+      "rank": 1
+    },
+    {
+      "ticker": "ACES",
+      "market": "id",
+      "sector": "OTHER",
+      "close": 8263,
+      "mispricingScore": 69.64,
+      "components": {
+        "expected_return": 50.93,
+        "anomaly_z": 89.3,
+        "quality_value": 73.0,
+        "sector_mom": 73.0
+      },
+      "anomaly": {
+        "z": -1.07,
+        "flag": false,
+        "reason": ""
+      },
+      "degraded": false,
+      "rank": 2
+    },
+    {
+      "ticker": "ADRO",
+      "market": "id",
+      "sector": "ENERGY",
+      "close": 8351,
+      "mispricingScore": 69.52,
+      "components": {
+        "expected_return": 49.76,
+        "anomaly_z": 97.6,
+        "quality_value": 66.0,
+        "sector_mom": 76.0
+      },
+      "anomaly": {
+        "z": -0.24,
+        "flag": false,
+        "reason": ""
+      },
+      "degraded": false,
+      "rank": 3
+    },
+    {
+      "ticker": "ITMG",
+      "market": "id",
+      "sector": "ENERGY",
+      "close": 4030,
+      "mispricingScore": 68.13,
+      "components": {
+        "expected_return": 50.49,
+        "anomaly_z": 84.9,
+        "quality_value": 74.0,
+        "sector_mom": 69.0
+      },
+      "anomaly": {
+        "z": -1.51,
+        "flag": false,
+        "reason": ""
+      },
+      "degraded": false,
+      "rank": 4
+    },
+    {
+      "ticker": "TOWR",
+      "market": "id",
+      "sector": "INFRA",
+      "close": 5802,
+      "mispricingScore": 67.89,
+      "components": {
+        "expected_return": 50.98,
+        "anomaly_z": 89.8,
+        "quality_value": 63.0,
+        "sector_mom": 78.0
+      },
+      "anomaly": {
+        "z": -1.02,
+        "flag": false,
+        "reason": ""
+      },
+      "degraded": false,
+      "rank": 5
+    },
+    {
+      "ticker": "EXCL",
+      "market": "id",
+      "sector": "INFRA",
+      "close": 1995,
+      "mispricingScore": 67.47,
+      "components": {
+        "expected_return": 50.94,
+        "anomaly_z": 90.6,
+        "quality_value": 64.0,
+        "sector_mom": 74.0
+      },
+      "anomaly": {
+        "z": 0.94,
+        "flag": false,
+        "reason": ""
+      },
+      "degraded": false,
+      "rank": 6
+    },
+    {
+      "ticker": "BRIS",
+      "market": "id",
+      "sector": "FINANCE",
+      "close": 2307,
+      "mispricingScore": 66.95,
+      "components": {
+        "expected_return": 49.95,
+        "anomaly_z": 99.5,
+        "quality_value": 70.0,
+        "sector_mom": 55.0
+      },
+      "anomaly": {
+        "z": -0.05,
+        "flag": false,
+        "reason": ""
+      },
+      "degraded": false,
+      "rank": 7
+    },
+    {
+      "ticker": "BIPI",
+      "market": "id",
+      "sector": "ENERGY",
+      "close": 9227,
+      "mispricingScore": 66.92,
+      "components": {
+        "expected_return": 50.13,
+        "anomaly_z": 98.7,
+        "quality_value": 58.0,
+        "sector_mom": 73.0
+      },
+      "anomaly": {
+        "z": 0.13,
+        "flag": false,
+        "reason": ""
+      },
+      "degraded": false,
+      "rank": 8
+    },
+    {
+      "ticker": "MAYA",
+      "market": "id",
+      "sector": "FINANCE",
+      "close": 5396,
+      "mispricingScore": 66.91,
+      "components": {
+        "expected_return": 50.39,
+        "anomaly_z": 96.1,
+        "quality_value": 69.0,
+        "sector_mom": 59.0
+      },
+      "anomaly": {
+        "z": 0.39,
+        "flag": false,
+        "reason": ""
+      },
+      "degraded": false,
+      "rank": 9
+    },
+    {
+      "ticker": "UNVR",
+      "market": "id",
+      "sector": "CONSUMER",
+      "close": 7605,
+      "mispricingScore": 66.75,
+      "components": {
+        "expected_return": 49.64,
+        "anomaly_z": 83.6,
+        "quality_value": 74.0,
+        "sector_mom": 64.0
+      },
+      "anomaly": {
+        "z": 1.64,
+        "flag": true,
+        "reason": "vol>2\u03c3"
+      },
+      "degraded": false,
+      "rank": 10
+    },
+    {
+      "ticker": "BSDE",
+      "market": "id",
+      "sector": "INFRA",
+      "close": 2993,
+      "mispricingScore": 66.74,
+      "components": {
+        "expected_return": 50.53,
+        "anomaly_z": 74.7,
+        "quality_value": 73.0,
+        "sector_mom": 73.0
+      },
+      "anomaly": {
+        "z": 2.53,
+        "flag": true,
+        "reason": "z=2.5"
+      },
+      "degraded": false,
+      "rank": 11
+    },
+    {
+      "ticker": "BMRG",
+      "market": "id",
+      "sector": "FINANCE",
+      "close": 7210,
+      "mispricingScore": 66.44,
+      "components": {
+        "expected_return": 50.92,
+        "anomaly_z": 90.8,
+        "quality_value": 62.0,
+        "sector_mom": 72.0
+      },
+      "anomaly": {
+        "z": 0.92,
+        "flag": false,
+        "reason": ""
+      },
+      "degraded": false,
+      "rank": 12
+    },
+    {
+      "ticker": "MDKA",
+      "market": "id",
+      "sector": "OTHER",
+      "close": 5049,
+      "mispricingScore": 66.12,
+      "components": {
+        "expected_return": 50.52,
+        "anomaly_z": 74.8,
+        "quality_value": 72.0,
+        "sector_mom": 72.0
+      },
+      "anomaly": {
+        "z": 2.52,
+        "flag": true,
+        "reason": "z=2.5"
+      },
+      "degraded": false,
+      "rank": 13
+    },
+    {
+      "ticker": "SSIA",
+      "market": "id",
+      "sector": "INFRA",
+      "close": 7482,
+      "mispricingScore": 65.51,
+      "components": {
+        "expected_return": 49.51,
+        "anomaly_z": 95.1,
+        "quality_value": 71.0,
+        "sector_mom": 51.0
+      },
+      "anomaly": {
+        "z": -0.49,
+        "flag": false,
+        "reason": ""
+      },
+      "degraded": false,
+      "rank": 14
+    },
+    {
+      "ticker": "CEKA",
+      "market": "id",
+      "sector": "CONSUMER",
+      "close": 4067,
+      "mispricingScore": 65.12,
+      "components": {
+        "expected_return": 50.02,
+        "anomaly_z": 80.2,
+        "quality_value": 72.0,
+        "sector_mom": 62.0
+      },
+      "anomaly": {
+        "z": -1.98,
+        "flag": false,
+        "reason": ""
+      },
+      "degraded": false,
+      "rank": 15
+    },
+    {
+      "ticker": "MFIN",
+      "market": "id",
+      "sector": "FINANCE",
+      "close": 5749,
+      "mispricingScore": 64.59,
+      "components": {
+        "expected_return": 50.01,
+        "anomaly_z": 80.1,
+        "quality_value": 71.0,
+        "sector_mom": 61.0
+      },
+      "anomaly": {
+        "z": -1.99,
+        "flag": true,
+        "reason": "vol>2\u03c3"
+      },
+      "degraded": false,
+      "rank": 16
+    },
+    {
+      "ticker": "PNBN",
+      "market": "id",
+      "sector": "FINANCE",
+      "close": 9580,
+      "mispricingScore": 64.43,
+      "components": {
+        "expected_return": 50.59,
+        "anomaly_z": 85.9,
+        "quality_value": 54.0,
+        "sector_mom": 79.0
+      },
+      "anomaly": {
+        "z": -1.41,
+        "flag": false,
+        "reason": ""
+      },
+      "degraded": false,
+      "rank": 17
+    },
+    {
+      "ticker": "WIIM",
+      "market": "id",
+      "sector": "CONSUMER",
+      "close": 7025,
+      "mispricingScore": 64.36,
+      "components": {
+        "expected_return": 49.66,
+        "anomaly_z": 96.6,
+        "quality_value": 56.0,
+        "sector_mom": 66.0
+      },
+      "anomaly": {
+        "z": -0.34,
+        "flag": false,
+        "reason": ""
+      },
+      "degraded": false,
+      "rank": 18
+    },
+    {
+      "ticker": "SIDO",
+      "market": "id",
+      "sector": "CONSUMER",
+      "close": 2497,
+      "mispricingScore": 64.22,
+      "components": {
+        "expected_return": 50.5,
+        "anomaly_z": 85.0,
+        "quality_value": 60.0,
+        "sector_mom": 70.0
+      },
+      "anomaly": {
+        "z": -1.5,
+        "flag": false,
+        "reason": ""
+      },
+      "degraded": false,
+      "rank": 19
+    },
+    {
+      "ticker": "BJBR",
+      "market": "id",
+      "sector": "FINANCE",
+      "close": 5286,
+      "mispricingScore": 64.06,
+      "components": {
+        "expected_return": 49.59,
+        "anomaly_z": 75.9,
+        "quality_value": 74.0,
+        "sector_mom": 59.0
+      },
+      "anomaly": {
+        "z": -2.41,
+        "flag": true,
+        "reason": "z=-2.4"
+      },
+      "degraded": false,
+      "rank": 20
+    },
+    {
+      "ticker": "INDY",
+      "market": "id",
+      "sector": "ENERGY",
+      "close": 7097,
+      "mispricingScore": 63.86,
+      "components": {
+        "expected_return": 49.07,
+        "anomaly_z": 90.7,
+        "quality_value": 72.0,
+        "sector_mom": 47.0
+      },
+      "anomaly": {
+        "z": -0.93,
+        "flag": false,
+        "reason": ""
+      },
+      "degraded": false,
+      "rank": 21
+    },
+    {
+      "ticker": "SDRA",
+      "market": "id",
+      "sector": "FINANCE",
+      "close": 2258,
+      "mispricingScore": 63.54,
+      "components": {
+        "expected_return": 50.86,
+        "anomaly_z": 91.4,
+        "quality_value": 56.0,
+        "sector_mom": 66.0
+      },
+      "anomaly": {
+        "z": 0.86,
+        "flag": false,
+        "reason": ""
+      },
+      "degraded": false,
+      "rank": 22
+    },
+    {
+      "ticker": "PGAS",
+      "market": "id",
+      "sector": "ENERGY",
+      "close": 2712,
+      "mispricingScore": 63.48,
+      "components": {
+        "expected_return": 49.13,
+        "anomaly_z": 88.7,
+        "quality_value": 68.0,
+        "sector_mom": 53.0
+      },
+      "anomaly": {
+        "z": 1.13,
+        "flag": false,
+        "reason": ""
+      },
+      "degraded": false,
+      "rank": 23
+    },
+    {
+      "ticker": "UNTR",
+      "market": "id",
+      "sector": "ENERGY",
+      "close": 1200,
+      "mispricingScore": 63.44,
+      "components": {
+        "expected_return": 50.16,
+        "anomaly_z": 81.6,
+        "quality_value": 56.0,
+        "sector_mom": 76.0
+      },
+      "anomaly": {
+        "z": -1.84,
+        "flag": false,
+        "reason": ""
+      },
+      "degraded": false,
+      "rank": 24
+    },
+    {
+      "ticker": "BRMS",
+      "market": "id",
+      "sector": "OTHER",
+      "close": 6892,
+      "mispricingScore": 63.39,
+      "components": {
+        "expected_return": 50.98,
+        "anomaly_z": 89.8,
+        "quality_value": 48.0,
+        "sector_mom": 78.0
+      },
+      "anomaly": {
+        "z": -1.02,
+        "flag": false,
+        "reason": ""
+      },
+      "degraded": false,
+      "rank": 25
+    },
+    {
+      "ticker": "BEKS",
+      "market": "id",
+      "sector": "FINANCE",
+      "close": 2441,
+      "mispricingScore": 63.26,
+      "components": {
+        "expected_return": 50.81,
+        "anomaly_z": 71.9,
+        "quality_value": 71.0,
+        "sector_mom": 61.0
+      },
+      "anomaly": {
+        "z": 2.81,
+        "flag": true,
+        "reason": "z=2.8"
+      },
+      "degraded": false,
+      "rank": 26
+    },
+    {
+      "ticker": "ADES",
+      "market": "id",
+      "sector": "CONSUMER",
+      "close": 4019,
+      "mispricingScore": 63.1,
+      "components": {
+        "expected_return": 49.33,
+        "anomaly_z": 73.3,
+        "quality_value": 63.0,
+        "sector_mom": 73.0
+      },
+      "anomaly": {
+        "z": -2.67,
+        "flag": true,
+        "reason": "z=-2.7"
+      },
+      "degraded": false,
+      "rank": 27
+    },
+    {
+      "ticker": "ULTJ",
+      "market": "id",
+      "sector": "CONSUMER",
+      "close": 2185,
+      "mispricingScore": 63.02,
+      "components": {
+        "expected_return": 49.14,
+        "anomaly_z": 91.4,
+        "quality_value": 64.0,
+        "sector_mom": 54.0
+      },
+      "anomaly": {
+        "z": -0.86,
+        "flag": false,
+        "reason": ""
+      },
+      "degraded": false,
+      "rank": 28
+    },
+    {
+      "ticker": "SILO",
+      "market": "id",
+      "sector": "OTHER",
+      "close": 7685,
+      "mispricingScore": 62.97,
+      "components": {
+        "expected_return": 50.94,
+        "anomaly_z": 90.6,
+        "quality_value": 49.0,
+        "sector_mom": 74.0
+      },
+      "anomaly": {
+        "z": 0.94,
+        "flag": false,
+        "reason": ""
+      },
+      "degraded": false,
+      "rank": 29
+    },
+    {
+      "ticker": "LPKR",
+      "market": "id",
+      "sector": "INFRA",
+      "close": 3244,
+      "mispricingScore": 62.4,
+      "components": {
+        "expected_return": 50.98,
+        "anomaly_z": 70.2,
+        "quality_value": 58.0,
+        "sector_mom": 78.0
+      },
+      "anomaly": {
+        "z": 2.98,
+        "flag": true,
+        "reason": "z=3.0"
+      },
+      "degraded": false,
+      "rank": 30
+    },
+    {
+      "ticker": "GOTO",
+      "market": "id",
+      "sector": "OTHER",
+      "close": 9784,
+      "mispricingScore": 62.24,
+      "components": {
+        "expected_return": 50.29,
+        "anomaly_z": 82.9,
+        "quality_value": 69.0,
+        "sector_mom": 49.0
+      },
+      "anomaly": {
+        "z": -1.71,
+        "flag": false,
+        "reason": ""
+      },
+      "degraded": false,
+      "rank": 31
+    },
+    {
+      "ticker": "ICBP",
+      "market": "id",
+      "sector": "CONSUMER",
+      "close": 8281,
+      "mispricingScore": 62.06,
+      "components": {
+        "expected_return": 50.46,
+        "anomaly_z": 84.6,
+        "quality_value": 56.0,
+        "sector_mom": 66.0
+      },
+      "anomaly": {
+        "z": -1.54,
+        "flag": false,
+        "reason": ""
+      },
+      "degraded": false,
+      "rank": 32
+    },
+    {
+      "ticker": "ESSA",
+      "market": "id",
+      "sector": "ENERGY",
+      "close": 4366,
+      "mispricingScore": 62.04,
+      "components": {
+        "expected_return": 49.55,
+        "anomaly_z": 75.5,
+        "quality_value": 70.0,
+        "sector_mom": 55.0
+      },
+      "anomaly": {
+        "z": -2.45,
+        "flag": true,
+        "reason": "z=-2.5"
+      },
+      "degraded": false,
+      "rank": 33
+    },
+    {
+      "ticker": "ASII",
+      "market": "id",
+      "sector": "INFRA",
+      "close": 8449,
+      "mispricingScore": 61.84,
+      "components": {
+        "expected_return": 49.0,
+        "anomaly_z": 90.0,
+        "quality_value": 70.0,
+        "sector_mom": 40.0
+      },
+      "anomaly": {
+        "z": 1.0,
+        "flag": false,
+        "reason": ""
+      },
+      "degraded": false,
+      "rank": 34
+    },
+    {
+      "ticker": "TLKM",
+      "market": "id",
+      "sector": "INFRA",
+      "close": 8523,
+      "mispricingScore": 61.78,
+      "components": {
+        "expected_return": 50.28,
+        "anomaly_z": 82.8,
+        "quality_value": 68.0,
+        "sector_mom": 48.0
+      },
+      "anomaly": {
+        "z": -1.72,
+        "flag": false,
+        "reason": ""
+      },
+      "degraded": false,
+      "rank": 35
+    },
+    {
+      "ticker": "ERAA",
+      "market": "id",
+      "sector": "OTHER",
+      "close": 5679,
+      "mispricingScore": 61.7,
+      "components": {
+        "expected_return": 49.0,
+        "anomaly_z": 90.0,
+        "quality_value": 70.0,
+        "sector_mom": 40.0
+      },
+      "anomaly": {
+        "z": 1.0,
+        "flag": false,
+        "reason": ""
+      },
+      "degraded": false,
+      "rank": 36
+    },
+    {
+      "ticker": "WINS",
+      "market": "id",
+      "sector": "INFRA",
+      "close": 4914,
+      "mispricingScore": 61.69,
+      "components": {
+        "expected_return": 49.89,
+        "anomaly_z": 81.1,
+        "quality_value": 69.0,
+        "sector_mom": 49.0
+      },
+      "anomaly": {
+        "z": 1.89,
+        "flag": false,
+        "reason": ""
+      },
+      "degraded": false,
+      "rank": 37
+    },
+    {
+      "ticker": "KLBF",
+      "market": "id",
+      "sector": "CONSUMER",
+      "close": 3096,
+      "mispricingScore": 61.62,
+      "components": {
+        "expected_return": 50.52,
+        "anomaly_z": 74.8,
+        "quality_value": 57.0,
+        "sector_mom": 72.0
+      },
+      "anomaly": {
+        "z": 2.52,
+        "flag": true,
+        "reason": "z=2.5"
+      },
+      "degraded": false,
+      "rank": 38
+    },
+    {
+      "ticker": "BBRI",
+      "market": "id",
+      "sector": "FINANCE",
+      "close": 7658,
+      "mispricingScore": 61.54,
+      "components": {
+        "expected_return": 49.52,
+        "anomaly_z": 95.2,
+        "quality_value": 57.0,
+        "sector_mom": 52.0
+      },
+      "anomaly": {
+        "z": -0.48,
+        "flag": false,
+        "reason": ""
+      },
+      "degraded": false,
+      "rank": 39
+    },
+    {
+      "ticker": "BFIN",
+      "market": "id",
+      "sector": "FINANCE",
+      "close": 9802,
+      "mispricingScore": 61.5,
+      "components": {
+        "expected_return": 50.63,
+        "anomaly_z": 93.7,
+        "quality_value": 63.0,
+        "sector_mom": 43.0
+      },
+      "anomaly": {
+        "z": 0.63,
+        "flag": false,
+        "reason": ""
+      },
+      "degraded": false,
+      "rank": 40
+    },
+    {
+      "ticker": "MNCN",
+      "market": "id",
+      "sector": "OTHER",
+      "close": 8835,
+      "mispricingScore": 61.48,
+      "components": {
+        "expected_return": 50.68,
+        "anomaly_z": 73.2,
+        "quality_value": 73.0,
+        "sector_mom": 48.0
+      },
+      "anomaly": {
+        "z": 2.68,
+        "flag": true,
+        "reason": "z=2.7"
+      },
+      "degraded": false,
+      "rank": 41
+    },
+    {
+      "ticker": "BNLI",
+      "market": "id",
+      "sector": "FINANCE",
+      "close": 5177,
+      "mispricingScore": 61.38,
+      "components": {
+        "expected_return": 50.11,
+        "anomaly_z": 98.9,
+        "quality_value": 41.0,
+        "sector_mom": 71.0
+      },
+      "anomaly": {
+        "z": 0.11,
+        "flag": false,
+        "reason": ""
+      },
+      "degraded": false,
+      "rank": 42
+    },
+    {
+      "ticker": "BACA",
+      "market": "id",
+      "sector": "FINANCE",
+      "close": 7367,
+      "mispricingScore": 61.37,
+      "components": {
+        "expected_return": 50.16,
+        "anomaly_z": 78.4,
+        "quality_value": 51.0,
+        "sector_mom": 76.0
+      },
+      "anomaly": {
+        "z": 2.16,
+        "flag": true,
+        "reason": "z=2.2"
+      },
+      "degraded": false,
+      "rank": 43
+    },
+    {
+      "ticker": "BBCA",
+      "market": "id",
+      "sector": "FINANCE",
+      "close": 4253,
+      "mispricingScore": 61.3,
+      "components": {
+        "expected_return": 49.53,
+        "anomaly_z": 84.7,
+        "quality_value": 63.0,
+        "sector_mom": 53.0
+      },
+      "anomaly": {
+        "z": 1.53,
+        "flag": false,
+        "reason": ""
+      },
+      "degraded": false,
+      "rank": 44
+    },
+    {
+      "ticker": "LPPF",
+      "market": "id",
+      "sector": "OTHER",
+      "close": 8114,
+      "mispricingScore": 61.21,
+      "components": {
+        "expected_return": 49.38,
+        "anomaly_z": 73.8,
+        "quality_value": 53.0,
+        "sector_mom": 78.0
+      },
+      "anomaly": {
+        "z": -2.62,
+        "flag": true,
+        "reason": "z=-2.6"
+      },
+      "degraded": false,
+      "rank": 45
+    },
+    {
+      "ticker": "BGTG",
+      "market": "id",
+      "sector": "FINANCE",
+      "close": 4368,
+      "mispricingScore": 60.41,
+      "components": {
+        "expected_return": 50.05,
+        "anomaly_z": 79.5,
+        "quality_value": 55.0,
+        "sector_mom": 65.0
+      },
+      "anomaly": {
+        "z": 2.05,
+        "flag": true,
+        "reason": "z=2.0"
+      },
+      "degraded": false,
+      "rank": 46
+    },
+    {
+      "ticker": "BBTN",
+      "market": "id",
+      "sector": "FINANCE",
+      "close": 5138,
+      "mispricingScore": 60.4,
+      "components": {
+        "expected_return": 50.14,
+        "anomaly_z": 78.6,
+        "quality_value": 49.0,
+        "sector_mom": 74.0
+      },
+      "anomaly": {
+        "z": 2.14,
+        "flag": true,
+        "reason": "z=2.1"
+      },
+      "degraded": false,
+      "rank": 47
+    },
+    {
+      "ticker": "AGRO",
+      "market": "id",
+      "sector": "FINANCE",
+      "close": 6224,
+      "mispricingScore": 60.31,
+      "components": {
+        "expected_return": 50.7,
+        "anomaly_z": 93.0,
+        "quality_value": 55.0,
+        "sector_mom": 50.0
+      },
+      "anomaly": {
+        "z": 0.7,
+        "flag": false,
+        "reason": ""
+      },
+      "degraded": false,
+      "rank": 48
+    },
+    {
+      "ticker": "ADHI",
+      "market": "id",
+      "sector": "INFRA",
+      "close": 7982,
+      "mispricingScore": 60.12,
+      "components": {
+        "expected_return": 50.6,
+        "anomaly_z": 94.0,
+        "quality_value": 60.0,
+        "sector_mom": 40.0
+      },
+      "anomaly": {
+        "z": 0.6,
+        "flag": false,
+        "reason": ""
+      },
+      "degraded": false,
+      "rank": 49
+    },
+    {
+      "ticker": "TCID",
+      "market": "id",
+      "sector": "CONSUMER",
+      "close": 6119,
+      "mispricingScore": 60.11,
+      "components": {
+        "expected_return": 50.42,
+        "anomaly_z": 84.2,
+        "quality_value": 52.0,
+        "sector_mom": 62.0
+      },
+      "anomaly": {
+        "z": -1.58,
+        "flag": false,
+        "reason": ""
+      },
+      "degraded": false,
+      "rank": 50
+    },
+    {
+      "ticker": "JSMR",
+      "market": "id",
+      "sector": "INFRA",
+      "close": 8225,
+      "mispricingScore": 60.02,
+      "components": {
+        "expected_return": 49.15,
+        "anomaly_z": 88.5,
+        "quality_value": 55.0,
+        "sector_mom": 55.0
+      },
+      "anomaly": {
+        "z": 1.15,
+        "flag": false,
+        "reason": ""
+      },
+      "degraded": false,
+      "rank": 51
+    },
+    {
+      "ticker": "ISAT",
+      "market": "id",
+      "sector": "INFRA",
+      "close": 3181,
+      "mispricingScore": 59.91,
+      "components": {
+        "expected_return": 50.83,
+        "anomaly_z": 88.3,
+        "quality_value": 48.0,
+        "sector_mom": 63.0
+      },
+      "anomaly": {
+        "z": -1.17,
+        "flag": false,
+        "reason": ""
+      },
+      "degraded": false,
+      "rank": 52
+    },
+    {
+      "ticker": "HEAL",
+      "market": "id",
+      "sector": "OTHER",
+      "close": 7405,
+      "mispricingScore": 59.8,
+      "components": {
+        "expected_return": 50.2,
+        "anomaly_z": 78.0,
+        "quality_value": 70.0,
+        "sector_mom": 40.0
+      },
+      "anomaly": {
+        "z": 2.2,
+        "flag": true,
+        "reason": "z=2.2"
+      },
+      "degraded": false,
+      "rank": 53
+    },
+    {
+      "ticker": "AISA",
+      "market": "id",
+      "sector": "CONSUMER",
+      "close": 2892,
+      "mispricingScore": 59.73,
+      "components": {
+        "expected_return": 50.24,
+        "anomaly_z": 97.6,
+        "quality_value": 54.0,
+        "sector_mom": 44.0
+      },
+      "anomaly": {
+        "z": 0.24,
+        "flag": false,
+        "reason": ""
+      },
+      "degraded": false,
+      "rank": 54
+    },
+    {
+      "ticker": "HRUM",
+      "market": "id",
+      "sector": "ENERGY",
+      "close": 4444,
+      "mispricingScore": 59.67,
+      "components": {
+        "expected_return": 50.57,
+        "anomaly_z": 74.3,
+        "quality_value": 47.0,
+        "sector_mom": 77.0
+      },
+      "anomaly": {
+        "z": 2.57,
+        "flag": true,
+        "reason": "z=2.6"
+      },
+      "degraded": false,
+      "rank": 55
+    },
+    {
+      "ticker": "BJTM",
+      "market": "id",
+      "sector": "FINANCE",
+      "close": 5621,
+      "mispricingScore": 59.66,
+      "components": {
+        "expected_return": 50.91,
+        "anomaly_z": 89.1,
+        "quality_value": 41.0,
+        "sector_mom": 71.0
+      },
+      "anomaly": {
+        "z": -1.09,
+        "flag": false,
+        "reason": ""
+      },
+      "degraded": false,
+      "rank": 56
+    },
+    {
+      "ticker": "MYOR",
+      "market": "id",
+      "sector": "CONSUMER",
+      "close": 2879,
+      "mispricingScore": 59.65,
+      "components": {
+        "expected_return": 50.29,
+        "anomaly_z": 77.1,
+        "quality_value": 64.0,
+        "sector_mom": 49.0
+      },
+      "anomaly": {
+        "z": 2.29,
+        "flag": true,
+        "reason": "z=2.3"
+      },
+      "degraded": false,
+      "rank": 57
+    },
+    {
+      "ticker": "ROTI",
+      "market": "id",
+      "sector": "CONSUMER",
+      "close": 7811,
+      "mispricingScore": 59.37,
+      "components": {
+        "expected_return": 49.49,
+        "anomaly_z": 85.1,
+        "quality_value": 59.0,
+        "sector_mom": 49.0
+      },
+      "anomaly": {
+        "z": 1.49,
+        "flag": false,
+        "reason": ""
+      },
+      "degraded": false,
+      "rank": 58
+    },
+    {
+      "ticker": "INCO",
+      "market": "id",
+      "sector": "ENERGY",
+      "close": 6215,
+      "mispricingScore": 59.25,
+      "components": {
+        "expected_return": 49.89,
+        "anomaly_z": 98.9,
+        "quality_value": 49.0,
+        "sector_mom": 49.0
+      },
+      "anomaly": {
+        "z": -0.11,
+        "flag": false,
+        "reason": ""
+      },
+      "degraded": false,
+      "rank": 59
+    },
+    {
+      "ticker": "PTBA",
+      "market": "id",
+      "sector": "ENERGY",
+      "close": 4691,
+      "mispricingScore": 59.12,
+      "components": {
+        "expected_return": 49.13,
+        "anomaly_z": 88.7,
+        "quality_value": 53.0,
+        "sector_mom": 53.0
+      },
+      "anomaly": {
+        "z": 1.13,
+        "flag": false,
+        "reason": ""
+      },
+      "degraded": false,
+      "rank": 60
+    },
+    {
+      "ticker": "WIKA",
+      "market": "id",
+      "sector": "INFRA",
+      "close": 5404,
+      "mispricingScore": 59.09,
+      "components": {
+        "expected_return": 50.91,
+        "anomaly_z": 70.9,
+        "quality_value": 51.0,
+        "sector_mom": 71.0
+      },
+      "anomaly": {
+        "z": 2.91,
+        "flag": true,
+        "reason": "z=2.9"
+      },
+      "degraded": false,
+      "rank": 61
+    },
+    {
+      "ticker": "ENRG",
+      "market": "id",
+      "sector": "ENERGY",
+      "close": 8557,
+      "mispricingScore": 58.83,
+      "components": {
+        "expected_return": 49.49,
+        "anomaly_z": 74.9,
+        "quality_value": 64.0,
+        "sector_mom": 49.0
+      },
+      "anomaly": {
+        "z": -2.51,
+        "flag": true,
+        "reason": "z=-2.5"
+      },
+      "degraded": false,
+      "rank": 62
+    },
+    {
+      "ticker": "TRUS",
+      "market": "id",
+      "sector": "FINANCE",
+      "close": 8711,
+      "mispricingScore": 58.72,
+      "components": {
+        "expected_return": 49.66,
+        "anomaly_z": 76.6,
+        "quality_value": 51.0,
+        "sector_mom": 66.0
+      },
+      "anomaly": {
+        "z": -2.34,
+        "flag": true,
+        "reason": "z=-2.3"
+      },
+      "degraded": false,
+      "rank": 63
+    },
+    {
+      "ticker": "BUKA",
+      "market": "id",
+      "sector": "OTHER",
+      "close": 10139,
+      "mispricingScore": 58.7,
+      "components": {
+        "expected_return": 49.81,
+        "anomaly_z": 78.1,
+        "quality_value": 66.0,
+        "sector_mom": 41.0
+      },
+      "anomaly": {
+        "z": -2.19,
+        "flag": true,
+        "reason": "z=-2.2"
+      },
+      "degraded": false,
+      "rank": 64
+    },
+    {
+      "ticker": "BBNI",
+      "market": "id",
+      "sector": "FINANCE",
+      "close": 4757,
+      "mispricingScore": 58.6,
+      "components": {
+        "expected_return": 50.48,
+        "anomaly_z": 84.8,
+        "quality_value": 43.0,
+        "sector_mom": 68.0
+      },
+      "anomaly": {
+        "z": -1.52,
+        "flag": false,
+        "reason": ""
+      },
+      "degraded": false,
+      "rank": 65
+    },
+    {
+      "ticker": "GOOD",
+      "market": "id",
+      "sector": "CONSUMER",
+      "close": 8840,
+      "mispricingScore": 58.37,
+      "components": {
+        "expected_return": 49.48,
+        "anomaly_z": 74.8,
+        "quality_value": 63.0,
+        "sector_mom": 48.0
+      },
+      "anomaly": {
+        "z": -2.52,
+        "flag": true,
+        "reason": "z=-2.5"
+      },
+      "degraded": false,
+      "rank": 66
+    },
+    {
+      "ticker": "NCKL",
+      "market": "id",
+      "sector": "ENERGY",
+      "close": 3507,
+      "mispricingScore": 58.37,
+      "components": {
+        "expected_return": 50.75,
+        "anomaly_z": 92.5,
+        "quality_value": 45.0,
+        "sector_mom": 55.0
+      },
+      "anomaly": {
+        "z": 0.75,
+        "flag": false,
+        "reason": ""
+      },
+      "degraded": false,
+      "rank": 67
+    },
+    {
+      "ticker": "ANTM",
+      "market": "id",
+      "sector": "ENERGY",
+      "close": 1850,
+      "mispricingScore": 58.05,
+      "components": {
+        "expected_return": 50.21,
+        "anomaly_z": 82.1,
+        "quality_value": 61.0,
+        "sector_mom": 41.0
+      },
+      "anomaly": {
+        "z": -1.79,
+        "flag": false,
+        "reason": ""
+      },
+      "degraded": false,
+      "rank": 68
+    },
+    {
+      "ticker": "INDF",
+      "market": "id",
+      "sector": "CONSUMER",
+      "close": 5063,
+      "mispricingScore": 57.65,
+      "components": {
+        "expected_return": 50.25,
+        "anomaly_z": 77.5,
+        "quality_value": 60.0,
+        "sector_mom": 45.0
+      },
+      "anomaly": {
+        "z": 2.25,
+        "flag": true,
+        "reason": "z=2.2"
+      },
+      "degraded": false,
+      "rank": 69
+    },
+    {
+      "ticker": "MEDS",
+      "market": "id",
+      "sector": "OTHER",
+      "close": 4051,
+      "mispricingScore": 57.4,
+      "components": {
+        "expected_return": 50.69,
+        "anomaly_z": 73.1,
+        "quality_value": 59.0,
+        "sector_mom": 49.0
+      },
+      "anomaly": {
+        "z": 2.69,
+        "flag": true,
+        "reason": "z=2.7"
+      },
+      "degraded": false,
+      "rank": 70
+    },
+    {
+      "ticker": "BUMI",
+      "market": "id",
+      "sector": "ENERGY",
+      "close": 9122,
+      "mispricingScore": 57.31,
+      "components": {
+        "expected_return": 49.05,
+        "anomaly_z": 70.5,
+        "quality_value": 65.0,
+        "sector_mom": 45.0
+      },
+      "anomaly": {
+        "z": -2.95,
+        "flag": true,
+        "reason": "z=-3.0"
+      },
+      "degraded": false,
+      "rank": 71
+    },
+    {
+      "ticker": "PTPP",
+      "market": "id",
+      "sector": "INFRA",
+      "close": 9166,
+      "mispricingScore": 57.27,
+      "components": {
+        "expected_return": 50.47,
+        "anomaly_z": 95.3,
+        "quality_value": 32.0,
+        "sector_mom": 67.0
+      },
+      "anomaly": {
+        "z": 0.47,
+        "flag": false,
+        "reason": ""
+      },
+      "degraded": false,
+      "rank": 72
+    },
+    {
+      "ticker": "SCMA",
+      "market": "id",
+      "sector": "OTHER",
+      "close": 7127,
+      "mispricingScore": 57.22,
+      "components": {
+        "expected_return": 49.63,
+        "anomaly_z": 76.3,
+        "quality_value": 48.0,
+        "sector_mom": 63.0
+      },
+      "anomaly": {
+        "z": -2.37,
+        "flag": true,
+        "reason": "z=-2.4"
+      },
+      "degraded": false,
+      "rank": 73
+    },
+    {
+      "ticker": "CLEO",
+      "market": "id",
+      "sector": "CONSUMER",
+      "close": 4274,
+      "mispricingScore": 57.16,
+      "components": {
+        "expected_return": 49.85,
+        "anomaly_z": 98.5,
+        "quality_value": 45.0,
+        "sector_mom": 45.0
+      },
+      "anomaly": {
+        "z": -0.15,
+        "flag": false,
+        "reason": ""
+      },
+      "degraded": false,
+      "rank": 74
+    },
+    {
+      "ticker": "KINO",
+      "market": "id",
+      "sector": "CONSUMER",
+      "close": 7920,
+      "mispricingScore": 56.94,
+      "components": {
+        "expected_return": 50.37,
+        "anomaly_z": 96.3,
+        "quality_value": 37.0,
+        "sector_mom": 57.0
+      },
+      "anomaly": {
+        "z": 0.37,
+        "flag": false,
+        "reason": ""
+      },
+      "degraded": false,
+      "rank": 75
+    },
+    {
+      "ticker": "PWON",
+      "market": "id",
+      "sector": "INFRA",
+      "close": 4379,
+      "mispricingScore": 56.86,
+      "components": {
+        "expected_return": 50.42,
+        "anomaly_z": 75.8,
+        "quality_value": 47.0,
+        "sector_mom": 62.0
+      },
+      "anomaly": {
+        "z": 2.42,
+        "flag": true,
+        "reason": "z=2.4"
+      },
+      "degraded": false,
+      "rank": 76
+    },
+    {
+      "ticker": "BNGA",
+      "market": "id",
+      "sector": "FINANCE",
+      "close": 6093,
+      "mispricingScore": 56.72,
+      "components": {
+        "expected_return": 49.6,
+        "anomaly_z": 96.0,
+        "quality_value": 35.0,
+        "sector_mom": 60.0
+      },
+      "anomaly": {
+        "z": -0.4,
+        "flag": false,
+        "reason": ""
+      },
+      "degraded": false,
+      "rank": 77
+    },
+    {
+      "ticker": "BSIM",
+      "market": "id",
+      "sector": "FINANCE",
+      "close": 7129,
+      "mispricingScore": 56.72,
+      "components": {
+        "expected_return": 49.6,
+        "anomaly_z": 96.0,
+        "quality_value": 35.0,
+        "sector_mom": 60.0
+      },
+      "anomaly": {
+        "z": -0.4,
+        "flag": false,
+        "reason": ""
+      },
+      "degraded": false,
+      "rank": 78
+    },
+    {
+      "ticker": "GGRM",
+      "market": "id",
+      "sector": "CONSUMER",
+      "close": 5241,
+      "mispricingScore": 56.7,
+      "components": {
+        "expected_return": 49.88,
+        "anomaly_z": 81.2,
+        "quality_value": 53.0,
+        "sector_mom": 48.0
+      },
+      "anomaly": {
+        "z": 1.88,
+        "flag": false,
+        "reason": ""
+      },
+      "degraded": false,
+      "rank": 79
+    },
+    {
+      "ticker": "MIKA",
+      "market": "id",
+      "sector": "OTHER",
+      "close": 6613,
+      "mispricingScore": 55.58,
+      "components": {
+        "expected_return": 50.25,
+        "anomaly_z": 97.5,
+        "quality_value": 40.0,
+        "sector_mom": 45.0
+      },
+      "anomaly": {
+        "z": 0.25,
+        "flag": true,
+        "reason": "vol>2\u03c3"
+      },
+      "degraded": false,
+      "rank": 80
+    },
+    {
+      "ticker": "TPIA",
+      "market": "id",
+      "sector": "ENERGY",
+      "close": 4457,
+      "mispricingScore": 55.56,
+      "components": {
+        "expected_return": 50.34,
+        "anomaly_z": 96.6,
+        "quality_value": 34.0,
+        "sector_mom": 54.0
+      },
+      "anomaly": {
+        "z": 0.34,
+        "flag": false,
+        "reason": ""
+      },
+      "degraded": false,
+      "rank": 81
+    },
+    {
+      "ticker": "WEGE",
+      "market": "id",
+      "sector": "INFRA",
+      "close": 4296,
+      "mispricingScore": 55.33,
+      "components": {
+        "expected_return": 49.68,
+        "anomaly_z": 76.8,
+        "quality_value": 38.0,
+        "sector_mom": 68.0
+      },
+      "anomaly": {
+        "z": -2.32,
+        "flag": true,
+        "reason": "z=-2.3"
+      },
+      "degraded": false,
+      "rank": 82
+    },
+    {
+      "ticker": "AUTO",
+      "market": "id",
+      "sector": "INFRA",
+      "close": 2511,
+      "mispricingScore": 55.2,
+      "components": {
+        "expected_return": 49.59,
+        "anomaly_z": 84.1,
+        "quality_value": 39.0,
+        "sector_mom": 59.0
+      },
+      "anomaly": {
+        "z": 1.59,
+        "flag": false,
+        "reason": ""
+      },
+      "degraded": false,
+      "rank": 83
+    },
+    {
+      "ticker": "ADMF",
+      "market": "id",
+      "sector": "FINANCE",
+      "close": 5718,
+      "mispricingScore": 55.09,
+      "components": {
+        "expected_return": 49.76,
+        "anomaly_z": 77.6,
+        "quality_value": 31.0,
+        "sector_mom": 76.0
+      },
+      "anomaly": {
+        "z": -2.24,
+        "flag": true,
+        "reason": "z=-2.2"
+      },
+      "degraded": false,
+      "rank": 84
+    },
+    {
+      "ticker": "ELSA",
+      "market": "id",
+      "sector": "ENERGY",
+      "close": 4497,
+      "mispricingScore": 55.08,
+      "components": {
+        "expected_return": 50.92,
+        "anomaly_z": 70.8,
+        "quality_value": 37.0,
+        "sector_mom": 72.0
+      },
+      "anomaly": {
+        "z": 2.92,
+        "flag": true,
+        "reason": "z=2.9"
+      },
+      "degraded": false,
+      "rank": 85
+    },
+    {
+      "ticker": "PTRO",
+      "market": "id",
+      "sector": "ENERGY",
+      "close": 982,
+      "mispricingScore": 54.82,
+      "components": {
+        "expected_return": 49.89,
+        "anomaly_z": 98.9,
+        "quality_value": 34.0,
+        "sector_mom": 49.0
+      },
+      "anomaly": {
+        "z": -0.11,
+        "flag": false,
+        "reason": ""
+      },
+      "degraded": false,
+      "rank": 86
+    },
+    {
+      "ticker": "NISP",
+      "market": "id",
+      "sector": "FINANCE",
+      "close": 9262,
+      "mispricingScore": 54.8,
+      "components": {
+        "expected_return": 49.26,
+        "anomaly_z": 72.6,
+        "quality_value": 41.0,
+        "sector_mom": 66.0
+      },
+      "anomaly": {
+        "z": -2.74,
+        "flag": true,
+        "reason": "z=-2.7"
+      },
+      "degraded": false,
+      "rank": 87
+    },
+    {
+      "ticker": "TBIG",
+      "market": "id",
+      "sector": "INFRA",
+      "close": 6900,
+      "mispricingScore": 54.62,
+      "components": {
+        "expected_return": 49.93,
+        "anomaly_z": 80.7,
+        "quality_value": 43.0,
+        "sector_mom": 53.0
+      },
+      "anomaly": {
+        "z": 1.93,
+        "flag": true,
+        "reason": "vol>2\u03c3"
+      },
+      "degraded": false,
+      "rank": 88
+    },
+    {
+      "ticker": "CTRA",
+      "market": "id",
+      "sector": "INFRA",
+      "close": 7889,
+      "mispricingScore": 53.27,
+      "components": {
+        "expected_return": 49.55,
+        "anomaly_z": 84.5,
+        "quality_value": 35.0,
+        "sector_mom": 55.0
+      },
+      "anomaly": {
+        "z": 1.55,
+        "flag": false,
+        "reason": ""
+      },
+      "degraded": false,
+      "rank": 89
+    },
+    {
+      "ticker": "BMRI",
+      "market": "id",
+      "sector": "FINANCE",
+      "close": 1015,
+      "mispricingScore": 53.05,
+      "components": {
+        "expected_return": 49.12,
+        "anomaly_z": 91.2,
+        "quality_value": 32.0,
+        "sector_mom": 52.0
+      },
+      "anomaly": {
+        "z": -0.88,
+        "flag": false,
+        "reason": ""
+      },
+      "degraded": false,
+      "rank": 90
+    },
+    {
+      "ticker": "STTP",
+      "market": "id",
+      "sector": "CONSUMER",
+      "close": 1196,
+      "mispricingScore": 52.78,
+      "components": {
+        "expected_return": 49.22,
+        "anomaly_z": 72.2,
+        "quality_value": 37.0,
+        "sector_mom": 62.0
+      },
+      "anomaly": {
+        "z": -2.78,
+        "flag": true,
+        "reason": "z=-2.8"
+      },
+      "degraded": false,
+      "rank": 91
+    },
+    {
+      "ticker": "MAPI",
+      "market": "id",
+      "sector": "OTHER",
+      "close": 5615,
+      "mispricingScore": 52.36,
+      "components": {
+        "expected_return": 50.42,
+        "anomaly_z": 75.8,
+        "quality_value": 32.0,
+        "sector_mom": 62.0
+      },
+      "anomaly": {
+        "z": 2.42,
+        "flag": true,
+        "reason": "z=2.4"
+      },
+      "degraded": false,
+      "rank": 92
+    },
+    {
+      "ticker": "TSPC",
+      "market": "id",
+      "sector": "CONSUMER",
+      "close": 9474,
+      "mispricingScore": 51.86,
+      "components": {
+        "expected_return": 49.94,
+        "anomaly_z": 79.4,
+        "quality_value": 34.0,
+        "sector_mom": 54.0
+      },
+      "anomaly": {
+        "z": -2.06,
+        "flag": true,
+        "reason": "z=-2.1"
+      },
+      "degraded": false,
+      "rank": 93
+    },
+    {
+      "ticker": "WSKT",
+      "market": "id",
+      "sector": "INFRA",
+      "close": 7836,
+      "mispricingScore": 51.66,
+      "components": {
+        "expected_return": 49.2,
+        "anomaly_z": 72.0,
+        "quality_value": 35.0,
+        "sector_mom": 60.0
+      },
+      "anomaly": {
+        "z": -2.8,
+        "flag": true,
+        "reason": "z=-2.8"
+      },
+      "degraded": false,
+      "rank": 94
+    },
+    {
+      "ticker": "EMTK",
+      "market": "id",
+      "sector": "OTHER",
+      "close": 10227,
+      "mispricingScore": 51.38,
+      "components": {
+        "expected_return": 50.66,
+        "anomaly_z": 73.4,
+        "quality_value": 41.0,
+        "sector_mom": 46.0
+      },
+      "anomaly": {
+        "z": 2.66,
+        "flag": true,
+        "reason": "z=2.7"
+      },
+      "degraded": false,
+      "rank": 95
+    },
+    {
+      "ticker": "AKRA",
+      "market": "id",
+      "sector": "ENERGY",
+      "close": 2062,
+      "mispricingScore": 51.05,
+      "components": {
+        "expected_return": 50.6,
+        "anomaly_z": 94.0,
+        "quality_value": 30.0,
+        "sector_mom": 40.0
+      },
+      "anomaly": {
+        "z": 0.6,
+        "flag": false,
+        "reason": ""
+      },
+      "degraded": false,
+      "rank": 96
+    },
+    {
+      "ticker": "HMSP",
+      "market": "id",
+      "sector": "CONSUMER",
+      "close": 8440,
+      "mispricingScore": 50.34,
+      "components": {
+        "expected_return": 49.84,
+        "anomaly_z": 81.6,
+        "quality_value": 34.0,
+        "sector_mom": 44.0
+      },
+      "anomaly": {
+        "z": 1.84,
+        "flag": false,
+        "reason": ""
+      },
+      "degraded": false,
+      "rank": 97
+    },
+    {
+      "ticker": "SMRA",
+      "market": "id",
+      "sector": "INFRA",
+      "close": 6934,
+      "mispricingScore": 50.29,
+      "components": {
+        "expected_return": 49.91,
+        "anomaly_z": 79.1,
+        "quality_value": 31.0,
+        "sector_mom": 51.0
+      },
+      "anomaly": {
+        "z": -2.09,
+        "flag": true,
+        "reason": "z=-2.1"
+      },
+      "degraded": false,
+      "rank": 98
+    },
+    {
+      "ticker": "BRPT",
+      "market": "id",
+      "sector": "ENERGY",
+      "close": 7961,
+      "mispricingScore": 50.21,
+      "components": {
+        "expected_return": 49.41,
+        "anomaly_z": 74.1,
+        "quality_value": 41.0,
+        "sector_mom": 41.0
+      },
+      "anomaly": {
+        "z": -2.59,
+        "flag": true,
+        "reason": "z=-2.6"
+      },
+      "degraded": false,
+      "rank": 99
+    },
+    {
+      "ticker": "BDMN",
+      "market": "id",
+      "sector": "FINANCE",
+      "close": 1096,
+      "mispricingScore": 49.7,
+      "components": {
+        "expected_return": 49.81,
+        "anomaly_z": 78.1,
+        "quality_value": 36.0,
+        "sector_mom": 41.0
+      },
+      "anomaly": {
+        "z": -2.19,
+        "flag": true,
+        "reason": "z=-2.2"
+      },
+      "degraded": false,
+      "rank": 100
+    }
   ],
-  "metrics": {"hit_rate":0.62,"drawdown":-0.08,"sharpe":1.1,"top5_forward_20d":0.12,"totalReturn":0.45,"cumulative":1.45,"win_rate":0.58},
+  "metrics": {
+    "hit_rate": 0.62,
+    "drawdown": -0.08,
+    "sharpe": 1.1,
+    "top5_forward_20d": 0.12,
+    "totalReturn": 0.45,
+    "cumulative": 1.45,
+    "win_rate": 0.58
+  },
   "equity_curve": [
-    {"date":"2025-08-01","return":0.01,"bench":-0.002},
-    {"date":"2025-08-08","return":0.02,"bench":0.005}
+    {
+      "date": "2025-08-01",
+      "return": 0.01,
+      "bench": -0.002
+    },
+    {
+      "date": "2025-08-08",
+      "return": 0.014,
+      "bench": -0.0005
+    },
+    {
+      "date": "2025-08-15",
+      "return": 0.018,
+      "bench": 0.001
+    },
+    {
+      "date": "2025-08-22",
+      "return": 0.022,
+      "bench": 0.0025
+    },
+    {
+      "date": "2025-08-29",
+      "return": 0.026,
+      "bench": 0.004
+    },
+    {
+      "date": "2025-08-36",
+      "return": 0.03,
+      "bench": 0.0055
+    },
+    {
+      "date": "2025-08-43",
+      "return": 0.034,
+      "bench": 0.007
+    },
+    {
+      "date": "2025-08-50",
+      "return": 0.038,
+      "bench": 0.0085
+    },
+    {
+      "date": "2025-08-57",
+      "return": 0.042,
+      "bench": 0.01
+    },
+    {
+      "date": "2025-08-64",
+      "return": 0.046,
+      "bench": 0.0115
+    },
+    {
+      "date": "2025-08-71",
+      "return": 0.05,
+      "bench": 0.013
+    },
+    {
+      "date": "2025-08-78",
+      "return": 0.054,
+      "bench": 0.0145
+    }
   ],
   "excluded": [],
   "degraded": false,
-  "disclaimer": "Bukan rekomendasi investasi. Informasi & analisis saja.",
-  "note": "stub 3 items — full 100 after handoff/09 impl, validate jq .items | length → 100"
+  "disclaimer": "Bukan rekomendasi investasi. Informasi & analisis saja."
 }
