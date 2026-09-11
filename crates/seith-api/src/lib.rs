@@ -18,6 +18,7 @@ pub fn router(repo: DynRepository) -> Router {
         .route("/api/v1/ranking", get(handlers::ranking))
         .route("/api/v1/tickers/:ticker/score", get(handlers::score))
         .route("/api/v1/tickers/:ticker/dossier", get(handlers::dossier))
+        .route("/api/v1/backtest", get(handlers::backtest))
         .route("/api/v1/anomalies", get(handlers::anomalies))
         .route("/api/v1/scan", post(handlers::scan))
         .with_state(repo)

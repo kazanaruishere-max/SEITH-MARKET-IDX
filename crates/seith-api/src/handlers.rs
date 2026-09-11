@@ -128,6 +128,19 @@ fn check_format(v: &str) -> Option<Response> {
     None
 }
 
+fn check_lang(v: &Option<String>) -> Option<Response> {
+    if let Some(s) = v {
+        if s != "id" && s != "en" {
+            return Some(error_response(
+                StatusCode::UNPROCESSABLE_ENTITY,
+                "VALIDATION_ERROR",
+                format!("invalid lang '{s}'"),
+            ));
+        }
+    }
+    None
+}
+
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct RankingQuery {
@@ -152,6 +165,13 @@ pub struct ScoreQuery {
 pub struct DossierQuery {
     pub market: Option<String>,
     pub format: Option<String>,
+    pub lang: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct BacktestQuery {
+    pub market: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -286,6 +306,10 @@ pub async fn dossier(
             return error_response(StatusCode::UNPROCESSABLE_ENTITY, "VALIDATION_ERROR", msg)
         }
     };
+    if let Some(r) = check_lang(&q.lang) {
+        return r;
+    }
+    let lang = q.lang.unwrap_or_else(|| "id".to_string());
     let fmt = q.format.unwrap_or_else(|| "json".to_string());
     if let Some(r) = check_format(&fmt) {
         return r;
@@ -304,8 +328,50 @@ pub async fn dossier(
         );
         return res;
     }
-    let data = json!({"ticker": t, "market": market.as_str(), "score": 72.5, "breakdown": {}, "peerComparison": [], "kronos": {"forecastReturn": 0.05, "volatility": 0.12, "chartPoints": []}, "research": {"fundamentalMemo": "", "technicalMemo": "", "synthesizerMemo": ""}, "degraded": false, "disclaimer": DISCLAIMER});
+    let data = json!({"ticker": t, "market": market.as_str(), "lang": lang, "score": 72.5, "breakdown": {}, "peerComparison": [], "kronos": {"forecastReturn": 0.05, "volatility": 0.12, "chartPoints": []}, "research": {"fundamentalMemo": "", "technicalMemo": "", "synthesizerMemo": ""}, "degraded": false, "disclaimer": DISCLAIMER});
     with_schema(ok_body(data), StatusCode::OK)
+}
+
+pub async fn backtest(
+    State(_repo): State<DynRepository>,
+    q: Result<Query<BacktestQuery>, QueryRejection>,
+) -> Response {
+    let q = match q {
+        Ok(v) => v.0,
+        Err(e) => {
+            return error_response(
+                StatusCode::UNPROCESSABLE_ENTITY,
+                "VALIDATION_ERROR",
+                e.to_string(),
+            )
+        }
+    };
+    if let Err(msg) = parse_market(q.market.clone()) {
+        return error_response(StatusCode::UNPROCESSABLE_ENTITY, "VALIDATION_ERROR", msg);
+    }
+    let raw = match std::fs::read_to_string("research/backtest-100.json")
+        .or_else(|_| std::fs::read_to_string("../../research/backtest-100.json"))
+    {
+        Ok(s) => s,
+        Err(e) => {
+            return error_response(
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "UPSTREAM_ERROR",
+                e.to_string(),
+            )
+        }
+    };
+    let val: serde_json::Value = match serde_json::from_str(&raw) {
+        Ok(v) => v,
+        Err(e) => {
+            return error_response(
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "UPSTREAM_ERROR",
+                e.to_string(),
+            )
+        }
+    };
+    with_schema(ok_body(val), StatusCode::OK)
 }
 
 pub async fn anomalies(

@@ -278,6 +278,60 @@ async fn dossier_pdf_header() {
 }
 
 #[tokio::test]
+async fn dossier_lang_id_200() {
+    let resp = app()
+        .oneshot(
+            Request::builder()
+                .uri("/api/v1/tickers/BBCA/dossier?format=json&lang=id")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(resp.status(), StatusCode::OK);
+    let v = body_json(resp).await;
+    assert_eq!(v["data"]["lang"], "id");
+    assert_eq!(
+        v["data"]["disclaimer"],
+        "Bukan rekomendasi investasi. Informasi & analisis saja."
+    );
+}
+
+#[tokio::test]
+async fn dossier_lang_bad_422() {
+    let resp = app()
+        .oneshot(
+            Request::builder()
+                .uri("/api/v1/tickers/BBCA/dossier?lang=xx")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(resp.status(), StatusCode::UNPROCESSABLE_ENTITY);
+    let v = body_json(resp).await;
+    assert_eq!(v["error"]["code"], "VALIDATION_ERROR");
+}
+
+#[tokio::test]
+async fn backtest_100_200() {
+    let resp = app()
+        .oneshot(
+            Request::builder()
+                .uri("/api/v1/backtest?market=id")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(resp.status(), StatusCode::OK);
+    let v = body_json(resp).await;
+    assert_eq!(v["success"], true);
+    assert_eq!(v["data"]["universe"], 100);
+    assert_eq!(v["data"]["items"].as_array().unwrap().len(), 100);
+}
+
+#[tokio::test]
 async fn anomalies_market_xx_422() {
     let resp = app()
         .oneshot(
