@@ -9,7 +9,7 @@ Validasi wiring pipeline real-time pada 1 ticker paling liquid (BBCA) — `Secto
 - Skill: `skill://seith-market-intelligence` + `skill://no-ai-slop` Tier-1 + `skill://verification-loop` + `skill://seith-kronos` (MOCK toggle) + ritual 3Q
 
 ## Scope In / Out
-In: `curl Sectors BBCA + 9router PONG + Kronos predict_batch 400→20 T1.0 top_p0.9 vol ±2σ` + `cargo fmt/clippy/test 145` + `seith-cli ranking/scan` envelope + `GET /api/v1/tickers/BBCA/dossier?format=json&lang=id peer[5] + ?format=pdf&lang=id %PDF 2 pages` + `pnpm lint/typecheck` + `gitleaks 0 check`
+In: `curl Sectors BBCA + 9router PONG + Kronos predict_batch 400→20 T1.0 top_p0.9 vol ±2σ` + `cargo fmt/clippy/test 148` + `seith-cli ranking/scan` envelope + `GET /api/v1/tickers/BBCA/dossier?format=json&lang=id peer[5] + ?format=pdf&lang=id %PDF 2 pages` + `pnpm lint/typecheck` + `gitleaks 0 check`
 Out: Z1 scoring logic edit (verify only), `vendor/Kronos` read-only, `ValuationGapMap/Screener` H7b, 5 cross-sector (02), Freeze H6 (03), `data/seith.db` write (observe only, gitignored WAL 100)
 
 ## Bagian — Surgical Breakdown
@@ -23,12 +23,12 @@ Out: Z1 scoring logic edit (verify only), `vendor/Kronos` read-only, `ValuationG
 
 ## Deliverables + Acceptance
 - Probe nyata: `Sectors BBCA 200 or 403 excluded + 9router PONG nvidia + Kronos :8001 400→20 + Analysis :8002 synthesize ID + seith-cli envelope + GET /dossier BBCA json→pdf 2 pages` — paste output no fabrikasi
-- `fn<50` N/A docs+test-only, `file 200-400` observe only, `cargo fmt --check 0 + clippy --all-targets 0 + cargo test 145 + pnpm lint 0 typecheck 0 + uv workdir 17 passed + gitleaks 0 + grep SECTORS_API_KEY apps/web →0 + grep plotly kronos-sidecar →0` — no drift
+- `fn<50` N/A docs+test-only, `file 200-400` observe only, `cargo fmt --check 0 + clippy --all-targets 0 + cargo test 148 + pnpm lint 0 typecheck 0 + uv workdir 17 passed + gitleaks 0 + grep SECTORS_API_KEY apps/web →0 + grep plotly kronos-sidecar →0` — no drift
 - Smoke MOCK=1 <30s then MOCK=0 real BBCA 2-3m RTX4050 — latency logged
 
 ## Verification
 ```
-cargo fmt --check → 0 / cargo clippy --all-targets -- -D warnings → 0 / cargo test → 145 passed (20+7+16+86+16 api)
+cargo fmt --check → 0 / cargo clippy --all-targets -- -D warnings → 0 / cargo test → 148 passed (20+7+19+16+86)
 uv --project apps/analysis run pytest -q (workdir apps/analysis) → 17 passed / pnpm --dir apps/web lint → 0 typecheck → 0
 curl -H "Authorization: $SECTORS_KEY" https://api.sectors.app/v2/daily/BBCA/ → 200 BBCA.JK 8300 [61 rows] or 403 excluded
 curl -H "Authorization: Bearer $SEITH_KEY" http://localhost:20128/v1/chat/completions -d '{"model":"SEITH-MARKET-IDX","messages":[{"role":"user","content":"PONG"}]}' → 200 PONG x-used-model nvidia/nemotron-3.5-lightning:free
@@ -41,7 +41,7 @@ gitleaks detect --no-git -v → 0 / grep -r SECTORS_API_KEY apps/web → 0 / gre
 ```
 
 ## Accountability Block — Task 01
-- ✅ Terverifikasi: `cargo fmt 0 + clippy --all-targets 0 + test 145 + uv workdir 17 + pnpm lint0 typecheck0` no drift, `Sectors BBCA probe + 9router PONG + Kronos 400→20 + dossier BBCA json/pdf 2 pages` — output nyata (paste after run)
+- ✅ Terverifikasi: `cargo fmt 0 + clippy --all-targets 0 + test 148 + uv workdir 17 + pnpm lint0 typecheck0` no drift, `Sectors BBCA probe + 9router PONG + Kronos 400→20 + dossier BBCA json/pdf 2 pages` — output nyata (paste after run)
 - ⚠️ Belum: Kronos real GPU MOCK=0 latency 2-3m — deferred after MOCK=1 smoke PASS
 - 🔻 Risiko: WAF 403 transient `error 1010` → mitigasi `excluded:[{ticker,reason}] + retry1 chunks(20)` — deteksi `curl 403` then fallback / KRONOS_MOCK OOM → mitigasi `degraded:true` mock fallback
 - ♻️ Refactor: docs+test-only — keep probe narrow, DRY 02+03, no code edit

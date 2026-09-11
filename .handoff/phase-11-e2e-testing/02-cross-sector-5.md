@@ -24,12 +24,12 @@ Out: Z1 scoring logic edit (verify only), Freeze H6, `ValuationGapMap/Screener` 
 
 ## Deliverables + Acceptance
 - Probe 5: `anomalies Top5 |Z| desc + backtest equity12 vs IHSG + 5 dossier peer5 QV+cap + jupyter 7 cells html/png + web build 0 404 + scan 5` — output nyata paste
-- `fn<50` N/A test-only, `file200-400` observe, `cargo fmt0 clippy0 test145 + pnpm lint0 typecheck0 + uv17 + gitleaks0` no drift + `SECTORS_API_KEY` server-only `grep apps/web →0` + `research plotly isolated`
+- `fn<50` N/A test-only, `file200-400` observe, `cargo fmt0 clippy0 test148 + pnpm lint0 typecheck0 + uv17 + gitleaks0` no drift + `SECTORS_API_KEY` server-only `grep apps/web →0` + `research plotly isolated`
 - Peer `QV+cap±50%` terbukti: FINANCE→FINANCE, ENERGY→ENERGY, INFRA→INFRA, OTHER→OTHER — bukan random
 
 ## Verification
 ```
-cargo fmt --check → 0 / cargo clippy --all-targets -- -D warnings → 0 / cargo test → 145 passed
+cargo fmt --check → 0 / cargo clippy --all-targets -- -D warnings → 0 / cargo test → 148 passed
 pnpm --dir apps/web lint → 0 typecheck → 0 / pnpm --dir apps/web build → 0
 curl http://localhost:8181/api/v1/anomalies?market=id&minZ=2.0&pageSize=5 → 200 Top5 |Z| desc
 curl http://localhost:8181/api/v1/backtest?market=id → 200 equity 12 vs IHSG
@@ -43,7 +43,7 @@ gitleaks detect --no-git -v → 0
 ```
 
 ## Accountability Block — Task 02
-- ✅ Terverifikasi: `cargo fmt0 clippy0 test145 pnpm0` no drift, `5 dossier peer5 QV+cap + anomalies Top5 + backtest equity12 + jupyter 7 cells + web build rewrites` — output nyata
+- ✅ Terverifikasi: `cargo fmt0 clippy0 test148 pnpm0` no drift, `5 dossier peer5 QV+cap + anomalies Top5 + backtest equity12 + jupyter 7 cells + web build rewrites` — output nyata
 - ⚠️ Belum: web `TopLeaks/DossierPDF` vector render runtime — deferred visual check after 01 smoke PASS
 - 🔻 Risiko: `Top5` kosong jika `|Z|>2` none in sample 5 → mitigasi fallback `minZ=1.0` debug + `research/backtest-100.json` mock flags `vol>2σ` — deteksi `curl anomalies pageSize=5 total=0`
 - ♻️ Refactor: test-only keep 5 probe narrow, DRY 01+03, `DossierPDF` single Document 2 Page

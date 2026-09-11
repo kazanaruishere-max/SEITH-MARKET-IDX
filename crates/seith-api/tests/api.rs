@@ -274,7 +274,10 @@ async fn dossier_pdf_header() {
         "application/pdf"
     );
     let bytes = resp.into_body().collect().await.unwrap().to_bytes();
-    assert!(bytes.starts_with(b"%PDF"));
+    assert!(bytes.starts_with(b"%PDF-1.4"));
+    let body = String::from_utf8_lossy(&bytes);
+    assert!(body.contains("SEITH Dossier BBCA"));
+    assert!(body.contains("Bukan rekomendasi investasi"));
 }
 
 #[tokio::test]

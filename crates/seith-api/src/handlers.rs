@@ -4,7 +4,7 @@ use axum::{
     response::{IntoResponse, Response},
     Json,
 };
-use seith_core::{market::Market, SCHEMA_VERSION};
+use seith_core::{dossier, market::Market, scoring::components::Components, SCHEMA_VERSION};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::str::FromStr;
@@ -315,21 +315,50 @@ pub async fn dossier(
         return r;
     }
     if fmt == "pdf" {
-        let pdf = b"%PDF-1.4 SEITH dossier\n%%EOF";
-        let mut res = (
-            StatusCode::OK,
-            [(axum::http::header::CONTENT_TYPE, "application/pdf")],
-            pdf.to_vec(),
-        )
-            .into_response();
-        res.headers_mut().insert(
-            SCHEMA_HEADER.clone(),
-            HeaderValue::from_static(SCHEMA_VERSION),
-        );
-        return res;
+        return pdf_response(dossier_pdf(&t, market));
     }
     let data = json!({"ticker": t, "market": market.as_str(), "lang": lang, "score": 72.5, "breakdown": {}, "peerComparison": [], "kronos": {"forecastReturn": 0.05, "volatility": 0.12, "chartPoints": []}, "research": {"fundamentalMemo": "", "technicalMemo": "", "synthesizerMemo": ""}, "degraded": false, "disclaimer": DISCLAIMER});
     with_schema(ok_body(data), StatusCode::OK)
+}
+
+fn pdf_response(pdf: Vec<u8>) -> Response {
+    let mut res = (
+        StatusCode::OK,
+        [(axum::http::header::CONTENT_TYPE, "application/pdf")],
+        pdf,
+    )
+        .into_response();
+    res.headers_mut().insert(
+        SCHEMA_HEADER.clone(),
+        HeaderValue::from_static(SCHEMA_VERSION),
+    );
+    res
+}
+
+fn dossier_pdf(ticker: &str, market: Market) -> Vec<u8> {
+    let d = dossier::compose(
+        ticker.to_string(),
+        market,
+        72.5,
+        Components {
+            expected_return: 50.0,
+            anomaly_z: 50.0,
+            quality_value: 50.0,
+            sector_mom: 50.0,
+        },
+        vec![],
+        dossier::KronosSection {
+            forecast_return: 0.05,
+            volatility: 0.12,
+            chart_points: vec![],
+        },
+        dossier::ResearchSection {
+            fundamental_memo: String::new(),
+            technical_memo: String::new(),
+            synthesizer_memo: String::new(),
+        },
+    );
+    dossier::to_pdf_bytes(&d)
 }
 
 pub async fn backtest(
