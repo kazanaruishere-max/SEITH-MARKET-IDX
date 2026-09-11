@@ -1,4 +1,5 @@
 /target/
+/target-pm-audit/
 **/.venv/
 .env
 .env.local

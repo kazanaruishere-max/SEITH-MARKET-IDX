@@ -317,6 +317,22 @@ async fn dossier_lang_bad_422() {
 }
 
 #[tokio::test]
+async fn dossier_lang_uppercase_200() {
+    let resp = app()
+        .oneshot(
+            Request::builder()
+                .uri("/api/v1/tickers/BBCA/dossier?format=json&lang=ID")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(resp.status(), StatusCode::OK);
+    let v = body_json(resp).await;
+    assert_eq!(v["data"]["lang"], "id");
+}
+
+#[tokio::test]
 async fn backtest_100_200() {
     let resp = app()
         .oneshot(

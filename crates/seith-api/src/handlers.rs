@@ -130,7 +130,8 @@ fn check_format(v: &str) -> Option<Response> {
 
 fn check_lang(v: &Option<String>) -> Option<Response> {
     if let Some(s) = v {
-        if s != "id" && s != "en" {
+        let lower = s.to_ascii_lowercase();
+        if lower != "id" && lower != "en" {
             return Some(error_response(
                 StatusCode::UNPROCESSABLE_ENTITY,
                 "VALIDATION_ERROR",
@@ -139,6 +140,11 @@ fn check_lang(v: &Option<String>) -> Option<Response> {
         }
     }
     None
+}
+
+fn normalize_lang(v: Option<String>) -> String {
+    v.map(|s| s.to_ascii_lowercase())
+        .unwrap_or_else(|| "id".to_string())
 }
 
 #[derive(Debug, Deserialize)]
@@ -309,7 +315,7 @@ pub async fn dossier(
     if let Some(r) = check_lang(&q.lang) {
         return r;
     }
-    let lang = q.lang.unwrap_or_else(|| "id".to_string());
+    let lang = normalize_lang(q.lang);
     let fmt = q.format.unwrap_or_else(|| "json".to_string());
     if let Some(r) = check_format(&fmt) {
         return r;
@@ -324,7 +330,13 @@ pub async fn dossier(
 fn pdf_response(pdf: Vec<u8>) -> Response {
     let mut res = (
         StatusCode::OK,
-        [(axum::http::header::CONTENT_TYPE, "application/pdf")],
+        [
+            (axum::http::header::CONTENT_TYPE, "application/pdf"),
+            (
+                axum::http::header::CONTENT_DISPOSITION,
+                "inline; filename=\"dossier.pdf\"",
+            ),
+        ],
         pdf,
     )
         .into_response();
@@ -378,26 +390,51 @@ pub async fn backtest(
     if let Err(msg) = parse_market(q.market.clone()) {
         return error_response(StatusCode::UNPROCESSABLE_ENTITY, "VALIDATION_ERROR", msg);
     }
-    let raw = match std::fs::read_to_string("research/backtest-100.json")
-        .or_else(|_| std::fs::read_to_string("../../research/backtest-100.json"))
+    let mut tried = String::new();
+    let mut raw: Option<String> = None;
+    for cand in [
+        std::env::var("SEITH_BACKTEST_PATH").ok(),
+        Some("research/backtest-100.json".to_string()),
+        Some("../../research/backtest-100.json".to_string()),
+        Some(format!(
+            "{}/../../research/backtest-100.json",
+            env!("CARGO_MANIFEST_DIR")
+        )),
+    ]
+    .into_iter()
+    .flatten()
     {
-        Ok(s) => s,
-        Err(e) => {
+        tried = cand.clone();
+        match tokio::fs::read_to_string(&cand).await {
+            Ok(s) => {
+                raw = Some(s);
+                break;
+            }
+            Err(e) => {
+                tracing::warn!(path = %cand, error = %e, "backtest file read failed");
+            }
+        }
+    }
+    let raw = match raw {
+        Some(s) => s,
+        None => {
+            tracing::warn!(path = %tried, "backtest file missing");
             return error_response(
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "UPSTREAM_ERROR",
-                e.to_string(),
-            )
+                "backtest data unavailable",
+            );
         }
     };
     let val: serde_json::Value = match serde_json::from_str(&raw) {
         Ok(v) => v,
         Err(e) => {
+            tracing::warn!(error = %e, "backtest file parse failed");
             return error_response(
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "UPSTREAM_ERROR",
-                e.to_string(),
-            )
+                "backtest data unavailable",
+            );
         }
     };
     with_schema(ok_body(val), StatusCode::OK)
