@@ -47,6 +47,7 @@ pub fn compose(
     kronos: KronosSection,
     research: ResearchSection,
 ) -> Dossier {
+    let degraded = kronos.chart_points.is_empty();
     Dossier {
         ticker,
         market,
@@ -55,7 +56,7 @@ pub fn compose(
         peer_comparison: peers,
         kronos,
         research,
-        degraded: false,
+        degraded,
         disclaimer: DISCLAIMER.to_string(),
     }
 }

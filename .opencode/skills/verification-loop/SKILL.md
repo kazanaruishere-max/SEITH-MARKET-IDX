@@ -8,5 +8,8 @@ Wajib di akhir tiap handoff T1/T2 sebelum claim done.
 ## Output
 Paste output asli, no fabrikasi. Akhiri dengan Accountability Block `✅/⚠️/🔻`. PM `seith-pm` vetos jika gate fail.
 
+## Todo
+`todowrite` trace wajib — `completed` hanya setelah gate hijau (AGENTS §8d). Tanpa jejak todo = FAIL.
+
 ## References
 `AGENTS.md §7`, `docs/tdd-plan.md §9`, `.opencode/skills/seith-phase-gate/SKILL.md`

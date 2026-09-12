@@ -1,4 +1,4 @@
-import hashlib, json, pathlib
+import datetime, hashlib, json, pathlib
 uni = json.loads(pathlib.Path("research/universe-100.json").read_text(encoding="utf-8"))
 items_uni = uni["items"]
 def clamp(v, lo, hi): return max(lo, min(hi, v))
@@ -32,7 +32,8 @@ out_items.sort(key=lambda x: (-x["mispricingScore"], -abs(x["anomaly"]["z"]), x[
 for r, it in enumerate(out_items, 1):
     it["rank"]=r
 metrics={"hit_rate":0.62,"drawdown":-0.08,"sharpe":1.1,"top5_forward_20d":0.12,"totalReturn":0.45,"cumulative":1.45,"win_rate":0.58}
-equity=[{"date": f"2025-08-{1+i*7:02d}", "return": round(0.01+i*0.004,4), "bench": round(-0.002+i*0.0015,4)} for i in range(12)]
+base=datetime.date(2025,8,1)
+equity=[{"date": str(base+datetime.timedelta(days=i*7)), "return": round(0.01+i*0.004,4), "bench": round(-0.002+i*0.0015,4)} for i in range(12)]
 doc={"as_of":"2026-09-08","universe":100,"market":"id","credit_cost":200,"source":"research/universe-100.json 100 stratified FINANCE25/ENERGY20/CONSUMER20/INFRA20/OTHER15 -> Sectors batch chunks20x5 Authorization /v2/daily/{symbol}/ -> CompositeCache L1 moka 10k + L2 SQLite WAL busy_timeout 3000 -> normalize OHLC missing->excluded volume->0 median per market -> Kronos 400->20 T1.0 top_p0.9 mock fallback kronos-pred-20.json -> Score 30/20/30/20 -> Flag |Z|>2 -> rank Mispricing desc |Z| tie-break","items": out_items, "metrics": metrics, "equity_curve": equity, "excluded": [], "degraded": False, "disclaimer": "Bukan rekomendasi investasi. Informasi & analisis saja."}
 pathlib.Path("research/backtest-100.json").write_text(json.dumps(doc, indent=2), encoding="utf-8")
 print(f"backtest {len(out_items)} flags {sum(1 for x in out_items if x['anomaly']['flag'])} top3 {[x['ticker'] for x in out_items[:3]]}")

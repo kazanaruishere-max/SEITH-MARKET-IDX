@@ -60,6 +60,7 @@
 - [ ] `Accountability Block` dengan output nyata + `♻️ Refactor: <apa>` wajib
 - [ ] `refactor-cleaner` PASS — `fn <50`, `file 200-400`, `nesting ≤4`, `no dead code` (Boy Scout Rule §5b)
 - [ ] `docs/*` + `AGENTS.md` sinkron (no drift)
+- [ ] `todowrite` trace ada (`pending→in_progress→completed`, exactly-one `in_progress`) — VETO jika tanpa jejak todo
 
 ## Output
 - Komentar PR: `PM gate: PASS/FAIL — <command> → <output> — veto? Y/N`

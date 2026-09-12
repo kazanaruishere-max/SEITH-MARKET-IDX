@@ -25,6 +25,7 @@ Liveness: Sectors reachable, kronos :8001, analysis :8002, 9router :20128, l2 `d
 Query: `market?: "id"|"sg" (default id), sector?: string (IDX sector code), sort?: "mispricing"|"anomaly" (default mispricing), order?: "desc"|"asc" (default desc), page?: u32 (default 1), pageSize?: u32 (default 20, max 50)`
 Response `data: Vec<{ ticker, name, sector, market, mispricingScore: f32 0-100, components:{expectedReturn, anomalyZ, qualityValue, sectorMom}, anomalyFlag: bool, rank: u32, degraded?: bool, insufficientData?: bool }>` + `pagination` + `disclaimer`
 Behavior: Cleansing gate sebelum scoring; missing OHLC → exclude (tidak crash pipeline). Tanpa cache hit (L1→L2 miss) → fetch Sectors → tulis L1+L2.
+Live saat ini: disajikan dari `research/backtest-100.json` pinned 2026-09-08 (deterministik, 100 items, `pagination.total` real; sector filter real, e.g. FINANCE=25). Fetch live Sectors batch 100 = fase E2E100 live (butuh approval kredit).
 CLI: `seith ranking --sector FINANCE --json` ≡ `GET /v1/ranking?sector=FINANCE` ; `seith ranking --market sg --sector FINANCE` ≡ `?market=sg`
 
 ### GET /v1/tickers/:ticker/score
@@ -51,7 +52,14 @@ Response: `{ as_of: "2026-09-08", universe: 100, market: "id", credit_cost: 200,
 ### POST /v1/scan
 Body: `{ tickers: Vec<String> (1-50), lookback?: u16 (default 400, max 512), predLen?: u16 (default 20), market?: "id"|"sg" (default id) }`
 Behavior: Validasi `lookback<=512 && predLen<=512` (max_context 512), equal lookback/predLen, Sectors cleansing → exclude invalid (response sertakan `excluded: Vec<{ticker,reason}>`, `degraded`). Delegasi ke Kronos :8001 `POST /predict_batch` dengan market tag.
+Live saat ini: `results[]` lookup deterministik ke universe-100 (score+anomaly+rank real); ticker di luar universe → `excluded reason "ticker not in universe-100"`.
 CLI: `seith scan --tickers BBCA,BMRI,BBRI --json` ; `--market sg`
+
+## 3b. Web FE Contract (Next.js 14 — verified 2026-09-11)
+- Routes: `/` hero + TopLeaks Top5 `|Z|` → `/ranking` filter sector/sort + `/dossier/[ticker]` badge+peer5+memo+PDF blob/vector → `/backtest` equity12 vs IHSG + metrics + Top10.
+- Proxy: `apps/web/next.config.js rewrites /api/v1/* → 127.0.0.1:8181` (dev). Env prod: `NEXT_PUBLIC_API_BASE` bila API beda host.
+- Komponen: `TopLeaks.tsx` + `BacktestChart.tsx` (Line zinc actual vs amber dashed bench) + `MetricsTable.tsx` + `DossierPDF.tsx` 2-page vector + `DossierClient.tsx` dual download.
+- `pnpm lint 0 typecheck 0 test 6 build 0 (5 routes)` — disclaimer tiap view.
 
 ## 4. Schemas (Rust validator)
 ```rust

@@ -20,6 +20,10 @@ Out: ... (defer ke fase berikutnya, eksplisit)
 | 02 | `02-*.md` | ... | 01 |
 | ... | ... | ... | ... |
 
+## Todo (`todowrite` WAJIB — AGENTS §8d)
+- Buka `todowrite` setelah Plan: 1 task file = 1 todo item, exactly-one `in_progress`, update realtime.
+- `completed` hanya setelah Verification hijau + Accountability Block. PM veto jika tanpa jejak.
+
 Dependensi antar-fase: H1 → H2 (Kronos) → H4 (Scoring) → H5 (Hybrid Delivery) — jelaskan. Cross-zona import dilarang (§3c).
 
 ## Definition of Done — Phase

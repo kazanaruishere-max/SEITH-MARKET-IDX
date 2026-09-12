@@ -6,6 +6,9 @@ Win Sectors Hackathon 2026 Track 3 Reveal: SEITH mengubah Sectors data menjadi d
 ## When to Use
 Trigger: `seith`, `market intelligence`, `mispricing`, `ranking`, `anomaly`, `dossier`, `kronos`, `sectors`, `tradingagents`, `9router`, `seith-cli`, `market=sg`. Setiap session T1/T2 WAJIB load `skill://seith-market-intelligence` di awal dan `verification-loop` di akhir. T0 (sesi utama) = otak Understand→Plan→Document; tidak coding berat.
 
+## Todo
+Tiap session: `skill://seith-market-intelligence` → `todowrite` (exactly-one `in_progress`) → Implement → `verification-loop` → `completed` (AGENTS §8d).
+
 ## Roles — Founder Model (2-3 Terminal)
 - **T0 Sesi Utama:** putuskan arah win, tulis/approve `.handoff/handoff-NN-topic.md`, jaga single narrative `AGENTS.md → docs/*`.
 - **T1/T2 Eksekutor (sub-agent):** `Implement → Verify` per handoff doc, branch `handoff/NN-topic`, satu slice terverifikasi (TDD red-green) per session. Review via sub-agent `code-reviewer`/`security-review`.

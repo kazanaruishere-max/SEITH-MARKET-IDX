@@ -1,4 +1,5 @@
 pub mod analysis;
+pub mod backtest_data;
 pub mod envelope;
 pub mod handlers;
 pub mod kronos;
