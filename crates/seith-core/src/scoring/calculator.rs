@@ -127,4 +127,32 @@ mod tests {
         let o2 = compute(f32::INFINITY, f32::NAN, f32::NAN, f32::NAN);
         assert!(o2.score <= 100.0 && o2.score >= 0.0);
     }
+    #[test]
+    fn scoring_breakdown_sums_live_lppf() {
+        let o = compute(0.001_694_5, 0.088_204_35, 100.0, 76.58);
+        let expect = 0.30 * o.components.expected_return
+            + 0.20 * o.components.anomaly_z
+            + 0.30 * o.components.quality_value
+            + 0.20 * o.components.sector_mom;
+        assert!((o.score - expect).abs() < 1e-3);
+        assert!((o.score - 80.3).abs() < 0.05);
+        assert!([
+            o.components.expected_return,
+            o.components.anomaly_z,
+            o.components.quality_value,
+            o.components.sector_mom
+        ]
+        .iter()
+        .all(|c| (0.0..=100.0).contains(c)));
+    }
+    #[test]
+    fn scoring_breakdown_sums_live_kino_flag() {
+        let o = compute(-0.02, 2.5, 40.0, 55.0);
+        let expect = 0.30 * o.components.expected_return
+            + 0.20 * o.components.anomaly_z
+            + 0.30 * o.components.quality_value
+            + 0.20 * o.components.sector_mom;
+        assert!((o.score - expect).abs() < 1e-3);
+        assert!(o.components.anomaly_z < 98.0);
+    }
 }

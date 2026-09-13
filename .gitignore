@@ -29,4 +29,4 @@ serve.err.log
 *-boot.err.log
 research/probe-api.ps1
 
-research/fetch_seed_100.out.json
+research/*.out.json
