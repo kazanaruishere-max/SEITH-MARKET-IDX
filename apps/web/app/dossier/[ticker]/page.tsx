@@ -1,6 +1,7 @@
+import dynamic from "next/dynamic";
 import { fetchDossier } from "@/lib/api";
 import ScoreBadge from "@/components/ScoreBadge";
-import DossierClient from "./DossierClient";
+const DossierClient = dynamic(() => import("./DossierClient"), { ssr: false });
 type Peer = { ticker: string; score: number; market: string; sector?: string; qvDistance?: number };
 type DossierData = {
   ticker: string; market: string; lang?: string; score?: number;

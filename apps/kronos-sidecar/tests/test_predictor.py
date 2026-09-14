@@ -26,7 +26,8 @@ def _ohlcv_objs(n):
     return [OhlcvIn(open=100 + i * 0.01, high=101 + i * 0.01, low=99 + i * 0.01, close=100 + i * 0.01, volume=1000.0, amount=100000.0, timestamp=i) for i in range(n)]
 
 
-def test_mock_predict_400_to_20_deterministic():
+def test_mock_predict_400_to_20_deterministic(monkeypatch):
+    monkeypatch.setenv("KRONOS_MOCK", "1")
     df = _ohlcv_objs(400)
     a = predict(df, list(range(400)), list(range(400, 420)), 20)
     b = predict(df, list(range(400)), list(range(400, 420)), 20)

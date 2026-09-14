@@ -11,10 +11,15 @@ if str(VENDOR_KRONOS) not in sys.path:
 _model = None
 _tokenizer = None
 _predictor = None
+_fell_back = False
 
 
 def _is_mock() -> bool:
     return os.getenv("KRONOS_MOCK", "0") == "1"
+
+
+def is_mock_mode() -> bool:
+    return _is_mock() or _fell_back
 
 
 def get_device() -> str:
@@ -69,7 +74,7 @@ def _mock_forecast(df, y_timestamp, pred_len):
 
 
 def load_predictor(mock=None):
-    global _model, _tokenizer, _predictor
+    global _model, _tokenizer, _predictor, _fell_back
     use_mock = _is_mock() if mock is None else mock
     if use_mock:
         return MockPredictor()
@@ -86,6 +91,7 @@ def load_predictor(mock=None):
         import logging
 
         logging.getLogger(__name__).warning("kronos real load failed, mock fallback: %s", e)
+        _fell_back = True
         return MockPredictor()
 
 

@@ -1,14 +1,13 @@
 """9router Chat Completions helper — httpx OpenAI-compatible bridge.
 
 Shared retry + timeout + fallback logic for the 3 agents.
-- timeout 15s per call
-- 1 retry on transient failure (timeout / 5xx)
+- timeout 60s per call
+- 3 retries on transient failure (timeout / 5xx)
 - fallback to SEITH_LLM_FALLBACK_MODEL on 429/5xx
 - never raises; returns "" on total failure so caller falls back to template
 """
 from __future__ import annotations
 
-import json
 import logging
 import os
 from typing import Any
@@ -17,8 +16,8 @@ import httpx
 
 logger = logging.getLogger(__name__)
 
-TIMEOUT = 15.0
-MAX_RETRIES = 1
+TIMEOUT = 60.0
+MAX_RETRIES = 3
 
 
 def _model() -> str:
@@ -55,6 +54,7 @@ _SYSTEM_PROMPTS = {
 def _payload(kind: str, user_content: str, model: str | None = None) -> dict[str, Any]:
     return {
         "model": model or _model(),
+        "stream": False,
         "messages": [
             {"role": "system", "content": _SYSTEM_PROMPTS[kind]},
             {"role": "user", "content": user_content},
@@ -67,17 +67,34 @@ def _headers() -> dict[str, str]:
     return {"Authorization": f"Bearer {k}"} if k else {}
 
 
-def _decode(text: str) -> dict[str, Any]:
-    """Parse 9router body tolerantly: JSON may carry `data: [DONE]` trailer."""
-    s = text.strip()
-    i = s.find("{")
-    if i < 0:
-        return {}
+def _extract_content(data: Any) -> str:
+    """Pull assistant text from OpenAI-style or provider-variant payloads.
+
+    9router proxies multiple providers; some return `{"error": ...}` with
+    HTTP 200 on overload, or nest text under delta/reasoning fields.
+    Non-text or error payloads return "" so the caller falls back honestly.
+    """
+    if not isinstance(data, dict):
+        return ""
+    if data.get("error") is not None:
+        return ""
     try:
-        data, _ = json.JSONDecoder().raw_decode(s, i)
-        return data if isinstance(data, dict) else {}
-    except json.JSONDecodeError:
-        return {}
+        choices = data.get("choices")
+        first = choices[0] if isinstance(choices, list) and choices else {}
+        if not isinstance(first, dict):
+            return ""
+        msg = first.get("message") or {}
+        text = msg.get("content") if isinstance(msg, dict) else None
+        if isinstance(text, str) and text.strip():
+            return text
+        delta = first.get("delta") or {}
+        dtext = delta.get("content") if isinstance(delta, dict) else None
+        if isinstance(dtext, str) and dtext.strip():
+            return dtext
+    except (IndexError, AttributeError, TypeError):
+        return ""
+    return ""
+
 
 async def post_chat(
     llm_url: str,
@@ -85,7 +102,7 @@ async def post_chat(
     user_content: str,
     model: str | None = None,
 ) -> str:
-    """POST to 9router /v1/chat/completions; retry once on transient error.
+    """POST to 9router /v1/chat/completions; retry 3x on transient error.
 
     Returns memo content string. Empty string == failure (caller falls back).
     Falls back to SEITH_LLM_FALLBACK_MODEL on 429/5xx.
@@ -102,8 +119,8 @@ async def post_chat(
                 async with httpx.AsyncClient(timeout=TIMEOUT) as client:
                     r = await client.post(url, json=body, headers=hdrs)
                     r.raise_for_status()
-                    data = _decode(r.text)
-                msg = data["choices"][0]["message"]["content"]
+                    data = r.json()
+                msg = _extract_content(data)
                 if isinstance(msg, str) and msg:
                     return msg.strip()
                 return ""

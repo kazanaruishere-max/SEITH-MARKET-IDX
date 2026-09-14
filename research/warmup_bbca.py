@@ -1,7 +1,7 @@
 """Warm-up predict_batch real 1 ticker dari L2 (BBCA)."""
+import datetime
 import json
 import sqlite3
-import sys
 import urllib.request
 from pathlib import Path
 
@@ -12,7 +12,6 @@ rows = c.execute(
 ).fetchall()
 print("bbca rows:", len(rows))
 assert len(rows) == 19, rows
-import datetime
 
 base = datetime.datetime(2026, 9, 12, tzinfo=datetime.timezone.utc)
 df = [

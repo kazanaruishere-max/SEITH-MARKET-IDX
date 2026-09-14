@@ -385,6 +385,41 @@ async fn scan_excluded_present() {
 }
 
 #[tokio::test]
+async fn scan_lookback_plus_predlen_over_512_422() {
+    let body = serde_json::json!({"tickers":["BBCA"],"market":"id","lookback":400,"predLen":200});
+    let resp = app()
+        .oneshot(
+            Request::builder()
+                .uri("/api/v1/scan")
+                .method("POST")
+                .header("content-type", "application/json")
+                .body(Body::from(body.to_string()))
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(resp.status(), StatusCode::UNPROCESSABLE_ENTITY);
+    let v = body_json(resp).await;
+    assert_eq!(v["error"]["code"], "VALIDATION_ERROR");
+}
+
+#[tokio::test]
+async fn anomalies_minz_clamped() {
+    let resp = app()
+        .oneshot(
+            Request::builder()
+                .uri("/api/v1/anomalies?market=id&minZ=999&pageSize=5")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(resp.status(), StatusCode::OK);
+    let v = body_json(resp).await;
+    assert_eq!(v["data"]["minZ"], 10.0);
+}
+
+#[tokio::test]
 async fn ranking_real_items_total_100() {
     let resp = app()
         .oneshot(
