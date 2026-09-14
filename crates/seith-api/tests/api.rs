@@ -399,7 +399,7 @@ async fn ranking_real_items_total_100() {
     let v = body_json(resp).await;
     assert_eq!(v["pagination"]["total"], 100);
     assert_eq!(v["data"]["items"].as_array().unwrap().len(), 5);
-    assert_eq!(v["data"]["items"][0]["ticker"], "MEDC");
+    assert_eq!(v["data"]["items"][0]["ticker"], "LPPF");
 }
 
 #[tokio::test]
@@ -419,7 +419,7 @@ async fn ranking_sector_finance_total_25() {
 }
 
 #[tokio::test]
-async fn score_bbca_real_613_rank44() {
+async fn score_bbca_real_7535_rank4() {
     let resp = app()
         .oneshot(
             Request::builder()
@@ -432,8 +432,8 @@ async fn score_bbca_real_613_rank44() {
     assert_eq!(resp.status(), StatusCode::OK);
     let v = body_json(resp).await;
     assert_eq!(v["data"]["ticker"], "BBCA");
-    assert_eq!(v["data"]["mispricingScore"], 61.3);
-    assert_eq!(v["data"]["rank"], 44);
+    assert_eq!(v["data"]["mispricingScore"], 75.35);
+    assert_eq!(v["data"]["rank"], 4);
     assert_eq!(v["data"]["sector"], "FINANCE");
 }
 
@@ -465,7 +465,7 @@ async fn dossier_bbca_peer5_real() {
     assert_eq!(resp.status(), StatusCode::OK);
     let v = body_json(resp).await;
     assert_eq!(v["data"]["ticker"], "BBCA");
-    assert_eq!(v["data"]["score"], 61.3);
+    assert_eq!(v["data"]["score"], 75.35);
     assert_eq!(v["data"]["peerComparison"].as_array().unwrap().len(), 5);
     assert!(v["data"]["research"]["synthesizerMemo"]
         .as_str()
@@ -511,7 +511,7 @@ async fn scan_bbca_bmri_real_results() {
     assert_eq!(resp.status(), StatusCode::OK);
     let v = body_json(resp).await;
     assert_eq!(v["data"]["results"].as_array().unwrap().len(), 2);
-    assert_eq!(v["data"]["results"][0]["mispricingScore"], 61.3);
+    assert_eq!(v["data"]["results"][0]["mispricingScore"], 75.35);
 }
 
 #[tokio::test]

@@ -189,3 +189,19 @@ def test_disclaimer_always_present_in_template():
         raw = fn(req)
         injected = DISCLAIMER in raw or DISCLAIMER in f"{raw} {DISCLAIMER}"
         assert injected
+
+@pytest.mark.asyncio
+async def test_sse_trailer_json_still_llm(httpx_mock: HTTPXMock):
+    raw = json.dumps({"choices": [{"message": {"content": "Memo SSE BBCA."}}]})
+    raw += "data: [DONE]\n"
+    httpx_mock.add_response(
+        url=f"{LLM_URL}/chat/completions",
+        method="POST",
+        text=raw,
+        status_code=200,
+    )
+    req = _make_req("BBCA")
+    memo = await fundamental_run(req, LLM_URL)
+    assert "Memo SSE BBCA." in memo
+    assert "Fundamental BBCA" not in memo
+    assert DISCLAIMER in memo
