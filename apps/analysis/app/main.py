@@ -68,14 +68,25 @@ async def _build_response(req: SynthesizeRequest, llm_url: str) -> SynthesizeRes
     """Build the 3-memo response, falling back to template when agents fail.
 
     Agents imported lazily so the sidecar still boots without them installed.
+    Template markers ("Fundamental {ticker} sektor", "Teknikal {ticker}:",
+    "Sintesis {ticker} (") always count as degraded even if the agent
+    returned text (agent-level fallback already applied).
     """
     try:
         from .agents import fundamental_run, synthesizer_run, technical_run
+        from .template_memo import TEMPLATE_MARKERS
 
         fund, f_deg = await _run_one(fundamental_run(req, llm_url))
         tech, t_deg = await _run_one(technical_run(req, llm_url))
         synth, s_deg = await _run_one(synthesizer_run(req, llm_url, fund, tech))
-        degraded = f_deg or t_deg or s_deg
+        degraded = (
+            f_deg
+            or t_deg
+            or s_deg
+            or fund.startswith(TEMPLATE_MARKERS[0].format(ticker=req.ticker))
+            or tech.startswith(TEMPLATE_MARKERS[1].format(ticker=req.ticker))
+            or synth.startswith(TEMPLATE_MARKERS[2].format(ticker=req.ticker, market=req.market.value))
+        )
         return SynthesizeResponse(
             fundamental_memo=fund or inject_disclaimer(fundamental_memo(req)),
             technical_memo=tech or inject_disclaimer(technical_memo(req)),

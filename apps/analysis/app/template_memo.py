@@ -10,6 +10,12 @@ from .schemas import SynthesizeRequest
 
 _ANOMALY_THRESHOLD = 2.0
 
+TEMPLATE_MARKERS = (
+    "Fundamental {ticker} sektor",
+    "Teknikal {ticker}:",
+    "Sintesis {ticker} ({market}):",
+)
+
 
 def _fmt_pct(x: float) -> str:
     return f"{x * 100:.2f}%"

@@ -1,14 +1,25 @@
 import os
+import sys
+from pathlib import Path
 
 MAX_CONTEXT = 512
+
+VENDOR_KRONOS = Path(__file__).resolve().parents[3] / "vendor" / "Kronos"
+if str(VENDOR_KRONOS) not in sys.path:
+    sys.path.insert(0, str(VENDOR_KRONOS))
 
 _model = None
 _tokenizer = None
 _predictor = None
+_fell_back = False
 
 
 def _is_mock() -> bool:
     return os.getenv("KRONOS_MOCK", "0") == "1"
+
+
+def is_mock_mode() -> bool:
+    return _is_mock() or _fell_back
 
 
 def get_device() -> str:
@@ -63,21 +74,24 @@ def _mock_forecast(df, y_timestamp, pred_len):
 
 
 def load_predictor(mock=None):
-    global _model, _tokenizer, _predictor
+    global _model, _tokenizer, _predictor, _fell_back
     use_mock = _is_mock() if mock is None else mock
     if use_mock:
         return MockPredictor()
     if _predictor is not None:
         return _predictor
     try:
-        from model import Kronos, KronosPredictor
-        from model.KronosTokenizer import KronosTokenizer
+        from model.kronos import Kronos, KronosPredictor, KronosTokenizer
 
         _tokenizer = KronosTokenizer.from_pretrained("NeoQuasar/Kronos-Tokenizer-base")
         _model = Kronos.from_pretrained("NeoQuasar/Kronos-base")
         _predictor = KronosPredictor(_model, _tokenizer, device=get_device(), max_context=MAX_CONTEXT)
         return _predictor
-    except Exception:  # noqa: BLE001
+    except Exception as e:  # noqa: BLE001 - logged, degraded path stays honest
+        import logging
+
+        logging.getLogger(__name__).warning("kronos real load failed, mock fallback: %s", e)
+        _fell_back = True
         return MockPredictor()
 
 
@@ -89,6 +103,8 @@ def _validate_context(n, pred_len):
 
 
 def _df_from_ohlcv(rows):
+    import pandas as pd
+
     out = []
     for r in rows:
         try:
@@ -109,7 +125,13 @@ def _df_from_ohlcv(rows):
         a = 0.0 if a is None else float(a)
         ts = int(r.timestamp) if hasattr(r, "timestamp") else int(r.get("timestamp", 0))
         out.append({"open": o, "high": h, "low": lo, "close": c, "volume": v, "amount": a, "timestamp": ts})
-    return out
+    return pd.DataFrame(out, columns=["open", "high", "low", "close", "volume", "amount"])
+
+
+def _to_timeindex(ts_list):
+    import pandas as pd
+
+    return pd.to_datetime(pd.Series(ts_list), unit="s")
 
 
 def predict(df, x_timestamp, y_timestamp, pred_len, T=1.0, top_p=0.9):
@@ -118,7 +140,10 @@ def predict(df, x_timestamp, y_timestamp, pred_len, T=1.0, top_p=0.9):
     if isinstance(predictor, MockPredictor):
         return predictor.predict(df, x_timestamp, y_timestamp, pred_len, T, top_p)
     clean = _df_from_ohlcv(df)
-    return predictor.predict(clean, x_timestamp, y_timestamp, pred_len, T, top_p)
+    pred = predictor.predict(
+        clean, _to_timeindex(x_timestamp), _to_timeindex(y_timestamp), pred_len, T=T, top_p=top_p
+    )
+    return to_ohlcv_list(pred, y_timestamp)
 
 
 def predict_batch(dfs, x_timestamps, y_timestamps, pred_len, T=1.0, top_p=0.9):
@@ -134,10 +159,34 @@ def predict_batch(dfs, x_timestamps, y_timestamps, pred_len, T=1.0, top_p=0.9):
     predictor = load_predictor()
     if isinstance(predictor, MockPredictor):
         return predictor.predict_batch(dfs, x_timestamps, y_timestamps, pred_len, T, top_p)
-    return predictor.predict_batch(dfs, x_timestamps, y_timestamps, pred_len, T, top_p)
+    clean = [_df_from_ohlcv(df) for df in dfs]
+    xt = [_to_timeindex(ts) for ts in x_timestamps]
+    yt = [_to_timeindex(ts) for ts in y_timestamps]
+    preds = predictor.predict_batch(clean, xt, yt, pred_len, T=T, top_p=top_p)
+    return [to_ohlcv_list(p, y_timestamps[i]) for i, p in enumerate(preds)]
 
 
-def to_ohlcv_list(pred_df):
+def to_ohlcv_list(pred_df, y_timestamp=None):
+    import pandas as pd
+
+    if pred_df is None:
+        return []
+    if isinstance(pred_df, pd.DataFrame):
+        out = []
+        for i, (_, row) in enumerate(pred_df.iterrows()):
+            ts = y_timestamp[i] if y_timestamp is not None and i < len(y_timestamp) else 0
+            out.append(
+                {
+                    "open": float(row.get("open", 0)),
+                    "high": float(row.get("high", 0)),
+                    "low": float(row.get("low", 0)),
+                    "close": float(row.get("close", 0)),
+                    "volume": float(row.get("volume", 0) or 0),
+                    "amount": float(row.get("amount", 0) or 0),
+                    "timestamp": int(ts),
+                }
+            )
+        return out
     if not pred_df:
         return []
     out = []

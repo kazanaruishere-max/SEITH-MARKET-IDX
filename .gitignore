@@ -28,3 +28,5 @@ serve.err.log
 *-boot.log
 *-boot.err.log
 research/probe-api.ps1
+
+research/*.out.json

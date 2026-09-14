@@ -506,7 +506,7 @@ pub async fn anomalies(
     };
     let page = q.page.unwrap_or(1).max(1);
     let page_size = clamp_page_size(q.page_size);
-    let min_z = q.min_z.unwrap_or(2.0);
+    let min_z = q.min_z.unwrap_or(2.0).clamp(0.0, 10.0);
     let mstr = market.as_str().to_string();
     let (items, total) = match bd::load_backtest_value().await {
         Some(v) => {
@@ -568,6 +568,13 @@ pub async fn scan(
     }
     if let Some(r) = check_lookback(b.pred_len) {
         return r;
+    }
+    if b.lookback.unwrap_or(0) as u32 + b.pred_len.unwrap_or(0) as u32 > 512 {
+        return error_response(
+            StatusCode::UNPROCESSABLE_ENTITY,
+            "VALIDATION_ERROR",
+            "max_context 512 exceeded",
+        );
     }
     let market = match parse_market(b.market) {
         Ok(m) => m,
