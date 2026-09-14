@@ -8,6 +8,7 @@ Shared retry + timeout + fallback logic for the 3 agents.
 """
 from __future__ import annotations
 
+import json
 import logging
 import os
 from typing import Any
@@ -66,6 +67,18 @@ def _headers() -> dict[str, str]:
     return {"Authorization": f"Bearer {k}"} if k else {}
 
 
+def _decode(text: str) -> dict[str, Any]:
+    """Parse 9router body tolerantly: JSON may carry `data: [DONE]` trailer."""
+    s = text.strip()
+    i = s.find("{")
+    if i < 0:
+        return {}
+    try:
+        data, _ = json.JSONDecoder().raw_decode(s, i)
+        return data if isinstance(data, dict) else {}
+    except json.JSONDecodeError:
+        return {}
+
 async def post_chat(
     llm_url: str,
     kind: str,
@@ -89,7 +102,7 @@ async def post_chat(
                 async with httpx.AsyncClient(timeout=TIMEOUT) as client:
                     r = await client.post(url, json=body, headers=hdrs)
                     r.raise_for_status()
-                    data = r.json()
+                    data = _decode(r.text)
                 msg = data["choices"][0]["message"]["content"]
                 if isinstance(msg, str) and msg:
                     return msg.strip()
