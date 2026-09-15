@@ -30,7 +30,8 @@ function ScoreBadgePDF({ v }: { v: number }) {
 
 function StackedPDF({ b }: { b: PdfDossier["breakdown"] }) {
   if (!b) return null;
-  const segs = [{ w: 30, c: "#a1a1aa" }, { w: 20, c: "#fbbf24" }, { w: 30, c: "#10b981" }, { w: 20, c: "#0ea5e9" }];
+  const er=b.expected_return*0.3, z=b.anomaly_z*0.2, qv=b.quality_value*0.3, sm=b.sector_mom*0.2; const tot=er+z+qv+sm||100;
+  const segs=[{w:(er/tot)*100,c:"#fbbf24"},{w:(z/tot)*100,c:"#eab308"},{w:(qv/tot)*100,c:"#10b981"},{w:(sm/tot)*100,c:"#0ea5e9"}];
   return <View style={{ flexDirection: "row", height: 6, borderRadius: 3, overflow: "hidden", backgroundColor: "#27272a", marginTop: 4 }}>{segs.map((x,i) => <View key={i} style={{ width: `${x.w}%`, backgroundColor: x.c }} />)}</View>;
 }
 

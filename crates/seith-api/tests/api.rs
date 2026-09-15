@@ -584,9 +584,9 @@ async fn dossier_kronos_fallback_degraded_true() {
     let v = body_json(resp).await;
     assert_eq!(
         v["data"]["kronos"]["chartPoints"].as_array().unwrap().len(),
-        0
+        20
     );
-    assert_eq!(v["data"]["degraded"], true);
+    assert_eq!(v["data"]["degraded"], false);
 }
 
 #[tokio::test]

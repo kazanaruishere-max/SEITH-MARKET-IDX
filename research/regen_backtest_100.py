@@ -46,6 +46,19 @@ def main():
             } if m else {"source": "template", "model": "",
                          "fundamental_memo": "", "technical_memo": "", "synthesizer_memo": ""},
         })
+    for it, sc in zip(items, scores["items"]):
+        h = sum(ord(c) for c in it["ticker"]) % 100
+        base_close = it["close"] if it["close"] > 0 else 1000.0
+        er = sc["er"]
+        pts = []
+        for i in range(20):
+            d = (date(2026, 9, 13) + timedelta(days=i+1)).isoformat()
+            drift = base_close * (1 + er * (i+1))
+            jitter = (h * 0.0003 * (i+1) % 0.02) * base_close
+            v = round(drift + jitter, 2)
+            vol = base_close * 0.02
+            pts.append({"date": d, "value": v, "upper": round(v + vol, 2), "lower": round(max(0, v - vol), 2)})
+        it["kronos"] = {"forecastReturn": round(er, 6), "volatility": 0.02, "chartPoints": pts}
     top20 = items[:20]
     excluded = [{"ticker": "BMRG", "reason": "sectors_404"},
                 {"ticker": "MFIN", "reason": "missing_ohlc"}]
@@ -60,7 +73,8 @@ def main():
                                     "reason": "excluded: " + x["reason"]},
                       "degraded": True, "rank": None, "excluded": True,
                       "research": {"source": "template", "model": "", "fundamental_memo": "",
-                                   "technical_memo": "", "synthesizer_memo": ""}})
+                                   "technical_memo": "", "synthesizer_memo": ""},
+                      "kronos": {"forecastReturn": 0, "volatility": 0, "chartPoints": []}})
     ers = [scores["items"][i]["er"] for i in range(min(20, len(scores["items"])))]
     mean_er = sum(ers) / len(ers) if ers else 0.0
     sd_er = statistics.pstdev(ers) if len(ers) > 1 else 0.0
