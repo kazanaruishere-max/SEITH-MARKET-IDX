@@ -1,6 +1,24 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-:root{color-scheme:dark}
+:root{color-scheme:dark;--bg:#0B0E14;--card:#11151F;--panel:#1A1F2E;--border:#24242e;--amber:#fbbf24;--emerald:#10b981;--red:#ef4444}
 *{font-variant-numeric:tabular-nums}
+html{scrollbar-gutter:stable;scroll-behavior:smooth}
+body{font-family:Inter,system-ui,sans-serif;background:var(--bg);color:#e4e4e7;letter-spacing:-0.01em}
+::selection{background:var(--amber);color:#0B0E14}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:#27272a;border-radius:999px}
+::-webkit-scrollbar-thumb:hover{background:#3f3f46}
+*:focus-visible{outline:2px solid #fbbf24;outline-offset:2px}
+@layer components{
+  .glass{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+  .card{ @apply rounded-xl border bg-[#11151F]; border-color:#24242e; box-shadow: 0 1px 0 0 rgba(255,255,255,0.04) inset, 0 8px 24px -16px rgba(0,0,0,0.6) }
+  .card-hover{ @apply transition-all duration-200 hover:border-zinc-700 hover:bg-[#151a2a] hover:shadow-[0_8px_32px_-16px_rgba(0,0,0,0.7)] }
+  .kpi{ @apply rounded-xl border bg-[#0B0E14]/60 px-3 py-3 transition-colors duration-200 hover:bg-[#11151F]/80 hover:border-zinc-700; border-color:#24242e }
+  .pill{ @apply rounded-full border px-3 py-1 text-xs font-medium transition-all duration-200 hover:translate-y-[-1px] active:scale-[0.98]; border-color:#27272a }
+  .nav-active{ @apply bg-zinc-100 text-zinc-900 }
+}
+.recharts-tooltip-wrapper{filter:drop-shadow(0 8px 16px rgba(0,0,0,0.4))}
+.recharts-cartesian-grid-horizontal line,.recharts-cartesian-grid-vertical line{stroke-opacity:0.6}
