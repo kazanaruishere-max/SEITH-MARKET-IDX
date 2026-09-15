@@ -1,88 +1,84 @@
-# Skill: seith-market-intelligence — SSOT Track 3 Market Intelligence (SEITH)
+# Skill: seith-market-intelligence — SSOT Track 3 Market Intelligence (SEITH) v2 Long-Term
 
 ## Purpose
-Win Sectors Hackathon 2026 Track 3 Reveal: SEITH mengubah Sectors data menjadi derived insight (signals/scores/rankings/anomalies/comparative research). Raw display = FAIL. Satu narasi, satu tujuan — semua terminal ikut skill ini.
+Win Sectors Hackathon 2026 Track 3 Reveal + production-ready MI: SEITH mengubah Sectors data menjadi derived insight (signals/scores/rankings/anomalies/comparative research) — raw display = FAIL. Satu narasi, satu tujuan — semua terminal ikut skill ini v2, bukan v1 tipis. Lessons d46a77d live 100 encoded.
 
 ## When to Use
-Trigger: `seith`, `market intelligence`, `mispricing`, `ranking`, `anomaly`, `dossier`, `kronos`, `sectors`, `tradingagents`, `9router`, `seith-cli`, `market=sg`. Setiap session T1/T2 WAJIB load `skill://seith-market-intelligence` di awal dan `verification-loop` di akhir. T0 (sesi utama) = otak Understand→Plan→Document; tidak coding berat.
+Trigger: `seith`, `market intelligence`, `mispricing`, `ranking`, `anomaly`, `dossier`, `kronos`, `sectors`, `tradingagents`, `9router`, `seith-cli`, `market=sg`, `backtest`, `heatmap`. Setiap session T1/T2 WAJIB load `skill://seith-market-intelligence` di awal + `skill://seith-data` + `skill://seith-design` bila sentuh research/web + `verification-loop` di akhir. T0 = otak Understand→Plan→Document; tidak coding berat.
 
 ## Todo
-Tiap session: `skill://seith-market-intelligence` → `todowrite` (exactly-one `in_progress`) → Implement → `verification-loop` → `completed` (AGENTS §8d).
+Tiap session: `skill://seith-market-intelligence` → `todowrite` exactly-one `in_progress` (AGENTS §8d) → Implement → `verification-loop` → `completed` — `grep SECTORS_API_KEY apps/web 0` sebelum `completed`.
 
-## Roles — Founder Model (2-3 Terminal)
-- **T0 Sesi Utama:** putuskan arah win, tulis/approve `.handoff/handoff-NN-topic.md`, jaga single narrative `AGENTS.md → docs/*`.
-- **T1/T2 Eksekutor (sub-agent):** `Implement → Verify` per handoff doc, branch `handoff/NN-topic`, satu slice terverifikasi (TDD red-green) per session. Review via sub-agent `code-reviewer`/`security-review`.
-- **Skill = SSOT:** skill ini hanya pointer + rule ke `AGENTS.md` dan `docs/prd.md`, `docs/spec.md`, `docs/api-spec.md`, `docs/tdd-plan.md`. Dilarang duplikasi narasi; logic hanya di docs & code.
+## Roles — Founder Model (2-3 Terminal, 7 Agents)
+- **T0 Sesi Utama:** putuskan arah win, tulis/approve `phase-NN-topic/00-overview.md`, jaga single narrative `AGENTS.md → docs/*`.
+- **T1/T2 Eksekutor:** `Implement → Verify` per handoff doc, branch `handoff/NN-topic`, satu slice TDD red-green per session — parallel file-disjoint (T1 `.opencode/` vs T2 `apps/web` safe).
+- **PM:** `seith-pm` autonomous worktree + gate `fmt/clippy/test` + veto `main` — `seith-code/data/quant/security/design/doc-reviewer` parallel `seith-phase-gate`.
+- **Skill = SSOT v2:** pointer + decision tree + lineage 296c + scoring playbook — logic hanya di docs & code — dilarang duplikasi narasi.
 
 ## Tier 0 — Non-negotiable (Track 3 Rules)
-- Sectors MCP/REST = CORE source (cabut = produk mati). No auto trade execution. Disclaimer `bukan rekomendasi investasi` di setiap insight view.
-- 9router `localhost:20128` NEVER kill/restart — LLM via `http://localhost:20128/v1/chat/completions` (OpenAI-compatible), `LLM_BASE_URL` server-only. Check `Invoke-WebRequest http://localhost:20128/v1/models` 200 sebelum dossier. Fallback `degraded:true` jika down (LLM opsional Track 3, tetap lolos).
-- Market: default `id` (IDX), `sg` optional flag — tiap query/`--market` harus divalidasi `enum Market {Id,Sg}`.
-- No secret di code/log/config. Validasi input ketat di boundary. Repo public 19 Aug–30 Sep 2026, freeze saat submit.
+- Sectors MCP/REST = CORE source (cabut = produk mati). No auto trade execution. Disclaimer `bukan rekomendasi investasi` di setiap insight view + PDF footer `x-schema-version`.
+- 9router `localhost:20128` NEVER kill/restart — `http://localhost:20128/v1/chat/completions` OpenAI-compatible, `LLM_BASE_URL` server-only — check `Invoke-WebRequest :20128/v1/models →200` sebelum dossier — fallback `degraded:true` jika down (LLM opsional Track 3, tetap lolos).
+- Market: default `id` (IDX), `sg` optional flag — tiap query/`--market` validasi `enum Market {Id,Sg} FromStr as_str() id|sg` — invalid 422 (AGENTS §6 Market) — `universe-100 FINANCE25/ENERGY20/CONSUMER20/INFRA20/OTHER15` stratified.
+- No secret di code/log/config — `crates/seith-core/src/redact.rs Redacted Display ***` — `.env` gitignore — `0843... revoked 2026-09-05` — `SECTORS_API_KEY` server-only.
+- Repo public 19 Aug–30 Sep 2026, freeze saat submit — `scripts/freeze-check.sh` — `push --force` veto — history verifiable 296c + Kronos T1.0.
 
-## Stack (locked — Rust Core + Kronos-base + CompositeCache + 9router)
+## Stack (Locked — d46a77d Live Verified)
 
 | Layer | Stack | Framework |
 |---|---|---|
 | Core | Rust edition 2021 | Axum + Tokio, serde, validator, chrono, reqwest, thiserror/anyhow, tracing, tower-http |
-| Cache | Composite | moka L1 (hot, <1ms) + SQLite L2 (`data/seith.db`, ~2ms, persistent) — trait `Cache`, Redis 30MB ditolak (IDX raw ~45MB), Supabase defer H5 |
-| CLI | Rust | clap — `seith ranking --sector FINANCE`, `seith ranking --market sg --sector FINANCE`, `seith dossier BBCA --pdf`, `seith scan --tickers BBCA,BMRI` |
-| Quant sidecar | Python uv | FastAPI + Uvicorn, torch, Kronos-base (`apps/kronos-sidecar :8001`) |
-| Research sidecar | Python uv | FastAPI, LangGraph-inspired, httpx → 9router (`apps/analysis :8002`) |
-| LLM | 9router | `http://localhost:20128/v1/chat/completions` (OpenAI-compatible), Tier-0 NEVER kill |
-| Web | Next.js 14 | App Router + TS + Tailwind + shadcn, Zod (FE), pnpm |
-| Test | Rust+Python+FE | cargo test+mockito+rusqlite, uv pytest+ruff, pnpm test |
+| Cache | Composite | moka L1 hot <1ms + SQLite L2 `data/seith.db` WAL `busy_timeout 3000` TTL 24h raw / 1h ranking — trait `Cache`, key `market:sector:ticker:date`, Redis 30MB ditolak (IDX raw ~45MB) |
+| CLI | Rust | clap `--market id|sg` — `ranking --sector FINANCE`, `dossier BBCA --pdf`, `scan --tickers` |
+| Quant | Python uv | FastAPI + Uvicorn, torch, Kronos-base `apps/kronos-sidecar :8001` `NeoQuasar/Kronos-base` + Tokenizer `102.3M` |
+| Research | Python uv | FastAPI, LangGraph-inspired, httpx → 9router `apps/analysis :8002` `nemutron` |
+| LLM | 9router | `http://localhost:20128/v1/chat/completions` Tier-0 NEVER kill |
+| Web | Next.js 14 | App Router + TS + Tailwind + shadcn, Zod, recharts, pnpm — `@react-pdf/renderer` PDF vector |
+| Test | Rust+Python+FE | cargo test 89+ mockito rusqlite, uv pytest ruff, pnpm test, `nbconvert` 7→10 sel plotly 5.24.1 isolated `research/.venv` |
 
-Kronos: `NeoQuasar/Kronos-base` + `NeoQuasar/Kronos-Tokenizer-base`, `max_context 512`, `predict_batch` 400→20, T1.0 top_p0.9. Market: `enum Market` dengan helper `as_str()` (`id|sg`) untuk Sectors base path `/v2/{indonesia|singapore}/transaction/daily`. Vendor `vendor/Kronos` & `vendor/TradingAgents` hanya referensi ter-pin (read-only, ADR 0002).
+## Pipeline Workflow — Intelligence Loop `60s Ranking → Deep Dossier` (Locked d46a77d)
 
-## Pipeline Workflow — Intelligence Loop `60s Ranking → Deep Dossier` (Locked)
 ```
-[1] Sectors Batch+CompositeCache (Rust, market=id default, moka L1 + SQLite L2 data/seith.db, key market:sector:ticker:date, 24h TTL raw / 1h ranking, batch per sektor, market=sg optional STI)
- → [2] Normalize & Cleansing (Rust seith-core) — open/high/low/close WAJIB (missing→exclude+reason 422), volume/amount missing→0.0, rasio missing→sector median per market fallback 0.0 + insufficient_data flag, lookback>512→422
- → [3] Kronos-base Sidecar :8001 POST /predict_batch (equal guard, 30s timeout retry1 fallback degraded:true)
- → [4] Scoring Engine Rust (Mispricing 0-100 = 30%ER+20%(100-|Z|)+30%QV+20%SectorMom, clamp, breakdown, percentile per market)
- → [5] Ranking + Anomaly Flag (|Z|>2 atau volume spike >2σ tanpa katalis)
- → [6] TradingAgents-Lite :8002 POST /synthesize (Fund/Tech/Synth only, Sectors adapter → 9router :20128/v1, disclaimer, hanya Top-N)
- → [7] Dossier Compose (Rust) → JSON → PDF
- → [8] Hybrid Delivery — Rust API (Axum /api/v1/*, envelope + ?market) + seith-cli (clap --market) + Next.js FE (consume Rust API)
+[1] Sectors Batch+CompositeCache (market=id default, moka L1 + SQLite L2 data/seith.db, key market:sector:ticker:date, 24h TTL raw / 1h ranking, batch chunks(20)×5, market=sg optional STI)
+ → [2] Normalize & Cleansing (Rust seith-core) — OHLC WAJIB missing→exclude+reason 422 + insufficient_data, volume/amount missing→0.0, rasio missing→sector median per market 0.0 + flag, lookback>512→422 at handlers boundary (not sidecar)
+ → [3] Kronos-base Sidecar :8001 POST /predict_batch 19→20 T1.0 top_p0.9 max_context 512 equal guard 30s retry1 fallback degraded:true — real 98×19 → 20 forecast
+ → [4] Scoring Rust 0-100 = 30%ER(z_normalize) +20%(100-|Z|)+30%QV(percentile per market)+20%SectorMom clamp breakdown (LPPF 50.02/99.91/100/76.58=80.3 rank1)
+ → [5] Ranking Mispricing desc → |Z| tie-break + Anomaly Flag |Z|>2 OR vol spike >2σ tanpa katalis + excluded BMRG 404 MFIN missing_ohlc jujur
+ → [6] TradingAgents-Lite :8002 POST /synthesize Top-10 only Fund/Tech/Synth (Sectors adapter → 9router :20128 nemutron, disclaimer, 10 llm 90 template)
+ → [7] Dossier Compose Rust → JSON + PDF 9-section Bloomberg vector (ScoreBadge >70 emerald 40-70 amber <40 red, stacked real, Line 400+20 chart, heatmap 10×10 rects 100)
+ → [8] Hybrid Delivery — Rust API Axum /api/v1/* envelope + x-schema-version + seith-cli clap --market + Next.js FE consume Rust API (rewrites :8181, SEITH_API_BIND 0.0.0.0:8181, 8080 httpd occupied, load_dotenv no dep)
 ```
-Integrasi Rust↔Python via **REST sidecar** (bukan PyO3/maturin). TradingAgents: copy workflow 3-agent (Fund/Tech/Synth) dari `github.com/TauricResearch/TradingAgents` — bukan fork full repo. Sectors mapping: `Id → /v2/indonesia/transaction/daily`, `Sg → /v2/singapore/transaction/daily`.
+
+Decision tree:
+- `?market=id|sg` → `Market::fromStr` → `Id→/v2/indonesia/transaction/daily Sg→/v2/singapore/transaction/daily` — invalid 422
+- `lookback + pred_len >512` → 422 boundary — Kronos cold 2-3m `MOCK=1 smoke BBCA → MOCK=0 100`
+
+Lesson 14 Sep: ADES generik AI (text+dummy 30/20/30/20 + no chart) → H14 polish 4 MVP (Heatmap 100 + Stacked Top-20 + Scatter ER vs |Z| + Equity Area+drawdown); probe loop 7× → rule `diagnose 1× + fix surgical 1×` not probe N+1.
 
 ## Workflow & Handoff Protocol
-- Setiap eksekusi = session baru + doc `.handoff/handoff-NN-topic.md` (Goal, Context, Scope In/Out, Deliverables, Verification, Next Session Prompt).
-- Branch per handoff: `handoff/NN-topic` (+ `t1`/`t2` sub-branch jika 2 terminal garap file beda paralel). Gunakan `git worktree add` untuk isolasi `target/` + `data/seith.db` (lock SQLite WAL).
-- Verification Gate wajib: `cargo fmt --check && cargo clippy -- -D warnings && cargo test` (incl. sectors-client CompositeCache) (+ `uv run pytest` untuk sidecar) + `pnpm lint/typecheck` jika FE ada + `Invoke-WebRequest http://localhost:20128/v1/models` jika sentuh dossier + `sqlite3 data/seith.db "SELECT count(*) FROM ohlcv;"` jika sentuh cache. Paste output asli, no fabrikasi.
+- Session baru + doc `phase-NN-topic/00-overview.md` (Goal, Context, Scope In/Out WBS DoD Peran Matrix Branch Verification Risk Next Prompt) — `AGENTS.md §8b` flat `handoff/NN-topic`.
+- `git worktree add ../seith-wt/handoff-NN -b handoff/NN-topic` — isolate `target/` + `data/seith.db` WAL — 7 agents `code/data/quant/security/design/doc + pm` parallel `seith-phase-gate`.
+- Gate: `cargo fmt --check && cargo clippy -- -D warnings && cargo test 89+` (+ `uv run pytest` sidecar, `pnpm lint/typecheck/build 4 routes`) + `Invoke-WebRequest :20128/v1/models 200` + `grep SECTORS_API_KEY apps/web 0` + `grep plotly apps/kronos-sidecar 0` + `Accountability Block ✅/⚠️/🔻/♻️ + ♻️ Refactor:` — paste nyata, no fabrikasi.
 
 ## Critical Notes — WAJIB BACA SEBELUM IMPLEMENT
-- WAJIB baca `docs/notes/00-readme.md` → `01-tujuan-seith.md` → `02-kronos-kritis.md` → `03-market-intelligence-gate.md` → `04-arsitektur-kritis.md` → `05-anti-patterns.md` SEBELUM `Implement`. Skill ini auto-load `00-readme.md`.
-- Ritual 3 pertanyaan (jawab di PR/handoff): 1) Lolos gate MI mana? 2) Jebakan Kronos/cache/market apa? 3) Test FAIL apa jika salah?
-- 12 anti-pattern `05-anti-patterns.md` — `rust-reviewer` cek 1-6, `security-reviewer` cek 6-8, PM cek 10-12.
-- Branch WAJIB: `handoff/NN-topic` (+ `t1`/`t2` jika paralel) via `git worktree add ../seith-wt/handoff-NN -b handoff/NN-topic` — no direct commit ke `main` (AGENTS §8b). PM veto jika tanpa branch/notes.
+- WAJIB `docs/notes/00-readme.md →01-tujuan →02-kronos-kritis (512) →03-MI-gate →04-arsitektur →05-anti-patterns.md` — auto-load `00-readme.md`.
+- Ritual 3Q jawab di PR/handoff: 1) Gate MI mana lolos? 2) Jebakan Kronos/cache/market/8080 apa? 3) Test FAIL apa jika salah?
+- 14 anti-pattern `05-anti-patterns.md` — `code-reviewer` 1-6, `security-reviewer` 6-8, `data-reviewer` 9-11, `design-reviewer` 12-14, PM 10-12.
+- Branch WAJIB `handoff/NN-topic` (`t1`/`t2` if parallel) `git worktree add` — no direct `main` — PM veto jika tanpa branch/notes — long-term: `scripts/verify.sh` one-gate + `seith-ops` skill.
 
-## Hard Conventions (dari AGENTS.md)
-- Rust `cargo` edition 2021, `rustfmt` + `clippy`. Python HANYA sidecar via `uv`. LLM via 9router. Cache = Composite moka L1 + SQLite L2 `data/seith.db`.
-- Immutability, fn <50 baris, file 200-400 (max 800), nesting ≤4.
-- **Boy Scout Rule — Refactor wajib:** tiap task ubah file WAJIB tinggalkan lebih bersih — `cargo fmt` + `clippy --fix` + hapus dead code + extract jika >50 baris. No claim `selesai` tanpa `♻️ Refactor:` di Accountability Block (AGENTS §5b). Workflow `Understand → Plan → Implement → Verify → Refactor → Document`.
-- Error handling tiap level, no silent swallow. API envelope `{success,data,error,pagination}`. Repository pattern. `Cache` trait untuk L1/L2. `refactor-cleaner` WAJIB pasca tiap handoff (AGENTS §8 Layer 4).
+## Hard Conventions (AGENTS.md)
+- Rust `cargo` edition 2021 `rustfmt+clippy` — Python HANYA sidecar `uv` — LLM via 9router — Cache Composite `data/seith.db` — `AGENTS.md §5 Commands + §3c Seven Zones`.
+- Immutability — `fn<50 file 200-400 (max 800) nesting≤4 no dead code no unwrap? no silent swallow` — `refactor-cleaner` WAJIB pasca handoff — `Accountability Block ♻️ Refactor:`.
+- API envelope `{success,data,error,pagination}` + `x-schema-version` — Repository pattern — `Cache` trait L1/L2 — `research/backtest-100.json` verifiable lineage 296c.
 
-## Docs Map (jangan duplikasi — baca ini)
-- `AGENTS.md` — charter, roles, Tier 0, stack §3b, workflow, branch §8b, Hybrid + 9router + CompositeCache + IDX/STI
-- `docs/notes/00-readme.md` + `01`–`05` — **WAJIB baca sebelum Implement** (tujuan, Kronos 512, gate MI, arsitektur, 12 anti-pattern)
-- `docs/prd.md` — problem/persona/pipeline §5 hybrid + cache + market/scope/metrics (derived insight win)
-- `docs/spec.md` — architecture hybrid §1 + pipeline §2 dengan CompositeCache + Market + cleansing gate + scoring + tech stack §1b
-- `docs/api-spec.md` — pipeline §2 + endpoints Axum + CLI contract §1, health sidecars §3, `?market` param, `Cache` trait, Sectors mapping Id/Sg, sidecar + 9router contract §9-10
-- `docs/tdd-plan.md` — pipeline §2 + TDD critical paths (scoring/anomaly/adapter+cleansing+CompositeCache/kronos-bridge/analysis-bridge/dossier+CLI+9router+Market), `cargo test` + `uv pytest` + SQLite
+## Docs Map
+- `AGENTS.md` — charter 7 Zones, Tier 0, stack, workflow, branch §8b — `docs/prd.md` — problem/persona/pipeline §5 — `docs/spec.md` — hybrid §1 pipeline §2 — `docs/api-spec.md` — endpoints Axum CLI §1 health §3 `?market` Cache §6 Sectors §7 sidecar §9-10 — `docs/tdd-plan.md` — pipeline §2 TDD critical — `docs/kronos-notes.md` — 2508.02739v1 max_context — `docs/notes/00→05` — `research/money-leak-backtest.ipynb` 7→10.
 
-## Available opencode Skills (audit)
-- Custom (project): `seith-market-intelligence` (SSOT ini).
-- Global relevan: `tdd-workflow`/`tdd`, `verification-loop`, `code-reviewer`, `security-review`, `handoff`, `understand`, `graphify`, `promote`, `git-worktree-manager` + 60+ lain. Eksekutor boleh pakai helper tersebut, tapi narasi produk tetap ikut skill ini.
+## Available opencode Skills (Audit v2 Long-Term)
+- Custom (project 10): `seith-market-intelligence` SSOT v2 ini + `seith-dev` (gotcha + load_dotenv) + `seith-kronos` (MOCK toggle) + `seith-data` (lineage 296c 100 equity12) + `seith-design` (Bloomberg + no-ai-slop) + `seith-quant` (H15 Top-N walk-forward IC spec) + `seith-ops` (worktree freeze verify) + `seith-phase-gate` + `verification-loop` (`seith-pm` harness).
+- Global 131 reuse `~/.agents/skills` ambient — eksekutor pakai helper, narasi tetap SSOT v2.
 
 ## Judging Lens
-40% Usability (hybrid CLI verifiable + Web 60s comprehension, IDX primary) + 30% Video (teaser 1m CLI+Web + judging 3m, STI bonus di H5) + 30% Tech Depth (Sectors core + Kronos-base + Rust CompositeCache 100% gratis + 9router + market-agnostic) — optimize untuk explainable derived insight yang bisa dipakai hari ini.
+40% Usability hybrid CLI verifiable + Web 60s comprehension heatmap/stacked IDX primary + 30% Video teaser 1m CLI+Web + judging 3m STI H5 bonus + 30% Tech Depth Sectors core + Kronos-base T1.0 + Rust CompositeCache 100% gratis + 9router market-agnostic — explainable derived insight hari ini — production frozen 30 Sep 23:59 WIB.
 
 ## References
-- `hackathon.sectors.app/tracks/market-intelligence` — qualifying test & boundary rules
-- Sectors docs: `/v2/indonesia/transaction/daily` (IDX) + `/v2/singapore/transaction/daily` (STI)
-- Kronos `model.Kronos/KronosTokenizer/KronosPredictor`, HF `NeoQuasar/*`, whitepaper `2508.02739v1.pdf`
-- TradingAgents `github.com/TauricResearch/TradingAgents` — workflow copy (Fund/Tech/Synth), vendor read-only
-- 9router `http://localhost:20128/v1` (OpenAI-compatible)
+- `hackathon.sectors.app/tracks/market-intelligence` — boundary 30 Sep freeze — `Sectors /v2/indonesia|singapore/transaction/daily` — `Kronos model.Kronos/Tokenizer/Predictor NeoQuasar/* 2508.02739v1.pdf` — `TradingAgents TauricResearch 3-agent copy vendor read-only ADR 0002` — `9router :20128/v1` — `d46a77d live 100 as_of 2026-09-13 llm 10/10`
