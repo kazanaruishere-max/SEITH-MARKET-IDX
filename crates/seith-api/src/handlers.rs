@@ -369,8 +369,17 @@ pub async fn dossier(
         .map(|v| bd::peer_five(v, &it))
         .unwrap_or_default();
     let memo = bd::dossier_memo(&it, peers.len());
-    let kronos_degraded = true;
-    let data = json!({"ticker": t, "market": market.as_str(), "lang": lang, "score": bd::f64_of(&it, "mispricingScore"), "breakdown": it.get("components").cloned().unwrap_or(json!({})), "peerComparison": peers, "kronos": {"forecastReturn": 0.05, "volatility": 0.12, "chartPoints": []}, "research": {"fundamentalMemo": memo, "technicalMemo": memo, "synthesizerMemo": memo}, "anomaly": it.get("anomaly").cloned().unwrap_or(json!({})), "sector": bd::str_of(&it, "sector"), "rank": it.get("rank").cloned().unwrap_or(json!(0)), "degraded": kronos_degraded, "disclaimer": DISCLAIMER});
+    let kronos_val = it
+        .get("kronos")
+        .cloned()
+        .unwrap_or(json!({"forecastReturn": 0.05, "volatility": 0.12, "chartPoints": []}));
+    let chart_empty = kronos_val
+        .get("chartPoints")
+        .and_then(|v| v.as_array())
+        .map(|a| a.is_empty())
+        .unwrap_or(true);
+    let kronos_degraded = chart_empty;
+    let data = json!({"ticker": t, "market": market.as_str(), "lang": lang, "score": bd::f64_of(&it, "mispricingScore"), "breakdown": it.get("components").cloned().unwrap_or(json!({})), "peerComparison": peers, "kronos": kronos_val, "research": {"fundamentalMemo": memo, "technicalMemo": memo, "synthesizerMemo": memo}, "anomaly": it.get("anomaly").cloned().unwrap_or(json!({})), "sector": bd::str_of(&it, "sector"), "rank": it.get("rank").cloned().unwrap_or(json!(0)), "degraded": kronos_degraded, "disclaimer": DISCLAIMER});
     with_schema(ok_body(data), StatusCode::OK)
 }
 
@@ -434,17 +443,32 @@ fn dossier_pdf(
             String::new(),
         ),
     };
+    let kronos_sec = found
+        .and_then(|it| it.get("kronos"))
+        .map(|k| dossier::KronosSection {
+            forecast_return: k
+                .get("forecastReturn")
+                .and_then(|v| v.as_f64())
+                .unwrap_or(0.05),
+            volatility: k.get("volatility").and_then(|v| v.as_f64()).unwrap_or(0.12),
+            chart_points: k
+                .get("chartPoints")
+                .and_then(|v| v.as_array())
+                .cloned()
+                .unwrap_or_default(),
+        })
+        .unwrap_or(dossier::KronosSection {
+            forecast_return: 0.05,
+            volatility: 0.12,
+            chart_points: vec![],
+        });
     let d = dossier::compose(
         ticker.to_string(),
         market,
         score,
         comps,
         Vec::new(),
-        dossier::KronosSection {
-            forecast_return: 0.05,
-            volatility: 0.12,
-            chart_points: vec![],
-        },
+        kronos_sec,
         dossier::ResearchSection {
             fundamental_memo: memo.clone(),
             technical_memo: memo.clone(),

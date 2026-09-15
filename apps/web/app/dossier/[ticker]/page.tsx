@@ -1,13 +1,14 @@
 import dynamic from "next/dynamic";
 import { fetchDossier } from "@/lib/api";
 import ScoreBadge from "@/components/ScoreBadge";
+import DossierKronosChart from "@/components/DossierKronosChart";
 const DossierClient = dynamic(() => import("./DossierClient"), { ssr: false });
 type Peer = { ticker: string; score: number; market: string; sector?: string; qvDistance?: number };
 type DossierData = {
   ticker: string; market: string; lang?: string; score?: number;
   breakdown?: { expected_return: number; anomaly_z: number; quality_value: number; sector_mom: number };
   peerComparison?: Peer[];
-  kronos?: { forecastReturn?: number; volatility?: number };
+  kronos?: { forecastReturn?: number; volatility?: number; chartPoints?: { date:string; value:number; upper:number; lower:number }[] };
   research?: { fundamentalMemo?: string; technicalMemo?: string; synthesizerMemo?: string };
   anomaly?: { z?: number; flag?: boolean; reason?: string };
   sector?: string; rank?: number; disclaimer: string;
@@ -32,6 +33,7 @@ export default async function DossierPage({ params, searchParams }: { params: { 
       {error ? <div className="rounded border border-red-900 bg-red-950/30 px-3 py-2 text-sm text-red-300">{error}</div> : null}
       {data ? (
         <>
+          <DossierKronosChart kronos={data.kronos as never} close={(data as unknown as { close?: number }).close} />
           <div className="flex items-center gap-3 rounded-xl border border-zinc-800 bg-[#11151F] p-4">
             <ScoreBadge score={data.score ?? 0} anomaly={data.anomaly?.flag} />
             <span className="text-sm text-zinc-300">Skor {data.score?.toFixed(1)} · |Z| {(data.anomaly?.z ?? 0).toFixed(1)}{data.anomaly?.reason ? ` · ${data.anomaly.reason}` : ""}</span>
