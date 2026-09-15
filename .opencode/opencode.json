@@ -1,6 +1,24 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "skills": ["seith-market-intelligence"],
+  "skills": [
+    "seith-market-intelligence",
+    "seith-dev",
+    "seith-kronos",
+    "seith-data",
+    "seith-design",
+    "seith-quant",
+    "seith-ops",
+    "seith-phase-gate",
+    "verification-loop"
+  ],
   "skill_paths": [".opencode/skills"],
-  "agents": ["seith-pm"]
+  "agents": [
+    "seith-pm",
+    "seith-code-reviewer",
+    "seith-design-reviewer",
+    "seith-data-reviewer",
+    "seith-quant-reviewer",
+    "seith-security-reviewer",
+    "seith-doc-reviewer"
+  ]
 }
