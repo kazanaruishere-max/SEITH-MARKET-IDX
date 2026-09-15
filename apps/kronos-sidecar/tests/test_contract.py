@@ -53,7 +53,15 @@ def test_predict_400_to_20_ok():
     assert all("close" in x for x in j["pred_df"])
 
 
-def test_predict_volume_none_to_zero():
+def test_predict_mock_degraded_true(monkeypatch):
+    monkeypatch.setenv("KRONOS_MOCK", "1")
+    r = client.post("/predict", json=_payload(10, 5))
+    assert r.status_code == 200
+    assert r.json()["degraded"] is True
+
+
+def test_predict_volume_none_to_zero(monkeypatch):
+    monkeypatch.setenv("KRONOS_MOCK", "1")
     p = _payload(10, 5)
     for row in p["df"]:
         row["volume"] = None

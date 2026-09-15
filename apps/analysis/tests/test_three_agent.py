@@ -18,6 +18,7 @@ import json
 from pathlib import Path
 
 import pytest
+from fastapi.testclient import TestClient
 from pytest_httpx import HTTPXMock
 
 from app.agents import fundamental_run, synthesizer_run, technical_run
@@ -189,3 +190,36 @@ def test_disclaimer_always_present_in_template():
         raw = fn(req)
         injected = DISCLAIMER in raw or DISCLAIMER in f"{raw} {DISCLAIMER}"
         assert injected
+
+@pytest.mark.asyncio
+async def test_200_with_error_body_falls_back(httpx_mock: HTTPXMock):
+    httpx_mock.add_response(
+        url=f"{LLM_URL}/chat/completions",
+        method="POST",
+        json={"error": {"type": "server_error", "message": "overloaded"}, "choices": []},
+        status_code=200,
+        is_reusable=True,
+    )
+    req = _make_req("BBCA")
+    memo = await fundamental_run(req, LLM_URL)
+    assert "Fundamental BBCA sektor FINANCE" in memo
+    assert DISCLAIMER in memo
+
+@pytest.mark.asyncio
+async def test_main_marks_template_memo_degraded(httpx_mock: HTTPXMock):
+    from app.main import app as fast_app
+
+    httpx_mock.add_response(
+        url=f"{LLM_URL}/chat/completions",
+        method="POST",
+        json={"error": "busy"},
+        status_code=503,
+        is_reusable=True,
+    )
+    client = TestClient(fast_app)
+    body = {"market": "id", "ticker": "BBCA", "fundamentals": {"sector": "FINANCE", "roe": 0.18, "margin": 0.12, "leverage": 1.5, "pe": 18.4, "pb": 2.7}, "kronos_signal": {"expected_return": 0.04, "anomaly_z": 1.2}, "sector": "FINANCE"}
+    r = client.post("/synthesize", json=body)
+    assert r.status_code == 200
+    j = r.json()
+    assert j["degraded"] is True
+    assert DISCLAIMER in j["fundamental_memo"]

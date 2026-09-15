@@ -6,6 +6,9 @@ Workflow harian dev: command, gate, troubleshooting env Rust/uv + 9router. Helpe
 ## When to Use
 Setiap session implement/test/debug, sebelum `cargo test` atau saat env error. WAJIB bareng `seith-market-intelligence` (SSOT).
 
+## Todo
+Buka `todowrite` setelah Plan — exactly-one `in_progress` (AGENTS §8d).
+
 ## Commands (AGENTS §5)
 ```powershell
 cargo fmt --check; cargo clippy -- -D warnings; cargo test -- --nocapture

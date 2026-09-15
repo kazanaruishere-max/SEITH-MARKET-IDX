@@ -13,6 +13,7 @@ Tiap handoff selesai (H1-H6), tiap PR `handoff/* → main`. PM `seith-pm` invoke
 - [ ] `rust-reviewer` pass (scoring/anomaly/adapter)
 - [ ] `security-reviewer` pass (Sectors key, 9router, rate limit, input validator) — MANDATORY pra-freeze
 - [ ] `Accountability Block` dengan output nyata
+- [ ] `todowrite` trace `pending→in_progress→completed` — FAIL jika tanpa jejak (AGENTS §8d)
 - [ ] `docs/*` sinkron (no drift)
 
 ## Reviewers

@@ -25,6 +25,7 @@ Liveness: Sectors reachable, kronos :8001, analysis :8002, 9router :20128, l2 `d
 Query: `market?: "id"|"sg" (default id), sector?: string (IDX sector code), sort?: "mispricing"|"anomaly" (default mispricing), order?: "desc"|"asc" (default desc), page?: u32 (default 1), pageSize?: u32 (default 20, max 50)`
 Response `data: Vec<{ ticker, name, sector, market, mispricingScore: f32 0-100, components:{expectedReturn, anomalyZ, qualityValue, sectorMom}, anomalyFlag: bool, rank: u32, degraded?: bool, insufficientData?: bool }>` + `pagination` + `disclaimer`
 Behavior: Cleansing gate sebelum scoring; missing OHLC → exclude (tidak crash pipeline). Tanpa cache hit (L1→L2 miss) → fetch Sectors → tulis L1+L2.
+Live saat ini: disajikan dari `research/backtest-100.json` pinned 2026-09-08 (deterministik, 100 items, `pagination.total` real; sector filter real, e.g. FINANCE=25). Fetch live Sectors batch 100 = fase E2E100 live (butuh approval kredit).
 CLI: `seith ranking --sector FINANCE --json` ≡ `GET /v1/ranking?sector=FINANCE` ; `seith ranking --market sg --sector FINANCE` ≡ `?market=sg`
 
 ### GET /v1/tickers/:ticker/score
@@ -34,20 +35,31 @@ Errors: `404 TICKER_NOT_FOUND` (termasuk exclude karena cleansing), `422 VALIDAT
 CLI: `seith score BBCA --json` ; `seith score DBS --market sg`
 
 ### GET /v1/tickers/:ticker/dossier
-Params: `ticker` | Query: `market?: "id"|"sg" (default id), format?: "json"|"pdf" (default json)`
-Response json: `{ ticker, market, score, breakdown, peerComparison: Vec<{ticker,score, market}>, kronos:{forecastReturn, volatility, chartPoints: Vec<OHLC>}, research:{fundamentalMemo, technicalMemo, synthesizerMemo}, degraded, disclaimer }`
-Dossier research via TradingAgents-Lite → 9router; fallback memo deterministik jika 9router down (`degraded:true` tetap lolos MI karena LLM opsional). Sector peer per market.
-PDF: `Content-Type: application/pdf` streaming. No execution advice.
-CLI: `seith dossier BBCA --pdf` ≡ `GET /v1/tickers/BBCA/dossier?format=pdf`
+Params: `ticker` | Query: `market?: "id"|"sg" (default id), format?: "json"|"pdf" (default json), lang?: "id"|"en" (default id)`
+Response json: `{ ticker, market, lang:"id", score, breakdown: Components 30ER/20|Z|/30QV/20SM, peerComparison: Vec<{ticker,score,market}>[5] same sector+market QV distance ROE/margin/leverage/PE/PB + cap band ±50% + |Z| tie-break, kronos:{forecastReturn, volatility, chartPoints: Vec<OHLC> 400→20, volBand: ±2σ}, research:{fundamentalMemo, technicalMemo, synthesizerMemo} ID, degraded, disclaimer }` — 9-section 2-page PDF contract (Page1 Cover/Executive/Mispricing/Valuation/Peer QV+cap/Anomali + Page2 Katalis/Metodologi/Annex) via `@react-pdf/renderer` vector `Line 400→20 + Area ±2σ`, disclaimer tiap footer `Bukan rekomendasi`.
+Dossier research via TradingAgents-Lite → 9router; fallback memo deterministik jika 9router down (`degraded:true` tetap lolos MI karena LLM opsional). Sector peer per market QV+cap.
+PDF: `Content-Type: application/pdf` streaming 2 pages A4 `612x792` Bloomberg `#0B0E14`. No execution advice.
+CLI: `seith dossier BBCA --pdf` ≡ `GET /v1/tickers/BBCA/dossier?format=pdf&lang=id`
 
 ### GET /v1/anomalies
-Query: `market?: "id"|"sg" (default id), sector?, minZ?: f32 (default 2.0), page?, pageSize?`
-Response: tickers `|Z|>minZ` atau volume spike >2σ, sort `|Z|` desc per market. Pure derived insight.
+Query: `market?: "id"|"sg" (default id), sector?, minZ?: f32 (default 2.0), page?, pageSize?` — Money Leak Radar Top5: `sort=anomaly&minZ=2.0&pageSize=5`
+Response: tickers `|Z|>minZ` atau volume spike >2σ tanpa katalis ROE/margin, sort `|Z|` desc per market. Pure derived insight. Envelope `success/data/error/pagination + disclaimer + x-schema-version`.
+
+### GET /v1/backtest
+Query: `market?: "id"|"sg" (default id)`
+Response: `{ as_of: "2026-09-08", universe: 100, market: "id", credit_cost: 200, source: "research/universe-100.json 100 stratified FINANCE25/ENERGY20/CONSUMER20/INFRA20/OTHER15 -> Sectors batch chunks20x5 Authorization /v2/daily/{symbol}/ -> CompositeCache L1+L2 -> Kronos 400→20", items: Vec<{ticker,market,sector,close,mispricingScore,components,anomaly:{z,flag,reason},rank}>, metrics:{hit_rate,drawdown,sharpe,top5_forward_20d,totalReturn,cumulative,win_rate}, equity_curve: Vec<{date,return,bench}>[12] vs IHSG, excluded: Vec<{ticker,reason}>, degraded, disclaimer }` — static `research/backtest-100.json` 100 real, envelope.
 
 ### POST /v1/scan
 Body: `{ tickers: Vec<String> (1-50), lookback?: u16 (default 400, max 512), predLen?: u16 (default 20), market?: "id"|"sg" (default id) }`
 Behavior: Validasi `lookback<=512 && predLen<=512` (max_context 512), equal lookback/predLen, Sectors cleansing → exclude invalid (response sertakan `excluded: Vec<{ticker,reason}>`, `degraded`). Delegasi ke Kronos :8001 `POST /predict_batch` dengan market tag.
+Live saat ini: `results[]` lookup deterministik ke universe-100 (score+anomaly+rank real); ticker di luar universe → `excluded reason "ticker not in universe-100"`.
 CLI: `seith scan --tickers BBCA,BMRI,BBRI --json` ; `--market sg`
+
+## 3b. Web FE Contract (Next.js 14 — verified 2026-09-11)
+- Routes: `/` hero + TopLeaks Top5 `|Z|` → `/ranking` filter sector/sort + `/dossier/[ticker]` badge+peer5+memo+PDF blob/vector → `/backtest` equity12 vs IHSG + metrics + Top10.
+- Proxy: `apps/web/next.config.js rewrites /api/v1/* → 127.0.0.1:8181` (dev). Env prod: `NEXT_PUBLIC_API_BASE` bila API beda host.
+- Komponen: `TopLeaks.tsx` + `BacktestChart.tsx` (Line zinc actual vs amber dashed bench) + `MetricsTable.tsx` + `DossierPDF.tsx` 2-page vector + `DossierClient.tsx` dual download.
+- `pnpm lint 0 typecheck 0 test 6 build 0 (5 routes)` — disclaimer tiap view.
 
 ## 4. Schemas (Rust validator)
 ```rust

@@ -39,9 +39,11 @@ cargo fmt --check → 0 / cargo clippy --all-targets -- -D warnings → 0 / carg
 - ♻️ Refactor: docs-only — keep table narrow, DRY with 02
 
 ## Peran + Skill + Sub-agent
-| Peran | Eksekutor | Skill | Sub-agent |
-|---|---|---|---|
-| Docs | `doc-updater` | `remember`+`handoff`+`no-ai-slop` | — |
+| Peran | Eksekutor | Skill | Sub-agent | Kapan |
+|---|---|---|---|---|
+| T1 Docs | sub-agent | `seith-market-intelligence` + `remember`+`handoff`+`no-ai-slop` + `verification-loop` | `doc-updater` | docs-only 01 — expand Peran 5-col, universe 100 stub |
+| Founder | User | — | — | approve universe 100 stratified vs screener dynamic |
+| Doc | `doc-updater` | `remember`+`handoff`+`no-ai-slop` | `doc-updater` | sinkron research/universe-100.json |
 
 ## Next Session Prompt
 `skill://seith-market-intelligence` + branch `handoff/09-100-backtest` + task `01-data-universe.md` + ritual 3Q

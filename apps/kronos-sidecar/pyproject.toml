@@ -10,6 +10,10 @@ dependencies = [
   "pandas>=2",
   "numpy>=1.26",
   "torch",
+  "huggingface-hub",
+  "tqdm",
+  "einops==0.8.1",
+  "safetensors",
 ]
 
 [tool.ruff]

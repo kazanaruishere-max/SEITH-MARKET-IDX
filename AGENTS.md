@@ -182,7 +182,7 @@ uv run python -c "import torch; import model"  # workdir apps/kronos-sidecar
 
 ## 7. Phase Workflow & Definition of Done
 
-Workflow: `Understand → Plan → Implement → Verify → Refactor → Document`.
+Workflow: `Understand → Plan → Todo → Implement → Verify → Refactor → Document` — `todowrite` WAJIB dibuka setelah Plan, exactly-one `in_progress`, update realtime.
 
 Fase dinyatakan done HANYA jika semua hijau (refactor tidak bisa diskip):
 1. Test relevan lulus (output nyata, bukan asersi kosong) — `cargo test` + `uv run pytest` jika sentuh sidecar + `pnpm test` jika FE/CLI.
@@ -192,6 +192,7 @@ Fase dinyatakan done HANYA jika semua hijau (refactor tidak bisa diskip):
 5. Dokumentasi ter-update (ADR untuk keputusan, prd/spec/api-spec untuk requirement berubah).
 6. Accountability Block terisi dengan output nyata + `♻️ Refactor: <apa>` wajib.
 7. Refactor gate lewat: `fn <50`, `file 200-400`, `nesting ≤4`, `no dead code` — `refactor-cleaner` scan pass.
+8. Todo trace ada (`todowrite`: pending→in_progress→completed, exactly-one `in_progress`) — klaim done tanpa jejak todo = FAIL.
 
 ## 8. Tim & Delegasi (struktur lengkap — WAJIB dipatuhi semua harness)
 
@@ -281,6 +282,12 @@ Setiap AI agent (T0/T1/T2 + `seith-pm` + `architect/planner/tdd-guide/code-revie
 4. **Structure & Rapih** — ikuti **7 Zones §3c**; file baru wajib di zona benar; `cargo fmt --check` 0 + `cargo clippy -- -D warnings` 0 + `pnpm lint/typecheck` 0; `refactor-cleaner` scan pass; `skill://no-ai-slop` Tier-1 prose/UI (H1-H4 warn, H5 hard fail) + `design-taste-frontend` untuk `apps/web`; `gitleaks` no leak; `Accountability Block` + `♻️ Refactor: <apa>` wajib tiap task.
 
 Pelanggaran = **PM veto merge ke `main`** + `seith-phase-gate` FAIL. Lead (T0) verifikasi ulang semua delegasi — delegasi bukan alasan lepas tanggung jawab.
+
+### 8d. Todo Wajib (`todowrite`) — Biasakan Pakai ToDo
+
+- Setiap task ≥3 langkah WAJIB buka `todowrite` setelah Plan, sebelum Implement: exactly-one `in_progress`, update realtime, `completed` hanya setelah verifikasi nyata.
+- Tiap session T1/T2: `skill://seith-market-intelligence` → `todowrite` → Implement → `verification-loop` → `completed`.
+- PM veto + `seith-phase-gate` FAIL jika tanpa jejak todo (`pending→in_progress→completed`).
 
 ## 9. Docs Map
 
