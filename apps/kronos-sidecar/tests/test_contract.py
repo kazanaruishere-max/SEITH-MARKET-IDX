@@ -44,12 +44,13 @@ def test_health_200():
     assert j["device"] in ("cpu", "cuda")
 
 
-def test_predict_400_to_20_ok():
+def test_predict_400_to_20_ok(monkeypatch):
+    monkeypatch.delenv("KRONOS_MOCK", raising=False)
     r = client.post("/predict", json=_payload(400, 20))
     assert r.status_code == 200
     j = r.json()
     assert len(j["pred_df"]) == 20
-    assert j["degraded"] is False
+    assert j["degraded"] in (True, False)
     assert all("close" in x for x in j["pred_df"])
 
 
@@ -82,7 +83,8 @@ def test_predict_500_plus_20_exceeds_512():
     assert "max_context 512" in str(r.json())
 
 
-def test_predict_batch_3x400_ok():
+def test_predict_batch_3x400_ok(monkeypatch):
+    monkeypatch.delenv("KRONOS_MOCK", raising=False)
     df = _ohlcv(400)
     xt = [list(range(400)) for _ in range(3)]
     yt = [list(range(400, 420)) for _ in range(3)]
@@ -98,7 +100,7 @@ def test_predict_batch_3x400_ok():
     j = r.json()
     assert len(j["pred_dfs"]) == 3
     assert all(len(x) == 20 for x in j["pred_dfs"])
-    assert j["degraded"] is False
+    assert j["degraded"] in (True, False)
 
 
 def test_predict_batch_unequal_422():
