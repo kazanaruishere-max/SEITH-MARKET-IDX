@@ -225,12 +225,14 @@ pub fn populate_finance_25() -> usize {
 }
 
 pub fn ensure_populated() {
+    use std::sync::{Mutex, OnceLock};
+    static LOCK: OnceLock<Mutex<()>> = OnceLock::new();
+    let _g = LOCK.get_or_init(|| Mutex::new(())).lock().unwrap();
     let conn = match open_conn() {
         Ok(c) => c,
         Err(_) => return,
     };
-    let cnt = ohlcv_count(&conn);
-    if cnt < 20 {
+    if ohlcv_count(&conn) < 400 {
         let _ = populate_finance_25();
     }
 }
