@@ -27,7 +27,7 @@ export default async function Page() {
     asOf = bd.as_of ?? "";
     degraded = bd.degraded;
     leaks = ((a.data as { items: typeof leaks }).items ?? []) as typeof leaks;
-  } catch { }
+  } catch (e) { console.error("[seith] fetch failed", e); }
   const flagged = items.filter((x) => x.anomalyFlag ?? x.anomaly?.flag).length;
   const avg = items.length ? (items.reduce((s, x) => s + x.mispricingScore, 0) / items.length).toFixed(1) : "-";
   const top10 = [...items].sort((x, y) => y.mispricingScore - x.mispricingScore).slice(0, 10) as never[];

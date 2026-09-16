@@ -27,6 +27,17 @@ fn candidates() -> Vec<String> {
     out
 }
 
+pub fn db_counts() -> Option<(i64, i64)> {
+    let path = "data/seith.db";
+    let conn = rusqlite::Connection::open(path).ok()?;
+    let o: i64 = conn
+        .query_row("SELECT COUNT(*) FROM ohlcv", [], |r| r.get(0))
+        .unwrap_or(0);
+    let f: i64 = conn
+        .query_row("SELECT COUNT(*) FROM fundamentals", [], |r| r.get(0))
+        .unwrap_or(0);
+    Some((o, f))
+}
 pub fn str_of(v: &Value, k: &str) -> String {
     v.get(k).and_then(|x| x.as_str()).unwrap_or("").to_string()
 }

@@ -3,10 +3,19 @@ import { LineChart, Line, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, Cart
 type Pt = { date: string; value: number; upper: number; lower: number };
 export default function DossierKronosChart({ kronos, close }: { kronos?: { forecastReturn?: number; volatility?: number; chartPoints?: Pt[] }; close?: number }) {
   const pts: Pt[] = kronos?.chartPoints ?? [];
-  const hist: Pt[] = pts.length ? pts : close ? Array.from({ length: 20 }, (_, i) => ({ date: `F${i + 1}`, value: close, upper: close * 1.02, lower: close * 0.98 })) : [];
+  if (!pts.length) {
+    return (
+      <div className="rounded-xl border border-zinc-800 bg-[#11151F] p-3">
+        <div className="mb-2 text-xs uppercase tracking-wide text-zinc-400">Kronos 400\u219220 \u2014 forecast amber dashed + \u00B12\u03C3 band</div>
+        <div className="flex h-[200px] items-center justify-center text-sm text-zinc-500">Prediksi belum tersedia \u2014 degraded</div>
+        <div className="mt-1 text-xs text-zinc-500">Bukan rekomendasi investasi \u2014 20 titik kronos + band vol 2\u03C3</div>
+      </div>
+    );
+  }
+  const hist: Pt[] = pts;
   return (
     <div className="rounded-xl border border-zinc-800 bg-[#11151F] p-3">
-      <div className="mb-2 text-xs uppercase tracking-wide text-zinc-400">Kronos 400→20 — forecast amber dashed + ±2σ band</div>
+      <div className="mb-2 text-xs uppercase tracking-wide text-zinc-400">Kronos 400\u219220 \u2014 forecast amber dashed + \u00B12\u03C3 band</div>
       <div style={{ width: "100%", height: 200 }}>
         <ResponsiveContainer>
           <LineChart data={hist} margin={{ top: 4, right: 8, bottom: 4, left: -8 }}>
@@ -22,7 +31,7 @@ export default function DossierKronosChart({ kronos, close }: { kronos?: { forec
           </LineChart>
         </ResponsiveContainer>
       </div>
-      <div className="mt-1 text-xs text-zinc-500">Bukan rekomendasi investasi — 20 titik kronos + band vol 2σ</div>
+      <div className="mt-1 text-xs text-zinc-500">Bukan rekomendasi investasi — 20 titik kronos + band vol 2sigma</div>
     </div>
   );
 }

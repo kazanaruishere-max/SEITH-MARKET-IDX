@@ -199,7 +199,10 @@ pub struct ScanBody {
 }
 
 pub async fn health() -> Response {
-    let body = ok_body(json!({"status":"ok","schema":SCHEMA_VERSION}));
+    let db = bd::db_counts().unwrap_or((0, 0));
+    let body = ok_body(
+        json!({"status":"ok","schema":SCHEMA_VERSION, "db":{"ohlcv": db.0, "fundamentals": db.1}}),
+    );
     with_schema(body, StatusCode::OK)
 }
 
@@ -368,7 +371,10 @@ pub async fn dossier(
         .as_ref()
         .map(|v| bd::peer_five(v, &it))
         .unwrap_or_default();
-    let memo = bd::dossier_memo(&it, peers.len());
+    let base_memo = bd::dossier_memo(&it, peers.len());
+    let memo_fund = format!("{} — Fundamental: ROE/margin vs median sektor.", base_memo);
+    let memo_tech = format!("{} — Teknikal: |Z|/vol spike MA20 ponytail.", base_memo);
+    let memo_synth = format!("{} — Sintesis: verdict netral/buy/caution.", base_memo);
     let kronos_val = it
         .get("kronos")
         .cloned()
@@ -379,7 +385,7 @@ pub async fn dossier(
         .map(|a| a.is_empty())
         .unwrap_or(true);
     let kronos_degraded = chart_empty;
-    let data = json!({"ticker": t, "market": market.as_str(), "lang": lang, "score": bd::f64_of(&it, "mispricingScore"), "breakdown": it.get("components").cloned().unwrap_or(json!({})), "peerComparison": peers, "kronos": kronos_val, "research": {"fundamentalMemo": memo, "technicalMemo": memo, "synthesizerMemo": memo}, "anomaly": it.get("anomaly").cloned().unwrap_or(json!({})), "sector": bd::str_of(&it, "sector"), "rank": it.get("rank").cloned().unwrap_or(json!(0)), "degraded": kronos_degraded, "disclaimer": DISCLAIMER});
+    let data = json!({"ticker": t, "market": market.as_str(), "lang": lang, "score": bd::f64_of(&it, "mispricingScore"), "breakdown": it.get("components").cloned().unwrap_or(json!({})), "peerComparison": peers, "kronos": kronos_val, "research": {"fundamentalMemo": memo_fund, "technicalMemo": memo_tech, "synthesizerMemo": memo_synth}, "anomaly": it.get("anomaly").cloned().unwrap_or(json!({})), "sector": bd::str_of(&it, "sector"), "rank": it.get("rank").cloned().unwrap_or(json!(0)), "degraded": kronos_degraded, "disclaimer": DISCLAIMER});
     with_schema(ok_body(data), StatusCode::OK)
 }
 

@@ -69,6 +69,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - run: pnpm --dir apps/web install || echo "install pending"
-      - run: pnpm --dir apps/web lint || echo "lint pending"
-      - run: pnpm --dir apps/web typecheck || pnpm --dir apps/web exec tsc --noEmit || echo "typecheck pending"
+      - run: pnpm --dir apps/web install
+      - run: pnpm --dir apps/web lint
+      - run: pnpm --dir apps/web typecheck
+      - run: pnpm --dir apps/web build

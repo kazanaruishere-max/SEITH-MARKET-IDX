@@ -308,10 +308,14 @@ Pelanggaran = **PM veto merge ke `main`** + `seith-phase-gate` FAIL. Lead (T0) v
 |---|---|
 | `seith-market-intelligence` | **SSOT — WAJIB tiap session T1/T2 di awal** (pointer ke AGENTS→docs) |
 | `seith-dev` | Workflow harian: command, gate, troubleshooting env Rust/uv + 9router |
-| `seith-phase-gate` | Penutupan fase + dual-review gate |
 | `seith-kronos` | WAJIB saat sentuh model Kronos/forecast/sampling/benchmark |
+| `seith-data` | WAJIB saat sentuh data/sectors-client/DB/research lineage |
+| `seith-design` | WAJIB saat sentuh web/design anti-slop |
+| `seith-quant` | WAJIB saat sentuh scoring/anomaly/dossier |
+| `seith-ops` | WAJIB orchestrasi worktree/long-term harness |
+| `seith-phase-gate` | Penutupan fase + dual-review gate |
 | `verification-loop` | WAJIB di akhir tiap handoff (cargo fmt/clippy/test + pytest) |
-| `tdd-workflow` / `tdd-guide` | Saat tulis fitur/bug (red-green-refactor) |
-| `git-worktree-manager` | Saat 2-3 terminal paralel (worktree lifecycle) |
+| `tdd-workflow` / `tdd-guide` | Saat tulis fitur/bug (red-green-refactor) — internal |
+| `git-worktree-manager` | Saat 2-3 terminal paralel (worktree lifecycle) — internal |
 
 > Skill global lain (60+): `code-reviewer`, `security-review`, `handoff`, `understand`, `graphify`, `promote` — boleh dipakai sebagai helper, tapi narasi produk tetap ikut `seith-market-intelligence`.

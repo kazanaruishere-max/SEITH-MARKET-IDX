@@ -1,5 +1,3 @@
-import os
-
 from fastapi import FastAPI
 
 from .predictor import get_device, is_mock_mode, predict, predict_batch
@@ -10,8 +8,7 @@ app = FastAPI(title="kronos-sidecar")
 
 @app.get("/health")
 def health():
-    is_mock = os.getenv("KRONOS_MOCK", "0") == "1"
-    model = "mock" if is_mock else "Kronos-base"
+    model = "mock" if is_mock_mode() else "Kronos-base"
     return {"status": "ok", "model": model, "max_context": 512, "device": get_device()}
 
 
