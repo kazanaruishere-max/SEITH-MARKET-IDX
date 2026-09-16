@@ -8,7 +8,7 @@ echo "Check: cargo fmt --check, cargo clippy, cargo test, secrets not in repo"
 cargo fmt --check
 cargo clippy -- -D warnings
 cargo test -- --nocapture
-if grep -r "SECTORS_API_KEY=[^[:space:]]\{10,\}" --exclude-dir=target --exclude-dir=.git --exclude=.env.example --exclude=.gitleaks.toml . 2>/dev/null; then
+if grep -r "SECTORS_API_KEY=[^[:space:]]\{10,\}" --exclude-dir=target --exclude-dir=.git --exclude-dir=.venv --exclude=.env.example --exclude=.gitleaks.toml . 2>/dev/null; then
   echo "secret found! FAIL"
   exit 1
 fi

@@ -49,6 +49,14 @@ pub enum Commands {
         #[arg(long, default_value_t = false)]
         json: bool,
     },
+    Radar {
+        #[arg(long)]
+        sector: Option<String>,
+        #[arg(long)]
+        market: Option<String>,
+        #[arg(long, default_value_t = false)]
+        json: bool,
+    },
 }
 
 pub fn normalize_ticker(raw: &str) -> String {

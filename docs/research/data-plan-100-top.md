@@ -2,13 +2,13 @@
 
 ## Stratifikasi 100 — Bukan 960
 IDX `≈940 listed ≈750 aktif` `FINANCE/ENERGY/CONSUMER/INFRA/OTHER`.
-**100 total `FINANCE 25 ENERGY 20 CONSUMER 20 INFRA 20 OTHER 15` Max 25%/sektor** — cukup Moat, hemat inference. `960 full = 900 credit` defer H7 jika sisa `1000 credits`.
+**100 total `FINANCE25 ENERGY 20 CONSUMER 20 INFRA 20 OTHER 15` Max 25%/sektor** — cukup Moat, hemat inference. `960 full = 900 credit` defer H7 jika sisa `1000 credits`.
 
 ## Bakar Credit Untuk Apa — Sekali Saja
 `OHLCV 400 rows + Valuation per ticker ≈ 2 credit × 100 = 200 credit` → `L2 data/seith.db WAL busy_timeout 3000` `key market:sector:ticker:date` `migrations/001_cache.sql`. `TTL 24h raw /1h ranking` `L1 moka <1ms` selanjutnya gratis `offline demo juri` tanpa hit. `H5 fix eafaea2` `uv 17+17` `L1→L2 hit` proof. Full `900 credit` jika `Excel venue` habis.
 
 ## Sectors Perlu Install? TIDAK
-`SECTORS_API_KEY` env server-only `crates/sectors-client reqwest` `GET /v2/indonesia/transaction/daily? ticker` + `.../singapore/...?market=sg` — tanpa `pip/npm`. `crates/seith-core/src/config.rs from_env() len<20 bail` + `redact.rs`.
+`SECTORS_API_KEY` env server-only `crates/sectors-client reqwest` `GET /v2/daily/{symbol}/` Id + `GET /v2/sgx/daily/{symbol}/` Sg header `Authorization: <SECTORS_API_KEY>` — tanpa `pip/npm`. `crates/seith-core/src/config.rs from_env() len<20 bail` + `redact.rs` + `market.rs base_path() /v2/daily /v2/sgx/daily` per `docs.sectors.app`.
 
 ## 10 Dataset → Mapping
 | Dataset | Status | Dipakai | Alasan |
@@ -16,7 +16,7 @@ IDX `≈940 listed ≈750 aktif` `FINANCE/ENERGY/CONSUMER/INFRA/OTHER`.
 | **OHLCV Daily** | **REQUIRED** | `OhlcvRow open/high/low/close/volume?/amount? → x_timestamp/y_timestamp` `normalize.rs` `ER Kronos 400→20 Z=(actual-forecast)/σ vol>2σ SM` | WAJIB `normalize` `volume null→0 OHLC 0→excluded` |
 | **Valuation Metrics** `ROE/margin/leverage/PE/PB` | **REQUIRED** | `Fundamentals` → `QV 30% qv_percentile per market` `scoring/calculator.rs` | Jantung `0-100 30/20/30/20` — missing→median `insufficient_data` |
 | **Company Overview** `ticker/name/sector/market` | **REQUIRED** | `sector` partition `QV percentile + SM median Id vs Sg terpisah` `sector-median.json` + `ranking/service filter` `peerComparison` | Tanpa sector QV fallback `0.0` |
-| **Peers & Comparison** | NICE-TO-HAVE | `dossier peerComparison 3` `dossier.rs:34` | Derivable internal `ranking/service.rs` — fetch eksternal Top 5 saja |
+| **Peers & Comparison** | NICE-TO-HAVE | `dossier peerComparison 5` `dossier.rs:34 QV distance+cap±50%` | Derivable internal `ranking/service.rs` — fetch eksternal Top 5 `?sort=anomaly&minZ=2.0&pageSize=5` |
 | **Future Forecast analyst** | DEFER | — | Ganti `Kronos :8001` foundation |
 | **Dividend History** | DEFER | — | No `dividendYield` field |
 | **Key Executives / Shareholdings / Major Shareholders / Institutional / Composition** 5 governance | DEFER | — | Tidak ada `Fundamentals` `analysis/types.rs` — template `Fund/Tech/Synth` only |

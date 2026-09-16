@@ -10,7 +10,7 @@
 | **SEITH + Radar `|Z|>2+vol>2σ`** | **38/40 Top 5 Leak usable** | **28/30 Jupyter backtest real** | **85+ win** |
 
 ## Moat #1 — Money Leak Radar
-`Flag |Z|>2 Z=(actual-forecast)/σ + volume spike >2σ tanpa katalis fundamental ROE/margin/leverage` → `Top 5 Trap/Hidden Alpha`.
+`Flag |Z|>2 Z=(actual-forecast)/σ + volume spike >2σ tanpa katalis fundamental ROE/margin/leverage` → `Top5 Trap/Hidden Alpha`.
 - Hanya detect via `anomaly/volume.rs + scoring 30/20/30/20` — `cleansing gate` kita `volume→0 OHLC→excluded` yang lain crash di illiquid.
 - Juri wow karena `derived` bukan display — Stockbit/TradingView tidak punya `illiquid trap` radar per sektor.
 

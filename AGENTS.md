@@ -182,7 +182,7 @@ uv run python -c "import torch; import model"  # workdir apps/kronos-sidecar
 
 ## 7. Phase Workflow & Definition of Done
 
-Workflow: `Understand → Plan → Implement → Verify → Refactor → Document`.
+Workflow: `Understand → Plan → Todo → Implement → Verify → Refactor → Document` — `todowrite` WAJIB dibuka setelah Plan, exactly-one `in_progress`, update realtime.
 
 Fase dinyatakan done HANYA jika semua hijau (refactor tidak bisa diskip):
 1. Test relevan lulus (output nyata, bukan asersi kosong) — `cargo test` + `uv run pytest` jika sentuh sidecar + `pnpm test` jika FE/CLI.
@@ -192,6 +192,7 @@ Fase dinyatakan done HANYA jika semua hijau (refactor tidak bisa diskip):
 5. Dokumentasi ter-update (ADR untuk keputusan, prd/spec/api-spec untuk requirement berubah).
 6. Accountability Block terisi dengan output nyata + `♻️ Refactor: <apa>` wajib.
 7. Refactor gate lewat: `fn <50`, `file 200-400`, `nesting ≤4`, `no dead code` — `refactor-cleaner` scan pass.
+8. Todo trace ada (`todowrite`: pending→in_progress→completed, exactly-one `in_progress`) — klaim done tanpa jejak todo = FAIL.
 
 ## 8. Tim & Delegasi (struktur lengkap — WAJIB dipatuhi semua harness)
 
@@ -282,6 +283,12 @@ Setiap AI agent (T0/T1/T2 + `seith-pm` + `architect/planner/tdd-guide/code-revie
 
 Pelanggaran = **PM veto merge ke `main`** + `seith-phase-gate` FAIL. Lead (T0) verifikasi ulang semua delegasi — delegasi bukan alasan lepas tanggung jawab.
 
+### 8d. Todo Wajib (`todowrite`) — Biasakan Pakai ToDo
+
+- Setiap task ≥3 langkah WAJIB buka `todowrite` setelah Plan, sebelum Implement: exactly-one `in_progress`, update realtime, `completed` hanya setelah verifikasi nyata.
+- Tiap session T1/T2: `skill://seith-market-intelligence` → `todowrite` → Implement → `verification-loop` → `completed`.
+- PM veto + `seith-phase-gate` FAIL jika tanpa jejak todo (`pending→in_progress→completed`).
+
 ## 9. Docs Map
 
 - `docs/prd.md` — requirement produk (derived insight, persona, pipeline hybrid, metrik 40/30/30, market IDX/STI, cache composite)
@@ -301,10 +308,14 @@ Pelanggaran = **PM veto merge ke `main`** + `seith-phase-gate` FAIL. Lead (T0) v
 |---|---|
 | `seith-market-intelligence` | **SSOT — WAJIB tiap session T1/T2 di awal** (pointer ke AGENTS→docs) |
 | `seith-dev` | Workflow harian: command, gate, troubleshooting env Rust/uv + 9router |
-| `seith-phase-gate` | Penutupan fase + dual-review gate |
 | `seith-kronos` | WAJIB saat sentuh model Kronos/forecast/sampling/benchmark |
+| `seith-data` | WAJIB saat sentuh data/sectors-client/DB/research lineage |
+| `seith-design` | WAJIB saat sentuh web/design anti-slop |
+| `seith-quant` | WAJIB saat sentuh scoring/anomaly/dossier |
+| `seith-ops` | WAJIB orchestrasi worktree/long-term harness |
+| `seith-phase-gate` | Penutupan fase + dual-review gate |
 | `verification-loop` | WAJIB di akhir tiap handoff (cargo fmt/clippy/test + pytest) |
-| `tdd-workflow` / `tdd-guide` | Saat tulis fitur/bug (red-green-refactor) |
-| `git-worktree-manager` | Saat 2-3 terminal paralel (worktree lifecycle) |
+| `tdd-workflow` / `tdd-guide` | Saat tulis fitur/bug (red-green-refactor) — internal |
+| `git-worktree-manager` | Saat 2-3 terminal paralel (worktree lifecycle) — internal |
 
 > Skill global lain (60+): `code-reviewer`, `security-review`, `handoff`, `understand`, `graphify`, `promote` — boleh dipakai sebagai helper, tapi narasi produk tetap ikut `seith-market-intelligence`.

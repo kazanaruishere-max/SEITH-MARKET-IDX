@@ -1,5 +1,7 @@
 mod cli;
 mod commands;
+mod pipeline;
+mod store;
 
 use clap::Parser;
 use cli::{Cli, Commands};
@@ -34,6 +36,10 @@ async fn main() -> anyhow::Result<()> {
             tickers, market, ..
         } => {
             let s = commands::scan::run_validated(&cli.market, market.as_deref(), tickers);
+            println!("{s}");
+        }
+        Commands::Radar { sector, market, .. } => {
+            let s = commands::radar::run_validated(&cli.market, market.as_deref(), sector);
             println!("{s}");
         }
     }

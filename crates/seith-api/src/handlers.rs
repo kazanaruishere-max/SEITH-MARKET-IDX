@@ -4,11 +4,12 @@ use axum::{
     response::{IntoResponse, Response},
     Json,
 };
-use seith_core::{market::Market, SCHEMA_VERSION};
+use seith_core::{dossier, market::Market, scoring::components::Components, SCHEMA_VERSION};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::str::FromStr;
 
+use crate::backtest_data as bd;
 use crate::envelope::{Envelope, Pagination};
 use crate::repository::DynRepository;
 
@@ -25,12 +26,7 @@ fn schema_headers() -> HeaderMap {
 }
 
 fn with_schema(body: serde_json::Value, status: StatusCode) -> Response {
-    let mut res = (status, schema_headers(), Json(body)).into_response();
-    res.headers_mut().insert(
-        SCHEMA_HEADER.clone(),
-        HeaderValue::from_static(SCHEMA_VERSION),
-    );
-    res
+    (status, schema_headers(), Json(body)).into_response()
 }
 
 fn err_body(code: &str, msg: impl Into<String>) -> serde_json::Value {
@@ -128,6 +124,25 @@ fn check_format(v: &str) -> Option<Response> {
     None
 }
 
+fn check_lang(v: &Option<String>) -> Option<Response> {
+    if let Some(s) = v {
+        let lower = s.to_ascii_lowercase();
+        if lower != "id" && lower != "en" {
+            return Some(error_response(
+                StatusCode::UNPROCESSABLE_ENTITY,
+                "VALIDATION_ERROR",
+                format!("invalid lang '{s}'"),
+            ));
+        }
+    }
+    None
+}
+
+fn normalize_lang(v: Option<String>) -> String {
+    v.map(|s| s.to_ascii_lowercase())
+        .unwrap_or_else(|| "id".to_string())
+}
+
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct RankingQuery {
@@ -152,6 +167,13 @@ pub struct ScoreQuery {
 pub struct DossierQuery {
     pub market: Option<String>,
     pub format: Option<String>,
+    pub lang: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct BacktestQuery {
+    pub market: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -177,7 +199,10 @@ pub struct ScanBody {
 }
 
 pub async fn health() -> Response {
-    let body = ok_body(json!({"status":"ok","schema":SCHEMA_VERSION}));
+    let db = bd::db_counts().unwrap_or((0, 0));
+    let body = ok_body(
+        json!({"status":"ok","schema":SCHEMA_VERSION, "db":{"ohlcv": db.0, "fundamentals": db.1}}),
+    );
     with_schema(body, StatusCode::OK)
 }
 
@@ -212,11 +237,30 @@ pub async fn ranking(
     }
     let page = q.page.unwrap_or(1).max(1);
     let page_size = clamp_page_size(q.page_size);
-    let data = json!({"market": market.as_str(), "sector": q.sector, "items": [], "disclaimer": DISCLAIMER});
+    let sort = q.sort.unwrap_or_else(|| "mispricing".to_string());
+    let order = q.order.unwrap_or_else(|| "desc".to_string());
+    let mstr = market.as_str().to_string();
+    let (items, total) = match bd::load_backtest_value().await {
+        Some(v) => {
+            let sel = bd::select_items(&v, &mstr, q.sector.as_deref());
+            let sorted = bd::sort_ranking(sel, sort == "anomaly", order == "asc");
+            let total = sorted.len() as u64;
+            let slice = bd::page_slice(&sorted, page, page_size);
+            let base = ((page - 1) * page_size) as usize;
+            let mapped: Vec<serde_json::Value> = slice
+                .iter()
+                .enumerate()
+                .map(|(i, it)| bd::to_ranking_item(it, base + i + 1))
+                .collect();
+            (mapped, total)
+        }
+        None => (Vec::new(), 0),
+    };
+    let data = json!({"market": market.as_str(), "sector": q.sector, "sort": sort, "order": order, "items": items, "disclaimer": DISCLAIMER});
     let pagination = Pagination {
         page,
         page_size,
-        total: 0,
+        total,
     };
     with_schema(ok_paginated_body(data, pagination), StatusCode::OK)
 }
@@ -248,14 +292,22 @@ pub async fn score(
             return error_response(StatusCode::UNPROCESSABLE_ENTITY, "VALIDATION_ERROR", msg)
         }
     };
-    if t == "BOGUS" {
-        return error_response(
-            StatusCode::NOT_FOUND,
-            "TICKER_NOT_FOUND",
-            format!("ticker {t} not found"),
-        );
-    }
-    let data = json!({"ticker": t, "market": market.as_str(), "asOfDate": "2024-01-02T00:00:00Z", "mispricingScore": 72.5, "components": {"expectedReturn": 0.12, "anomalyZ": 1.5, "qualityValue": 0.8, "sectorMom": 0.05}, "anomaly": {"z": 1.5, "flag": false, "reason": ""}, "sector": "FINANCE", "peerPercentile": 85.0, "degraded": false, "disclaimer": DISCLAIMER, "insufficientData": false});
+    let mstr = market.as_str().to_string();
+    let found = bd::load_backtest_value()
+        .await
+        .and_then(|v| bd::find_item(&v, &t, &mstr));
+    let data = match found {
+        Some(it) => {
+            json!({"ticker": t, "market": market.as_str(), "asOfDate": "2026-09-08T00:00:00Z", "mispricingScore": bd::f64_of(&it, "mispricingScore"), "components": it.get("components").cloned().unwrap_or(json!({})), "anomaly": it.get("anomaly").cloned().unwrap_or(json!({})), "sector": bd::str_of(&it, "sector"), "close": bd::f64_of(&it, "close"), "rank": it.get("rank").cloned().unwrap_or(json!(0)), "peerPercentile": 85.0, "degraded": false, "disclaimer": DISCLAIMER, "insufficientData": false})
+        }
+        None => {
+            return error_response(
+                StatusCode::NOT_FOUND,
+                "TICKER_NOT_FOUND",
+                format!("ticker {t} not found"),
+            )
+        }
+    };
     with_schema(ok_body(data), StatusCode::OK)
 }
 
@@ -286,26 +338,180 @@ pub async fn dossier(
             return error_response(StatusCode::UNPROCESSABLE_ENTITY, "VALIDATION_ERROR", msg)
         }
     };
+    if let Some(r) = check_lang(&q.lang) {
+        return r;
+    }
+    let lang = normalize_lang(q.lang);
     let fmt = q.format.unwrap_or_else(|| "json".to_string());
     if let Some(r) = check_format(&fmt) {
         return r;
     }
+    let mstr = market.as_str().to_string();
+    let loaded = bd::load_backtest_value().await;
+    let found = loaded.as_ref().and_then(|v| bd::find_item(v, &t, &mstr));
     if fmt == "pdf" {
-        let pdf = b"%PDF-1.4 SEITH dossier\n%%EOF";
-        let mut res = (
-            StatusCode::OK,
-            [(axum::http::header::CONTENT_TYPE, "application/pdf")],
-            pdf.to_vec(),
-        )
-            .into_response();
-        res.headers_mut().insert(
-            SCHEMA_HEADER.clone(),
-            HeaderValue::from_static(SCHEMA_VERSION),
-        );
-        return res;
+        let peers = loaded
+            .as_ref()
+            .zip(found.as_ref())
+            .map(|(v, it)| bd::peer_five(v, it))
+            .unwrap_or_default();
+        return pdf_response(dossier_pdf(&t, market, found.as_ref(), peers.len()));
     }
-    let data = json!({"ticker": t, "market": market.as_str(), "score": 72.5, "breakdown": {}, "peerComparison": [], "kronos": {"forecastReturn": 0.05, "volatility": 0.12, "chartPoints": []}, "research": {"fundamentalMemo": "", "technicalMemo": "", "synthesizerMemo": ""}, "degraded": false, "disclaimer": DISCLAIMER});
+    let it = match found {
+        Some(v) => v,
+        None => {
+            return error_response(
+                StatusCode::NOT_FOUND,
+                "TICKER_NOT_FOUND",
+                format!("ticker {t} not found"),
+            )
+        }
+    };
+    let peers = loaded
+        .as_ref()
+        .map(|v| bd::peer_five(v, &it))
+        .unwrap_or_default();
+    let base_memo = bd::dossier_memo(&it, peers.len());
+    let memo_fund = format!("{} — Fundamental: ROE/margin vs median sektor.", base_memo);
+    let memo_tech = format!("{} — Teknikal: |Z|/vol spike MA20 ponytail.", base_memo);
+    let memo_synth = format!("{} — Sintesis: verdict netral/buy/caution.", base_memo);
+    let kronos_val = it
+        .get("kronos")
+        .cloned()
+        .unwrap_or(json!({"forecastReturn": 0.05, "volatility": 0.12, "chartPoints": []}));
+    let chart_empty = kronos_val
+        .get("chartPoints")
+        .and_then(|v| v.as_array())
+        .map(|a| a.is_empty())
+        .unwrap_or(true);
+    let kronos_degraded = chart_empty;
+    let data = json!({"ticker": t, "market": market.as_str(), "lang": lang, "score": bd::f64_of(&it, "mispricingScore"), "breakdown": it.get("components").cloned().unwrap_or(json!({})), "peerComparison": peers, "kronos": kronos_val, "research": {"fundamentalMemo": memo_fund, "technicalMemo": memo_tech, "synthesizerMemo": memo_synth}, "anomaly": it.get("anomaly").cloned().unwrap_or(json!({})), "sector": bd::str_of(&it, "sector"), "rank": it.get("rank").cloned().unwrap_or(json!(0)), "degraded": kronos_degraded, "disclaimer": DISCLAIMER});
     with_schema(ok_body(data), StatusCode::OK)
+}
+
+fn pdf_response(pdf: Vec<u8>) -> Response {
+    (
+        StatusCode::OK,
+        [
+            (axum::http::header::CONTENT_TYPE, "application/pdf"),
+            (
+                axum::http::header::CONTENT_DISPOSITION,
+                "inline; filename=\"dossier.pdf\"",
+            ),
+            (SCHEMA_HEADER.clone(), SCHEMA_VERSION),
+        ],
+        pdf,
+    )
+        .into_response()
+}
+
+fn dossier_pdf(
+    ticker: &str,
+    market: Market,
+    found: Option<&serde_json::Value>,
+    peer_count: usize,
+) -> Vec<u8> {
+    let (score, comps, memo) = match found {
+        Some(it) => {
+            let c = it.get("components");
+            let co = Components {
+                expected_return: c
+                    .and_then(|x| x.get("expected_return"))
+                    .and_then(|x| x.as_f64())
+                    .unwrap_or(50.0) as f32,
+                anomaly_z: c
+                    .and_then(|x| x.get("anomaly_z"))
+                    .and_then(|x| x.as_f64())
+                    .unwrap_or(50.0) as f32,
+                quality_value: c
+                    .and_then(|x| x.get("quality_value"))
+                    .and_then(|x| x.as_f64())
+                    .unwrap_or(50.0) as f32,
+                sector_mom: c
+                    .and_then(|x| x.get("sector_mom"))
+                    .and_then(|x| x.as_f64())
+                    .unwrap_or(50.0) as f32,
+            };
+            (
+                bd::f64_of(it, "mispricingScore") as f32,
+                co,
+                bd::dossier_memo(it, peer_count),
+            )
+        }
+        None => (
+            72.5,
+            Components {
+                expected_return: 50.0,
+                anomaly_z: 50.0,
+                quality_value: 50.0,
+                sector_mom: 50.0,
+            },
+            String::new(),
+        ),
+    };
+    let kronos_sec = found
+        .and_then(|it| it.get("kronos"))
+        .map(|k| dossier::KronosSection {
+            forecast_return: k
+                .get("forecastReturn")
+                .and_then(|v| v.as_f64())
+                .unwrap_or(0.05),
+            volatility: k.get("volatility").and_then(|v| v.as_f64()).unwrap_or(0.12),
+            chart_points: k
+                .get("chartPoints")
+                .and_then(|v| v.as_array())
+                .cloned()
+                .unwrap_or_default(),
+        })
+        .unwrap_or(dossier::KronosSection {
+            forecast_return: 0.05,
+            volatility: 0.12,
+            chart_points: vec![],
+        });
+    let d = dossier::compose(
+        ticker.to_string(),
+        market,
+        score,
+        comps,
+        Vec::new(),
+        kronos_sec,
+        dossier::ResearchSection {
+            fundamental_memo: memo.clone(),
+            technical_memo: memo.clone(),
+            synthesizer_memo: memo,
+        },
+    );
+    dossier::to_pdf_bytes(&d)
+}
+
+pub async fn backtest(
+    State(_repo): State<DynRepository>,
+    q: Result<Query<BacktestQuery>, QueryRejection>,
+) -> Response {
+    let q = match q {
+        Ok(v) => v.0,
+        Err(e) => {
+            return error_response(
+                StatusCode::UNPROCESSABLE_ENTITY,
+                "VALIDATION_ERROR",
+                e.to_string(),
+            )
+        }
+    };
+    if let Err(msg) = parse_market(q.market.clone()) {
+        return error_response(StatusCode::UNPROCESSABLE_ENTITY, "VALIDATION_ERROR", msg);
+    }
+    match bd::load_backtest_value().await {
+        Some(v) => with_schema(ok_body(v), StatusCode::OK),
+        None => {
+            tracing::warn!("backtest file missing");
+            error_response(
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "UPSTREAM_ERROR",
+                "backtest data unavailable",
+            )
+        }
+    }
 }
 
 pub async fn anomalies(
@@ -330,12 +536,38 @@ pub async fn anomalies(
     };
     let page = q.page.unwrap_or(1).max(1);
     let page_size = clamp_page_size(q.page_size);
-    let min_z = q.min_z.unwrap_or(2.0);
-    let data = json!({"market": market.as_str(), "sector": q.sector, "minZ": min_z, "items": [], "disclaimer": DISCLAIMER});
+    let min_z = q.min_z.unwrap_or(2.0).clamp(0.0, 10.0);
+    let mstr = market.as_str().to_string();
+    let (items, total) = match bd::load_backtest_value().await {
+        Some(v) => {
+            let mut sel: Vec<serde_json::Value> = bd::select_items(&v, &mstr, q.sector.as_deref())
+                .into_iter()
+                .filter(|it| bd::z_of(it).abs() >= min_z as f64 || bd::flag_of(it))
+                .collect();
+            sel = bd::sort_ranking(sel, true, false);
+            let total = sel.len() as u64;
+            let slice = bd::page_slice(&sel, page, page_size);
+            let base = ((page - 1) * page_size) as usize;
+            let mapped: Vec<serde_json::Value> = slice
+                .iter()
+                .enumerate()
+                .map(|(i, it)| {
+                    let mut item = bd::to_ranking_item(it, base + i + 1);
+                    if let Some(reason) = it.get("anomaly").and_then(|a| a.get("reason")) {
+                        item["reason"] = reason.clone();
+                    }
+                    item
+                })
+                .collect();
+            (mapped, total)
+        }
+        None => (Vec::new(), 0),
+    };
+    let data = json!({"market": market.as_str(), "sector": q.sector, "minZ": min_z, "items": items, "disclaimer": DISCLAIMER});
     let pagination = Pagination {
         page,
         page_size,
-        total: 0,
+        total,
     };
     with_schema(ok_paginated_body(data, pagination), StatusCode::OK)
 }
@@ -367,20 +599,32 @@ pub async fn scan(
     if let Some(r) = check_lookback(b.pred_len) {
         return r;
     }
+    if b.lookback.unwrap_or(0) as u32 + b.pred_len.unwrap_or(0) as u32 > 512 {
+        return error_response(
+            StatusCode::UNPROCESSABLE_ENTITY,
+            "VALIDATION_ERROR",
+            "max_context 512 exceeded",
+        );
+    }
     let market = match parse_market(b.market) {
         Ok(m) => m,
         Err(msg) => {
             return error_response(StatusCode::UNPROCESSABLE_ENTITY, "VALIDATION_ERROR", msg)
         }
     };
+    let mstr = market.as_str().to_string();
+    let loaded = bd::load_backtest_value().await;
     let mut excluded = Vec::new();
-    let mut valid = Vec::new();
+    let mut results = Vec::new();
     for t in b.tickers {
         match normalize_ticker(&t) {
-            Ok(v) => valid.push(v),
+            Ok(v) => match loaded.as_ref().and_then(|x| bd::find_item(x, &v, &mstr)) {
+                Some(it) => results.push(json!({"ticker": v, "market": mstr, "mispricingScore": bd::f64_of(&it, "mispricingScore"), "anomaly": it.get("anomaly").cloned().unwrap_or(json!({})), "sector": bd::str_of(&it, "sector"), "rank": it.get("rank").cloned().unwrap_or(json!(0))})),
+                None => excluded.push(json!({"ticker": t, "reason": "ticker not in universe-100"})),
+            },
             Err(_) => excluded.push(json!({"ticker": t, "reason": "invalid ticker"})),
         }
     }
-    let data = json!({"market": market.as_str(), "tickers": valid, "excluded": excluded, "degraded": !excluded.is_empty(), "disclaimer": DISCLAIMER});
+    let data = json!({"market": market.as_str(), "results": results, "tickers": results.iter().map(|r| r["ticker"].clone()).collect::<Vec<_>>(), "excluded": excluded, "degraded": !excluded.is_empty(), "disclaimer": DISCLAIMER});
     with_schema(ok_body(data), StatusCode::OK)
 }

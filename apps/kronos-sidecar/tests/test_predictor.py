@@ -26,7 +26,8 @@ def _ohlcv_objs(n):
     return [OhlcvIn(open=100 + i * 0.01, high=101 + i * 0.01, low=99 + i * 0.01, close=100 + i * 0.01, volume=1000.0, amount=100000.0, timestamp=i) for i in range(n)]
 
 
-def test_mock_predict_400_to_20_deterministic():
+def test_mock_predict_400_to_20_deterministic(monkeypatch):
+    monkeypatch.setenv("KRONOS_MOCK", "1")
     df = _ohlcv_objs(400)
     a = predict(df, list(range(400)), list(range(400, 420)), 20)
     b = predict(df, list(range(400)), list(range(400, 420)), 20)
@@ -59,10 +60,47 @@ def test_mock_predict_lookback_520_raises():
 
 
 def test_df_from_ohlcv_volume_none_to_zero():
+    import pandas as pd
+
     rows = [{"open": 1, "high": 2, "low": 0.5, "close": 1.5, "volume": None, "amount": None, "timestamp": 0}]
     out = _df_from_ohlcv(rows)
-    assert out[0]["volume"] == 0.0
-    assert out[0]["amount"] == 0.0
+    assert isinstance(out, pd.DataFrame)
+    assert list(out.columns) == ["open", "high", "low", "close", "volume", "amount"]
+    assert out.iloc[0]["volume"] == 0.0
+    assert out.iloc[0]["amount"] == 0.0
+
+
+def test_df_from_ohlcv_skips_zero_ohlc_row():
+    rows = [
+        {"open": 0, "high": 0, "low": 0, "close": 0, "volume": 1.0, "amount": 1.0, "timestamp": 0},
+        {"open": 1, "high": 2, "low": 0.5, "close": 1.5, "volume": 1.0, "amount": 1.0, "timestamp": 1},
+    ]
+    out = _df_from_ohlcv(rows)
+    assert len(out) == 1
+    assert out.iloc[0]["close"] == 1.5
+
+
+def test_to_ohlcv_list_dataframe_uses_y_timestamps():
+    import pandas as pd
+
+    pdf = pd.DataFrame(
+        [{"open": 1.0, "high": 1.0, "low": 1.0, "close": 101.5, "volume": 0.0, "amount": 0.0} for _ in range(3)]
+    )
+    out = to_ohlcv_list(pdf, [11, 22, 33])
+    assert [r["timestamp"] for r in out] == [11, 22, 33]
+    assert all(r["close"] == 101.5 for r in out)
+
+
+def test_real_predict_19_to_20_live():
+    """Kronos real 19 baris (L2 BBCA shape) -> 20 pred, non-mock values."""
+    import os
+
+    if os.getenv("KRONOS_MOCK", "0") == "1":
+        pytest.skip("needs real model (KRONOS_MOCK=0)")
+    df = _ohlcv_dict(19)
+    out = predict(df, list(range(19)), list(range(19, 39)), 20)
+    assert len(out) == 20
+    assert all(set(r) >= {"open", "high", "low", "close", "volume", "amount", "timestamp"} for r in out)
 
 
 def test_to_ohlcv_list_len_20():

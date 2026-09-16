@@ -1,0 +1,99 @@
+{
+ "model": "nemutron",
+ "as_of": "2026-09-13",
+ "memos": {
+  "LPPF": {
+   "rank": 1,
+   "source": "llm",
+   "model": "nemutron",
+   "degraded": false,
+   "fundamental_memo": "LPPF menunjukkan profitabilitas lemah (ROE 2.7%, margin 12,5%) dengan risiko tinggi akibat leverage ekstrem (17,8x), namun valuasi sangat murah (PER 4,7x) meski PB tinggi (12,1x) mencerminkan book value negatif/penipisan ekuitas.Bukan rekomendasi investasi. Informasi & analisis saja.",
+   "technical_memo": "LPPF expected return 0,17%, Z-score 0,09 (bukan anomali |Z|<2), volatilitas data tidak tersedia.Bukan rekomendasi investasi. Informasi & analisis saja.",
+   "synthesizer_memo": "LPPF mencatat profitabilitas lemah (ROE 2,7%, margin 12,5%) dan leverage ekstrem 17,8x, meski PER 4,7x terlihat murah; PB 12,1x justru mengindikasikan book value negatif/penipisan ekuitas. Teknikal menunjukkan expected return hanya 0,17%, Z\u2011score 0,09 (bukan anomali), dan data volatilitas tidak tersedia. **Verdict: caution**.Bukan rekomendasi investasi. Informasi & analisis saja."
+  },
+  "UNVR": {
+   "rank": 2,
+   "source": "llm",
+   "model": "nemutron",
+   "degraded": false,
+   "fundamental_memo": "UNVR menampilkan margin tinggi (23,9%) dan ROE ekstrim (171%) didorong leverage 3,5\u00d7, valuation PE murah (7,4\u00d7) tapi PB sangat mahal (20,6\u00d7) mencerminkan basis ekuitas tipis \u2014 franchise berkualitas tapi risiko balance sheet tinggi.Bukan rekomendasi investasi. Informasi & analisis saja.",
+   "technical_memo": "UNVR: Expected return +3.49% (momentum positif), Z-score -0.65 (netral, bukan anomali), volatilitas data tidak tersedia.Bukan rekomendasi investasi. Informasi & analisis saja.",
+   "synthesizer_memo": "UNVR menampilkan margin EBIT 23,9% dan ROE 171% yang didorong leverage 3,5\u00d7, dengan PE 7,4\u00d7 terlihat murah namun PB 20,6\u00d7 mencerminkan ekuitas tipis; teknikal menunjukkan expected return +3,49% (momentum positif) dan Z-score \u22120,65 (netral). Verdict: **caution** \u2014 franchise berkualitas tapi balance-sheet risk tinggi dan valuasi berbasis buku sangat mahal.Bukan rekomendasi investasi. Informasi & analisis saja."
+  },
+  "TPIA": {
+   "rank": 3,
+   "source": "llm",
+   "model": "nemutron",
+   "degraded": false,
+   "fundamental_memo": "TPIA shows solid profitability with 23% ROE and 15% margin, modest leverage at 1.65, but its valuation is stretched with a PE near 78 and PB around 2.3, indicating high growth expectations.Bukan rekomendasi investasi. Informasi & analisis saja.",
+   "technical_memo": "Expected return 0,0351, Z\u2011score 0,4907 (|Z|<2 \u2192 tidak anomali), volatilitas tidak tersedia.Bukan rekomendasi investasi. Informasi & analisis saja.",
+   "synthesizer_memo": "TPIA\u2019s fundamentals are solid\u201423\u202f% ROE, 15\u202f% net margin and modest leverage of 1.65\u2014but its valuation is stretched with a PE near\u202f78 and PB around\u202f2.3, implying high growth expectations that may not be justified. Technically, the expected return is only 0.0351 (\u22483.5\u202f%) and the Z\u2011score of 0.4907 (|Z|<2) shows no abnormal price movement, while volatility data are unavailable. Given the expensive multiples despite decent profitability, a **caution** stance is warranted.Bukan rekomendasi investasi. Informasi & analisis saja."
+  },
+  "BBCA": {
+   "rank": 4,
+   "source": "llm",
+   "model": "nemutron",
+   "degraded": false,
+   "fundamental_memo": "BBCA menampilkan kualitas prima: ROE 20,4% dan margin 51,4% mengunggul sektor, leverage 4,6x konservatif untuk bank, PER 13,3x wajar, PB 2,9x dibayar premium sebanding profitabilitas tinggi.Bukan rekomendasi investasi. Informasi & analisis saja.",
+   "technical_memo": "BBCA menunjukkan momentum positif (expected return 2,33%) dengan Z-score -0,62 (bukan anomali), volatilitas data tidak tersedia.Bukan rekomendasi investasi. Informasi & analisis saja.",
+   "synthesizer_memo": "BBCA menampilkan kualitas fundamental prima dengan ROE 20,4%, margin 51,4%, leverage konservatif 4,6x, PER 13,3x dan PB 2,9x yang sebanding profitabilitas tinggi; teknikal menunjukkan momentum positif expected return 2,33% dengan Z-score -0,62 (bukan anomali), meski data volatilitas belum tersedia. Verdict: buy.Bukan rekomendasi investasi. Informasi & analisis saja."
+  },
+  "ISAT": {
+   "rank": 5,
+   "source": "llm",
+   "model": "nemutron",
+   "degraded": false,
+   "fundamental_memo": "ISAT shows solid profitability with ROE near 14% and ~10% margin, moderate leverage (2.0x), and attractive valuation (PE\u224810.5, PB\u22482.1), indicating reasonable financial quality for an Indonesian infrastructure firm.Bukan rekomendasi investasi. Informasi & analisis saja.",
+   "technical_memo": "Expected return 0.0026 (0.26%) with Z\u2011score \u20131.64 (|Z|<2, no anomaly flagged) and volatility data unavailable.Bukan rekomendasi investasi. Informasi & analisis saja.",
+   "synthesizer_memo": "ISAT's fundamentals show solid profitability (ROE\u224814%, margin\u224810%) and reasonable valuation (PE\u224810.5, PB\u22482.1) with moderate leverage (2.0x); technically, the expected return is modest at 0.26% and the Z\u2011score of \u20131.64 indicates no statistical anomaly. Overall, the picture leans toward a neutral\u2011to\u2011cautious stance given the limited upside signal.Bukan rekomendasi investasi. Informasi & analisis saja."
+  },
+  "SIDO": {
+   "rank": 6,
+   "source": "llm",
+   "model": "nemutron",
+   "degraded": false,
+   "fundamental_memo": "SIDO shows strong profitability with a 39% ROE and 30% margin, modest leverage at 0.18, and is valued reasonably at a P/E of 10.8 and P/B of 3.5.Bukan rekomendasi investasi. Informasi & analisis saja.",
+   "technical_memo": "Expected return 0.0069, Z\u2011score \u20130.44 (|Z|<2, no anomaly), volatility not provided.Bukan rekomendasi investasi. Informasi & analisis saja.",
+   "synthesizer_memo": "SIDO delivers high profitability with a 39% ROE and 30% net margin while keeping leverage low at 0.18, and its valuation metrics (P/E 10.8, P/B 3.5) sit below sector averages, suggesting the stock is not overpriced. Technically, the expected return is modest at 0.69% and the Z\u2011score of \u20130.44 shows no statistical anomaly, indicating price action is within normal bounds. Overall, the combination of strong fundamentals and neutral\u2011to\u2011slightly\u2011positive technicals supports a buy stance.Bukan rekomendasi investasi. Informasi & analisis saja."
+  },
+  "BMRI": {
+   "rank": 7,
+   "source": "llm",
+   "model": "nemutron",
+   "degraded": false,
+   "fundamental_memo": "BMRI shows strong profitability with a 17% ROE and 42% margin, yet high leverage (7.6\u00d7) offsets this strength, while its low PE (~5.8) and PB (~1.4) suggest the stock is undervalued relative to earnings and book value.Bukan rekomendasi investasi. Informasi & analisis saja.",
+   "technical_memo": "BMRI shows a slight negative expected return of -0.0124 with a modest Z\u2011score of 0.2152 (no anomaly) and volatility data unavailable.Bukan rekomendasi investasi. Informasi & analisis saja.",
+   "synthesizer_memo": "BMRI\u2019s fundamentals are solid\u2014ROE\u202f\u2248\u202f17\u202f% and net margin\u202f\u2248\u202f42\u202f%\u2014but its leverage is high at ~7.6\u00d7, which tempers profitability, while a low P/E (~5.8) and P/B (~1.4) suggest the stock is cheap relative to earnings and book value. Technically, the expected return is slightly negative at \u20130.0124 with a modest Z\u2011score of 0.2152 (no anomaly) and volatility data are not available. Given the valuation upside offset by leverage risk and the weak technical outlook, a cautious stance is warranted.Bukan rekomendasi investasi. Informasi & analisis saja."
+  },
+  "TOWR": {
+   "rank": 8,
+   "source": "llm",
+   "model": "nemutron",
+   "degraded": false,
+   "fundamental_memo": "TOWR shows solid profitability with 13.6% ROE and 27.6% margin, moderate leverage (1.85x), and attractive valuation at ~7x P/E and 0.94x P/B.Bukan rekomendasi investasi. Informasi & analisis saja.",
+   "technical_memo": "TOWR shows a modest expected return of 1.65% with a low Z\u2011score of 0.15 (no anomaly) and no reported volatility.Bukan rekomendasi investasi. Informasi & analisis saja.",
+   "synthesizer_memo": "TOWR mempertunjukkan profitabilitas yang solid dengan ROE 13,6% dan margin laba 27,6%, sementara leverage nya masih moderate sebesar 1,85x dan valuasi menarik dengan P/E sekitar 7x serta P/B 0,94x. Secara teknikal, saham ini diharapkan memberikan return sebesar 1,65% dengan Z\u2011score rendah 0,15 dan tidak menunjukkan volatilitas yang signifikan. Berdasarkan angka tersebut, posisi saham ini cukup netral \u2013 tidak terlalu menarik untuk agresif buy tetapi juga tidak menunjukkan risiko tinggi yang memerlukan caution.Bukan rekomendasi investasi. Informasi & analisis saja."
+  },
+  "ANTM": {
+   "rank": 9,
+   "source": "llm",
+   "model": "nemutron",
+   "degraded": false,
+   "fundamental_memo": "ANTM shows solid profitability with ~20% ROE and ~8.5% margin, modest leverage (0.44), and attractive valuation (PE\u22488.8, PB\u22482.1), indicating sound financial health for an Indonesian energy firm.Bukan rekomendasi investasi. Informasi & analisis saja.",
+   "technical_memo": "Expected return is -0.0566 with a Z-score of -2.4122 (|Z|>2 indicating a potential anomaly); volatility data is unavailable.Bukan rekomendasi investasi. Informasi & analisis saja.",
+   "synthesizer_memo": "ANTM\u2019s fundamentals are strong\u2014ROE near\u202f20%, margin about\u202f8.5%, low leverage (0.44), and valuation multiples (PE\u22488.8, PB\u22482.1) suggest a financially healthy Indonesian energy player. However, the technical outlook flags an expected return of\u202f\u20135.66% with a Z\u2011score of\u202f\u20132.41, indicating a statistical anomaly and downside pressure. Given the solid fundamentals but the negative technical signal, a cautious stance is warranted.Bukan rekomendasi investasi. Informasi & analisis saja."
+  },
+  "MIKA": {
+   "rank": 10,
+   "source": "llm",
+   "model": "nemutron",
+   "degraded": false,
+   "fundamental_memo": "MIKA shows healthy profitability with 16.7% ROE and 25.4% margin, low leverage (0.13), a moderate P/E of 18.4 and P/B of 3.5, indicating solid earnings but a premium to book value.Bukan rekomendasi investasi. Informasi & analisis saja.",
+   "technical_memo": "MIKA shows a slight negative expected return of -0.0212 with a Z\u2011score of -1.49 (no volatility data), indicating no significant anomaly.Bukan rekomendasi investasi. Informasi & analisis saja.",
+   "synthesizer_memo": "MIKA menunjukkan profitabilitas yang sehat dengan ROE 16,7% dan margin laba 25,4%, namun leverage rendah 0,13 dan valuasi relatif mahal dengan P/E 18,4 serta P/B 3,5. Teknis, return yang diharapkan sedikit negatif \u20130,0212 (Z\u2011score \u20131,49) tidak menunjukkan anomali signifikan; ini bukan rekomendasi investasi, hanya informasi dan analisis. Dengan dasar fundamental kuat namun harga yang premium dan expected return negatif, verdict singkat adalah caution.Bukan rekomendasi investasi. Informasi & analisis saja."
+  }
+ },
+ "llm_ok": 10,
+ "degraded": 0,
+ "disclaimer": "Bukan rekomendasi investasi. Informasi & analisis saja."
+}
