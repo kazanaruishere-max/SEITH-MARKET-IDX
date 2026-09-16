@@ -1454,7 +1454,9 @@ name = "seith-cli"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "chrono",
  "clap",
+ "rusqlite",
  "sectors-client",
  "seith-core",
  "serde",

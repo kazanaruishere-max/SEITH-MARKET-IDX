@@ -7,7 +7,18 @@ pub fn run(market: Market, ticker_raw: String) -> String {
     if !TICKER_RE.is_match(&t) {
         return envelope_err("VALIDATION_ERROR", &format!("invalid ticker '{}'", t));
     }
-    let data = serde_json::json!({"ticker": t, "market": market.as_str(), "mispricingScore": 80.0, "disclaimer": crate::cli::DISCLAIMER});
+    let Some(s) = crate::pipeline::scored_for(&t, market) else {
+        return envelope_err("TICKER_NOT_FOUND", &format!("ticker '{t}' not found"));
+    };
+    let data = serde_json::json!({
+        "ticker": s.ticker,
+        "market": s.market.as_str(),
+        "sector": s.sector,
+        "mispricingScore": s.score,
+        "components": s.components,
+        "anomaly": {"z": s.anomaly_z, "flag": s.flag, "reason": s.reason},
+        "disclaimer": crate::cli::DISCLAIMER
+    });
     envelope_ok(data)
 }
 
@@ -40,5 +51,19 @@ mod tests {
         let j = run_validated("id", None, "ab".to_string());
         let v: serde_json::Value = serde_json::from_str(&j).unwrap();
         assert_eq!(v["error"]["code"], "VALIDATION_ERROR");
+    }
+    #[test]
+    fn score_scores_differ() {
+        let a = run_validated("id", None, "BBCA".to_string());
+        let b = run_validated("id", None, "BBRI".to_string());
+        let va: serde_json::Value = serde_json::from_str(&a).unwrap();
+        let vb: serde_json::Value = serde_json::from_str(&b).unwrap();
+        assert_eq!(va["success"], true);
+        assert_eq!(vb["success"], true);
+        let sa = va["data"]["mispricingScore"].as_f64().unwrap();
+        let sb = vb["data"]["mispricingScore"].as_f64().unwrap();
+        assert!((sa - sb).abs() > 0.01, "scores {sa} vs {sb} should differ");
+        assert!(va["data"]["components"].is_object());
+        assert!(va["data"]["anomaly"]["z"].is_number());
     }
 }

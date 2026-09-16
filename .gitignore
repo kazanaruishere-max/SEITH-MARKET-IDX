@@ -30,3 +30,6 @@ serve.err.log
 research/probe-api.ps1
 
 research/*.out.json
+research/*.html
+temp_*.rs
+temp_*.toml
