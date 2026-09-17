@@ -29,6 +29,10 @@ Out: live Sectors batch 25c `sectors-client chunks20` (gated 22.5 optional singl
 | 03 | `03-pdf-AA-grade.md` | PDF AA-spec — `DossierPDF @react-pdf/renderer` 2p A4 `595×842` vector 9-section dense tabular (Cover/Executive/3 memo/Mispricing 30/20/30/20/Valuation QV/Peer5 QV+cap+|Z|/Anomali/voltage/Katalis/Metodologi 400→20/Annex) + `SCHEMA_VERSION` footer | 02 | Z2 |
 | 04 | `04-vercel-deploy.md` | Vercel accessibility — `vercel.json rewrites` + `NEXT_PUBLIC_API_BASE` + secrets `Redacted ***` + `pnpm build 4 routes` preview `200 as_of live/degraded` + README one-liner 3 cmds | 03 | Z2+Z7 |
 | 05 | `05-security-audit.md` | Security audit MANDATORY — `Redacted ***` server-only never client/log + `deny_unknown_fields + TICKER_RE + Market + 512 + 50 + rate limit` + `gitleaks 0` + `SECTORS_API_KEY` no bundle leak + `vendor pin` | 04 | Z1+Z2+Z7 |
+| 06 | `06-heatmap-vertical.md` | Heatmap vertikal persegi panjang `aspect-[3/4] min-h-[420px]` cell `aspect-[2/3]` | 05 | Z2 |
+| 07 | `07-company-profile-resmi.md` | Company profile resmi IDX 25 FINANCE `sourceUrl` verbatim no karang | 06 | Z2+Z3+Z5 |
+| 08 | `08-kronos-verify.md` | Kronos-base verify `is_mock_mode()` + `chartPoints 20` honest | 07 | Z1+Z2 |
+| 09 | `09-readme-jury-deep-dive.md` | README 5 poin juri deep-dive (How-To, Requirement, OS, Bahasa+Rust, Teknis) | 08 | Z5 |
 
 Gated optional (not DoD, `ponytail: live when video needs 30% depth`):
 - 22.5: `sectors-client batch 20` live FINANCE 25c single run `score_live_98.py → 296c proof` exposes `CompositeCache L1<1ms L2~2ms`
