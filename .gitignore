@@ -30,3 +30,4 @@ serve.err.log
 research/probe-api.ps1
 
 research/*.out.json
+research/*.html
