@@ -185,6 +185,46 @@ pub fn peer_five(v: &Value, target: &Value) -> Vec<Value> {
         .collect()
 }
 
+pub fn company_profile_for(ticker: &str) -> Option<Value> {
+    let candidates = [
+        "research/company-profiles.json".to_string(),
+        "../../research/company-profiles.json".to_string(),
+        format!(
+            "{}/../../research/company-profiles.json",
+            env!("CARGO_MANIFEST_DIR")
+        ),
+    ];
+    for cand in candidates {
+        if let Ok(s) = std::fs::read_to_string(&cand) {
+            if let Ok(v) = serde_json::from_str::<Value>(&s) {
+                if let Some(arr) = v.as_array() {
+                    for it in arr {
+                        if str_of(it, "ticker") == ticker {
+                            return Some(
+                                json!({"name": str_of(it, "name"), "sector": str_of(it, "sector"), "description": str_of(it, "description"), "sourceUrl": str_of(it, "sourceUrl")}),
+                            );
+                        }
+                    }
+                }
+            }
+        }
+    }
+    None
+}
+
+pub fn enrich_with_profile(mut item: Value) -> Value {
+    if let Some(t) = item
+        .get("ticker")
+        .and_then(|x| x.as_str())
+        .map(|s| s.to_string())
+    {
+        if let Some(cp) = company_profile_for(&t) {
+            item["companyProfile"] = cp;
+        }
+    }
+    item
+}
+
 pub fn dossier_memo(it: &Value, peer_count: usize) -> String {
     format!(
         "Skor {:.1} rank {} sektor {} |Z|={:.1} flag={}. Peer {} same sector+market QV+cap±50%.",

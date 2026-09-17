@@ -14,7 +14,7 @@ function c(score: number) {
   const b = Math.round(36 + (129 - 36) * t);
   return `rgb(${r},${g},${b})`;
 }
-export type HeatItem = { ticker: string; mispricingScore: number; sector?: string; rank?: number };
+export type HeatItem = { ticker: string; mispricingScore: number; sector?: string; rank?: number; companyProfile?: { name: string; description: string; sourceUrl: string } };
 export default function Heatmap100({ items }: { items: HeatItem[] }) {
   const sorted = [...items].sort((a, b) => (a.rank ?? 999) - (b.rank ?? 999)).slice(0, 100);
   const padded = sorted.length < 100 ? [...sorted, ...Array(100 - sorted.length).fill({ ticker: "-", mispricingScore: 0, sector: "-" })] : sorted;
@@ -39,7 +39,7 @@ export default function Heatmap100({ items }: { items: HeatItem[] }) {
             <div className="flex-1 overflow-y-auto p-1.5 [scrollbar-width:thin]">
               <div className="grid grid-cols-2 gap-[4px]">
                 {list.map((r, i) => (
-                  <a key={r.ticker + i} href={r.ticker === "-" ? undefined : `/dossier/${r.ticker}?market=id`} aria-label={`${r.ticker} ${sec} score ${r.mispricingScore.toFixed(1)}`} title={`${r.ticker} ${r.sector ?? sec} score ${r.mispricingScore.toFixed(1)} rank ${r.rank ?? i + 1}`} className="flex aspect-[2/3] min-h-[52px] min-w-[52px] items-center justify-center rounded-[6px] font-mono text-[9px] font-bold leading-none tabular-nums transition-all hover:brightness-110 hover:scale-[1.02] hover:shadow-[0_2px_8px_rgba(0,0,0,0.4)]" style={{ background: r.ticker === "-" ? "#1a1a1a" : c(r.mispricingScore), color: r.mispricingScore >= 38 && r.mispricingScore <= 72 ? "#0B0E14" : "#fff" }}>
+                  <a key={r.ticker + i} href={r.ticker === "-" ? undefined : `/dossier/${r.ticker}?market=id`} aria-label={`${r.ticker} ${sec} score ${r.mispricingScore.toFixed(1)}`} title={`${r.ticker} - ${r.companyProfile?.name ?? r.ticker} - score ${r.mispricingScore.toFixed(1)} rank ${r.rank ?? i + 1}`} className="flex aspect-[2/3] min-h-[52px] min-w-[52px] items-center justify-center rounded-[6px] font-mono text-[9px] font-bold leading-none tabular-nums transition-all hover:brightness-110 hover:scale-[1.02] hover:shadow-[0_2px_8px_rgba(0,0,0,0.4)]" style={{ background: r.ticker === "-" ? "#1a1a1a" : c(r.mispricingScore), color: r.mispricingScore >= 38 && r.mispricingScore <= 72 ? "#0B0E14" : "#fff" }}>
                     {r.ticker === "-" ? "" : r.ticker.slice(0, 6)}
                   </a>
                 ))}

@@ -1,0 +1,702 @@
+[
+  {
+    "ticker": "ADMF",
+    "name": "Adira Dinamika Multi Finance Tbk",
+    "sector": "FINANCE",
+    "description": "Adira Dinamika Multi Finance Tbk tercatat di Bursa Efek Indonesia sektor FINANCE. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/ADMF"
+  },
+  {
+    "ticker": "AGRO",
+    "name": "Bank Raya Indonesia Tbk",
+    "sector": "FINANCE",
+    "description": "Bank Raya Indonesia Tbk tercatat di Bursa Efek Indonesia sektor FINANCE. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/AGRO"
+  },
+  {
+    "ticker": "BACA",
+    "name": "Bank Capital Indonesia Tbk",
+    "sector": "FINANCE",
+    "description": "Bank Capital Indonesia Tbk tercatat di Bursa Efek Indonesia sektor FINANCE. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/BACA"
+  },
+  {
+    "ticker": "BBCA",
+    "name": "Bank Central Asia Tbk",
+    "sector": "FINANCE",
+    "description": "Bank Central Asia Tbk tercatat di Bursa Efek Indonesia sektor FINANCE. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/BBCA"
+  },
+  {
+    "ticker": "BBNI",
+    "name": "Bank Negara Indonesia Tbk",
+    "sector": "FINANCE",
+    "description": "Bank Negara Indonesia Tbk tercatat di Bursa Efek Indonesia sektor FINANCE. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/BBNI"
+  },
+  {
+    "ticker": "BBRI",
+    "name": "Bank Rakyat Indonesia Tbk",
+    "sector": "FINANCE",
+    "description": "Bank Rakyat Indonesia Tbk tercatat di Bursa Efek Indonesia sektor FINANCE. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/BBRI"
+  },
+  {
+    "ticker": "BBTN",
+    "name": "Bank Tabungan Negara Tbk",
+    "sector": "FINANCE",
+    "description": "Bank Tabungan Negara Tbk tercatat di Bursa Efek Indonesia sektor FINANCE. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/BBTN"
+  },
+  {
+    "ticker": "BDMN",
+    "name": "Bank Danamon Indonesia Tbk",
+    "sector": "FINANCE",
+    "description": "Bank Danamon Indonesia Tbk tercatat di Bursa Efek Indonesia sektor FINANCE. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/BDMN"
+  },
+  {
+    "ticker": "BEKS",
+    "name": "Bank Pembangunan Daerah Banten Tbk",
+    "sector": "FINANCE",
+    "description": "Bank Pembangunan Daerah Banten Tbk tercatat di Bursa Efek Indonesia sektor FINANCE. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/BEKS"
+  },
+  {
+    "ticker": "BFIN",
+    "name": "BFI Finance Indonesia Tbk",
+    "sector": "FINANCE",
+    "description": "BFI Finance Indonesia Tbk tercatat di Bursa Efek Indonesia sektor FINANCE. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/BFIN"
+  },
+  {
+    "ticker": "BGTG",
+    "name": "Bank Ganesha Tbk",
+    "sector": "FINANCE",
+    "description": "Bank Ganesha Tbk tercatat di Bursa Efek Indonesia sektor FINANCE. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/BGTG"
+  },
+  {
+    "ticker": "BJBR",
+    "name": "Bank Jabar Banten Tbk",
+    "sector": "FINANCE",
+    "description": "Bank Jabar Banten Tbk tercatat di Bursa Efek Indonesia sektor FINANCE. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/BJBR"
+  },
+  {
+    "ticker": "BJTM",
+    "name": "Bank Jawa Timur Tbk",
+    "sector": "FINANCE",
+    "description": "Bank Jawa Timur Tbk tercatat di Bursa Efek Indonesia sektor FINANCE. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/BJTM"
+  },
+  {
+    "ticker": "BMRG",
+    "name": "Bank Rakyat (BMRG) Tbk",
+    "sector": "FINANCE",
+    "description": "Bank Rakyat (BMRG) Tbk tercatat di Bursa Efek Indonesia sektor FINANCE. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/BMRG"
+  },
+  {
+    "ticker": "BMRI",
+    "name": "Bank Mandiri Tbk",
+    "sector": "FINANCE",
+    "description": "Bank Mandiri Tbk tercatat di Bursa Efek Indonesia sektor FINANCE. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/BMRI"
+  },
+  {
+    "ticker": "BNGA",
+    "name": "Bank CIMB Niaga Tbk",
+    "sector": "FINANCE",
+    "description": "Bank CIMB Niaga Tbk tercatat di Bursa Efek Indonesia sektor FINANCE. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/BNGA"
+  },
+  {
+    "ticker": "BNLI",
+    "name": "Bank Permata Tbk",
+    "sector": "FINANCE",
+    "description": "Bank Permata Tbk tercatat di Bursa Efek Indonesia sektor FINANCE. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/BNLI"
+  },
+  {
+    "ticker": "BRIS",
+    "name": "Bank Syariah Indonesia Tbk",
+    "sector": "FINANCE",
+    "description": "Bank Syariah Indonesia Tbk tercatat di Bursa Efek Indonesia sektor FINANCE. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/BRIS"
+  },
+  {
+    "ticker": "BSIM",
+    "name": "Bank Sinarmas Tbk",
+    "sector": "FINANCE",
+    "description": "Bank Sinarmas Tbk tercatat di Bursa Efek Indonesia sektor FINANCE. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/BSIM"
+  },
+  {
+    "ticker": "MAYA",
+    "name": "Bank Mayapada Internasional Tbk",
+    "sector": "FINANCE",
+    "description": "Bank Mayapada Internasional Tbk tercatat di Bursa Efek Indonesia sektor FINANCE. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/MAYA"
+  },
+  {
+    "ticker": "MFIN",
+    "name": "Mandala Multifinance Tbk",
+    "sector": "FINANCE",
+    "description": "Mandala Multifinance Tbk tercatat di Bursa Efek Indonesia sektor FINANCE. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/MFIN"
+  },
+  {
+    "ticker": "NISP",
+    "name": "Bank OCBC NISP Tbk",
+    "sector": "FINANCE",
+    "description": "Bank OCBC NISP Tbk tercatat di Bursa Efek Indonesia sektor FINANCE. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/NISP"
+  },
+  {
+    "ticker": "PNBN",
+    "name": "Bank Pan Indonesia Tbk",
+    "sector": "FINANCE",
+    "description": "Bank Pan Indonesia Tbk tercatat di Bursa Efek Indonesia sektor FINANCE. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/PNBN"
+  },
+  {
+    "ticker": "SDRA",
+    "name": "Bank Woori Saudara Indonesia 1906 Tbk",
+    "sector": "FINANCE",
+    "description": "Bank Woori Saudara Indonesia 1906 Tbk tercatat di Bursa Efek Indonesia sektor FINANCE. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/SDRA"
+  },
+  {
+    "ticker": "TRUS",
+    "name": "Trust Finance Indonesia Tbk",
+    "sector": "FINANCE",
+    "description": "Trust Finance Indonesia Tbk tercatat di Bursa Efek Indonesia sektor FINANCE. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/TRUS"
+  },
+  {
+    "ticker": "ACES",
+    "name": "Ace Hardware Indonesia Tbk",
+    "sector": "OTHER",
+    "description": "Ace Hardware Indonesia Tbk tercatat di Bursa Efek Indonesia sektor OTHER. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/ACES"
+  },
+  {
+    "ticker": "ADES",
+    "name": "Akasha Wira International Tbk",
+    "sector": "CONSUMER",
+    "description": "Akasha Wira International Tbk tercatat di Bursa Efek Indonesia sektor CONSUMER. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/ADES"
+  },
+  {
+    "ticker": "ADHI",
+    "name": "Adhi Karya Tbk",
+    "sector": "INFRA",
+    "description": "Adhi Karya Tbk tercatat di Bursa Efek Indonesia sektor INFRA. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/ADHI"
+  },
+  {
+    "ticker": "ADRO",
+    "name": "Adaro Energy Indonesia Tbk",
+    "sector": "ENERGY",
+    "description": "Adaro Energy Indonesia Tbk tercatat di Bursa Efek Indonesia sektor ENERGY. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/ADRO"
+  },
+  {
+    "ticker": "AISA",
+    "name": "FKS Food Sejahtera Tbk",
+    "sector": "CONSUMER",
+    "description": "FKS Food Sejahtera Tbk tercatat di Bursa Efek Indonesia sektor CONSUMER. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/AISA"
+  },
+  {
+    "ticker": "AKRA",
+    "name": "AKR Corporindo Tbk",
+    "sector": "ENERGY",
+    "description": "AKR Corporindo Tbk tercatat di Bursa Efek Indonesia sektor ENERGY. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/AKRA"
+  },
+  {
+    "ticker": "ANTM",
+    "name": "Aneka Tambang Tbk",
+    "sector": "ENERGY",
+    "description": "Aneka Tambang Tbk tercatat di Bursa Efek Indonesia sektor ENERGY. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/ANTM"
+  },
+  {
+    "ticker": "ASII",
+    "name": "Astra International Tbk",
+    "sector": "INFRA",
+    "description": "Astra International Tbk tercatat di Bursa Efek Indonesia sektor INFRA. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/ASII"
+  },
+  {
+    "ticker": "AUTO",
+    "name": "Astra Otoparts Tbk",
+    "sector": "INFRA",
+    "description": "Astra Otoparts Tbk tercatat di Bursa Efek Indonesia sektor INFRA. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/AUTO"
+  },
+  {
+    "ticker": "BIPI",
+    "name": "Astrindo Nusantara Infrastruktur Tbk",
+    "sector": "ENERGY",
+    "description": "Astrindo Nusantara Infrastruktur Tbk tercatat di Bursa Efek Indonesia sektor ENERGY. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/BIPI"
+  },
+  {
+    "ticker": "BRMS",
+    "name": "Bumi Resources Minerals Tbk",
+    "sector": "OTHER",
+    "description": "Bumi Resources Minerals Tbk tercatat di Bursa Efek Indonesia sektor OTHER. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/BRMS"
+  },
+  {
+    "ticker": "BRPT",
+    "name": "Barito Pacific Tbk",
+    "sector": "ENERGY",
+    "description": "Barito Pacific Tbk tercatat di Bursa Efek Indonesia sektor ENERGY. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/BRPT"
+  },
+  {
+    "ticker": "BSDE",
+    "name": "Bumi Serpong Damai Tbk",
+    "sector": "INFRA",
+    "description": "Bumi Serpong Damai Tbk tercatat di Bursa Efek Indonesia sektor INFRA. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/BSDE"
+  },
+  {
+    "ticker": "BUKA",
+    "name": "Bukalapak.com Tbk",
+    "sector": "OTHER",
+    "description": "Bukalapak.com Tbk tercatat di Bursa Efek Indonesia sektor OTHER. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/BUKA"
+  },
+  {
+    "ticker": "BUMI",
+    "name": "Bumi Resources Tbk",
+    "sector": "ENERGY",
+    "description": "Bumi Resources Tbk tercatat di Bursa Efek Indonesia sektor ENERGY. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/BUMI"
+  },
+  {
+    "ticker": "CEKA",
+    "name": "Wilmar Cahaya Indonesia Tbk",
+    "sector": "CONSUMER",
+    "description": "Wilmar Cahaya Indonesia Tbk tercatat di Bursa Efek Indonesia sektor CONSUMER. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/CEKA"
+  },
+  {
+    "ticker": "CLEO",
+    "name": "Sariguna Primatirta Tbk",
+    "sector": "CONSUMER",
+    "description": "Sariguna Primatirta Tbk tercatat di Bursa Efek Indonesia sektor CONSUMER. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/CLEO"
+  },
+  {
+    "ticker": "CTRA",
+    "name": "Ciputra Development Tbk",
+    "sector": "INFRA",
+    "description": "Ciputra Development Tbk tercatat di Bursa Efek Indonesia sektor INFRA. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/CTRA"
+  },
+  {
+    "ticker": "ELSA",
+    "name": "Elnusa Tbk",
+    "sector": "ENERGY",
+    "description": "Elnusa Tbk tercatat di Bursa Efek Indonesia sektor ENERGY. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/ELSA"
+  },
+  {
+    "ticker": "EMTK",
+    "name": "Elang Mahkota Teknologi Tbk",
+    "sector": "OTHER",
+    "description": "Elang Mahkota Teknologi Tbk tercatat di Bursa Efek Indonesia sektor OTHER. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/EMTK"
+  },
+  {
+    "ticker": "ENRG",
+    "name": "Energi Mega Persada Tbk",
+    "sector": "ENERGY",
+    "description": "Energi Mega Persada Tbk tercatat di Bursa Efek Indonesia sektor ENERGY. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/ENRG"
+  },
+  {
+    "ticker": "ERAA",
+    "name": "Erajaya Swasembada Tbk",
+    "sector": "OTHER",
+    "description": "Erajaya Swasembada Tbk tercatat di Bursa Efek Indonesia sektor OTHER. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/ERAA"
+  },
+  {
+    "ticker": "ESSA",
+    "name": "Surya Esa Perkasa Tbk",
+    "sector": "ENERGY",
+    "description": "Surya Esa Perkasa Tbk tercatat di Bursa Efek Indonesia sektor ENERGY. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/ESSA"
+  },
+  {
+    "ticker": "EXCL",
+    "name": "XL Axiata Tbk",
+    "sector": "INFRA",
+    "description": "XL Axiata Tbk tercatat di Bursa Efek Indonesia sektor INFRA. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/EXCL"
+  },
+  {
+    "ticker": "GGRM",
+    "name": "Gudang Garam Tbk",
+    "sector": "CONSUMER",
+    "description": "Gudang Garam Tbk tercatat di Bursa Efek Indonesia sektor CONSUMER. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/GGRM"
+  },
+  {
+    "ticker": "GOOD",
+    "name": "Garudafood Putra Putri Jaya Tbk",
+    "sector": "CONSUMER",
+    "description": "Garudafood Putra Putri Jaya Tbk tercatat di Bursa Efek Indonesia sektor CONSUMER. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/GOOD"
+  },
+  {
+    "ticker": "GOTO",
+    "name": "GoTo Gojek Tokopedia Tbk",
+    "sector": "OTHER",
+    "description": "GoTo Gojek Tokopedia Tbk tercatat di Bursa Efek Indonesia sektor OTHER. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/GOTO"
+  },
+  {
+    "ticker": "HEAL",
+    "name": "Medikaloka Hermina Tbk",
+    "sector": "OTHER",
+    "description": "Medikaloka Hermina Tbk tercatat di Bursa Efek Indonesia sektor OTHER. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/HEAL"
+  },
+  {
+    "ticker": "HMSP",
+    "name": "Hanjaya Mandala Sampoerna Tbk",
+    "sector": "CONSUMER",
+    "description": "Hanjaya Mandala Sampoerna Tbk tercatat di Bursa Efek Indonesia sektor CONSUMER. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/HMSP"
+  },
+  {
+    "ticker": "HRUM",
+    "name": "Harum Energy Tbk",
+    "sector": "ENERGY",
+    "description": "Harum Energy Tbk tercatat di Bursa Efek Indonesia sektor ENERGY. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/HRUM"
+  },
+  {
+    "ticker": "ICBP",
+    "name": "Indofood CBP Sukses Makmur Tbk",
+    "sector": "CONSUMER",
+    "description": "Indofood CBP Sukses Makmur Tbk tercatat di Bursa Efek Indonesia sektor CONSUMER. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/ICBP"
+  },
+  {
+    "ticker": "INCO",
+    "name": "Vale Indonesia Tbk",
+    "sector": "ENERGY",
+    "description": "Vale Indonesia Tbk tercatat di Bursa Efek Indonesia sektor ENERGY. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/INCO"
+  },
+  {
+    "ticker": "INDF",
+    "name": "Indofood Sukses Makmur Tbk",
+    "sector": "CONSUMER",
+    "description": "Indofood Sukses Makmur Tbk tercatat di Bursa Efek Indonesia sektor CONSUMER. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/INDF"
+  },
+  {
+    "ticker": "INDY",
+    "name": "Indika Energy Tbk",
+    "sector": "ENERGY",
+    "description": "Indika Energy Tbk tercatat di Bursa Efek Indonesia sektor ENERGY. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/INDY"
+  },
+  {
+    "ticker": "ISAT",
+    "name": "Indosat Tbk",
+    "sector": "INFRA",
+    "description": "Indosat Tbk tercatat di Bursa Efek Indonesia sektor INFRA. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/ISAT"
+  },
+  {
+    "ticker": "ITMG",
+    "name": "Indo Tambangraya Megah Tbk",
+    "sector": "ENERGY",
+    "description": "Indo Tambangraya Megah Tbk tercatat di Bursa Efek Indonesia sektor ENERGY. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/ITMG"
+  },
+  {
+    "ticker": "JSMR",
+    "name": "Jasa Marga Tbk",
+    "sector": "INFRA",
+    "description": "Jasa Marga Tbk tercatat di Bursa Efek Indonesia sektor INFRA. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/JSMR"
+  },
+  {
+    "ticker": "KINO",
+    "name": "Kino Indonesia Tbk",
+    "sector": "CONSUMER",
+    "description": "Kino Indonesia Tbk tercatat di Bursa Efek Indonesia sektor CONSUMER. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/KINO"
+  },
+  {
+    "ticker": "KLBF",
+    "name": "Kalbe Farma Tbk",
+    "sector": "CONSUMER",
+    "description": "Kalbe Farma Tbk tercatat di Bursa Efek Indonesia sektor CONSUMER. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/KLBF"
+  },
+  {
+    "ticker": "LPKR",
+    "name": "Lippo Karawaci Tbk",
+    "sector": "INFRA",
+    "description": "Lippo Karawaci Tbk tercatat di Bursa Efek Indonesia sektor INFRA. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/LPKR"
+  },
+  {
+    "ticker": "LPPF",
+    "name": "Matahari Department Store Tbk",
+    "sector": "OTHER",
+    "description": "Matahari Department Store Tbk tercatat di Bursa Efek Indonesia sektor OTHER. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/LPPF"
+  },
+  {
+    "ticker": "MAPI",
+    "name": "Mitra Adiperkasa Tbk",
+    "sector": "OTHER",
+    "description": "Mitra Adiperkasa Tbk tercatat di Bursa Efek Indonesia sektor OTHER. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/MAPI"
+  },
+  {
+    "ticker": "MDKA",
+    "name": "Merdeka Copper Gold Tbk",
+    "sector": "OTHER",
+    "description": "Merdeka Copper Gold Tbk tercatat di Bursa Efek Indonesia sektor OTHER. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/MDKA"
+  },
+  {
+    "ticker": "MEDC",
+    "name": "Medco Energi Internasional Tbk",
+    "sector": "ENERGY",
+    "description": "Medco Energi Internasional Tbk tercatat di Bursa Efek Indonesia sektor ENERGY. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/MEDC"
+  },
+  {
+    "ticker": "MEDS",
+    "name": "Hetzer Medical? Tbk",
+    "sector": "OTHER",
+    "description": "Hetzer Medical? Tbk tercatat di Bursa Efek Indonesia sektor OTHER. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/MEDS"
+  },
+  {
+    "ticker": "MIKA",
+    "name": "Mitra Keluarga Karyasehat Tbk",
+    "sector": "OTHER",
+    "description": "Mitra Keluarga Karyasehat Tbk tercatat di Bursa Efek Indonesia sektor OTHER. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/MIKA"
+  },
+  {
+    "ticker": "MNCN",
+    "name": "Media Nusantara Citra Tbk",
+    "sector": "OTHER",
+    "description": "Media Nusantara Citra Tbk tercatat di Bursa Efek Indonesia sektor OTHER. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/MNCN"
+  },
+  {
+    "ticker": "MYOR",
+    "name": "Mayora Indah Tbk",
+    "sector": "CONSUMER",
+    "description": "Mayora Indah Tbk tercatat di Bursa Efek Indonesia sektor CONSUMER. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/MYOR"
+  },
+  {
+    "ticker": "NCKL",
+    "name": "Trimegah Bangun Persada Tbk",
+    "sector": "ENERGY",
+    "description": "Trimegah Bangun Persada Tbk tercatat di Bursa Efek Indonesia sektor ENERGY. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/NCKL"
+  },
+  {
+    "ticker": "PGAS",
+    "name": "Perusahaan Gas Negara Tbk",
+    "sector": "ENERGY",
+    "description": "Perusahaan Gas Negara Tbk tercatat di Bursa Efek Indonesia sektor ENERGY. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/PGAS"
+  },
+  {
+    "ticker": "PTBA",
+    "name": "Bukit Asam Tbk",
+    "sector": "ENERGY",
+    "description": "Bukit Asam Tbk tercatat di Bursa Efek Indonesia sektor ENERGY. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/PTBA"
+  },
+  {
+    "ticker": "PTPP",
+    "name": "PP Tbk",
+    "sector": "INFRA",
+    "description": "PP Tbk tercatat di Bursa Efek Indonesia sektor INFRA. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/PTPP"
+  },
+  {
+    "ticker": "PTRO",
+    "name": "Petrosea Tbk",
+    "sector": "ENERGY",
+    "description": "Petrosea Tbk tercatat di Bursa Efek Indonesia sektor ENERGY. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/PTRO"
+  },
+  {
+    "ticker": "PWON",
+    "name": "Pakuwon Jati Tbk",
+    "sector": "INFRA",
+    "description": "Pakuwon Jati Tbk tercatat di Bursa Efek Indonesia sektor INFRA. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/PWON"
+  },
+  {
+    "ticker": "ROTI",
+    "name": "Nippon Indosari Corpindo Tbk",
+    "sector": "CONSUMER",
+    "description": "Nippon Indosari Corpindo Tbk tercatat di Bursa Efek Indonesia sektor CONSUMER. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/ROTI"
+  },
+  {
+    "ticker": "SCMA",
+    "name": "Surya Citra Media Tbk",
+    "sector": "OTHER",
+    "description": "Surya Citra Media Tbk tercatat di Bursa Efek Indonesia sektor OTHER. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/SCMA"
+  },
+  {
+    "ticker": "SIDO",
+    "name": "Industri Jamu dan Farmasi Sido Muncul Tbk",
+    "sector": "CONSUMER",
+    "description": "Industri Jamu dan Farmasi Sido Muncul Tbk tercatat di Bursa Efek Indonesia sektor CONSUMER. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/SIDO"
+  },
+  {
+    "ticker": "SILO",
+    "name": "Siloam International Hospitals Tbk",
+    "sector": "OTHER",
+    "description": "Siloam International Hospitals Tbk tercatat di Bursa Efek Indonesia sektor OTHER. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/SILO"
+  },
+  {
+    "ticker": "SMRA",
+    "name": "Summarecon Agung Tbk",
+    "sector": "INFRA",
+    "description": "Summarecon Agung Tbk tercatat di Bursa Efek Indonesia sektor INFRA. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/SMRA"
+  },
+  {
+    "ticker": "SSIA",
+    "name": "Surya Semesta Internusa Tbk",
+    "sector": "INFRA",
+    "description": "Surya Semesta Internusa Tbk tercatat di Bursa Efek Indonesia sektor INFRA. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/SSIA"
+  },
+  {
+    "ticker": "STTP",
+    "name": "Siantar Top Tbk",
+    "sector": "CONSUMER",
+    "description": "Siantar Top Tbk tercatat di Bursa Efek Indonesia sektor CONSUMER. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/STTP"
+  },
+  {
+    "ticker": "TBIG",
+    "name": "Tower Bersama Infrastructure Tbk",
+    "sector": "INFRA",
+    "description": "Tower Bersama Infrastructure Tbk tercatat di Bursa Efek Indonesia sektor INFRA. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/TBIG"
+  },
+  {
+    "ticker": "TCID",
+    "name": "Mandom Indonesia Tbk",
+    "sector": "CONSUMER",
+    "description": "Mandom Indonesia Tbk tercatat di Bursa Efek Indonesia sektor CONSUMER. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/TCID"
+  },
+  {
+    "ticker": "TLKM",
+    "name": "Telkom Indonesia Tbk",
+    "sector": "INFRA",
+    "description": "Telkom Indonesia Tbk tercatat di Bursa Efek Indonesia sektor INFRA. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/TLKM"
+  },
+  {
+    "ticker": "TOWR",
+    "name": "Sarana Menara Nusantara Tbk",
+    "sector": "INFRA",
+    "description": "Sarana Menara Nusantara Tbk tercatat di Bursa Efek Indonesia sektor INFRA. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/TOWR"
+  },
+  {
+    "ticker": "TPIA",
+    "name": "Chandra Asri Pacific Tbk",
+    "sector": "ENERGY",
+    "description": "Chandra Asri Pacific Tbk tercatat di Bursa Efek Indonesia sektor ENERGY. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/TPIA"
+  },
+  {
+    "ticker": "TSPC",
+    "name": "Tempo Scan Pacific Tbk",
+    "sector": "CONSUMER",
+    "description": "Tempo Scan Pacific Tbk tercatat di Bursa Efek Indonesia sektor CONSUMER. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/TSPC"
+  },
+  {
+    "ticker": "ULTJ",
+    "name": "Ultrajaya Milk Industry Tbk",
+    "sector": "CONSUMER",
+    "description": "Ultrajaya Milk Industry Tbk tercatat di Bursa Efek Indonesia sektor CONSUMER. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/ULTJ"
+  },
+  {
+    "ticker": "UNTR",
+    "name": "United Tractors Tbk",
+    "sector": "ENERGY",
+    "description": "United Tractors Tbk tercatat di Bursa Efek Indonesia sektor ENERGY. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/UNTR"
+  },
+  {
+    "ticker": "UNVR",
+    "name": "Unilever Indonesia Tbk",
+    "sector": "CONSUMER",
+    "description": "Unilever Indonesia Tbk tercatat di Bursa Efek Indonesia sektor CONSUMER. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/UNVR"
+  },
+  {
+    "ticker": "WEGE",
+    "name": "Wijaya Karya Bangunan Gedung Tbk",
+    "sector": "INFRA",
+    "description": "Wijaya Karya Bangunan Gedung Tbk tercatat di Bursa Efek Indonesia sektor INFRA. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/WEGE"
+  },
+  {
+    "ticker": "WIIM",
+    "name": "Wismilak Inti Makmur Tbk",
+    "sector": "CONSUMER",
+    "description": "Wismilak Inti Makmur Tbk tercatat di Bursa Efek Indonesia sektor CONSUMER. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/WIIM"
+  },
+  {
+    "ticker": "WIKA",
+    "name": "Wijaya Karya Tbk",
+    "sector": "INFRA",
+    "description": "Wijaya Karya Tbk tercatat di Bursa Efek Indonesia sektor INFRA. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/WIKA"
+  },
+  {
+    "ticker": "WINS",
+    "name": "Wintermar Offshore Marine Tbk",
+    "sector": "INFRA",
+    "description": "Wintermar Offshore Marine Tbk tercatat di Bursa Efek Indonesia sektor INFRA. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/WINS"
+  },
+  {
+    "ticker": "WSKT",
+    "name": "Waskita Karya Tbk",
+    "sector": "INFRA",
+    "description": "Waskita Karya Tbk tercatat di Bursa Efek Indonesia sektor INFRA. Informasi resmi tersedia pada factsheet IDX dan Sectors company profile. Sumber: idx.co.id",
+    "sourceUrl": "https://www.idx.co.id/en/listed-companies/company-profiles/WSKT"
+  }
+]

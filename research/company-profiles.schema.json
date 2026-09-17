@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "company-profiles",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": [
+      "ticker",
+      "name",
+      "sector",
+      "description",
+      "sourceUrl"
+    ],
+    "properties": {
+      "ticker": {
+        "type": "string",
+        "pattern": "^[A-Z0-9]{3,6}$"
+      },
+      "name": {
+        "type": "string",
+        "minLength": 2
+      },
+      "sector": {
+        "type": "string",
+        "enum": [
+          "FINANCE",
+          "ENERGY",
+          "CONSUMER",
+          "INFRA",
+          "OTHER"
+        ]
+      },
+      "description": {
+        "type": "string",
+        "minLength": 20
+      },
+      "sourceUrl": {
+        "type": "string",
+        "format": "uri",
+        "pattern": "^https://"
+      }
+    },
+    "additionalProperties": false
+  }
+}

@@ -251,7 +251,7 @@ pub async fn ranking(
             let mapped: Vec<serde_json::Value> = slice
                 .iter()
                 .enumerate()
-                .map(|(i, it)| bd::to_ranking_item(it, base + i + 1))
+                .map(|(i, it)| bd::enrich_with_profile(bd::to_ranking_item(it, base + i + 1)))
                 .collect();
             (mapped, total)
         }
@@ -299,7 +299,11 @@ pub async fn score(
         .and_then(|v| bd::find_item(&v, &t, &mstr));
     let data = match found {
         Some(it) => {
-            json!({"ticker": t, "market": market.as_str(), "asOfDate": "2026-09-08T00:00:00Z", "mispricingScore": bd::f64_of(&it, "mispricingScore"), "components": it.get("components").cloned().unwrap_or(json!({})), "anomaly": it.get("anomaly").cloned().unwrap_or(json!({})), "sector": bd::str_of(&it, "sector"), "close": bd::f64_of(&it, "close"), "rank": it.get("rank").cloned().unwrap_or(json!(0)), "peerPercentile": 85.0, "degraded": false, "disclaimer": DISCLAIMER, "insufficientData": false})
+            let mut v = json!({"ticker": t, "market": market.as_str(), "asOfDate": "2026-09-08T00:00:00Z", "mispricingScore": bd::f64_of(&it, "mispricingScore"), "components": it.get("components").cloned().unwrap_or(json!({})), "anomaly": it.get("anomaly").cloned().unwrap_or(json!({})), "sector": bd::str_of(&it, "sector"), "close": bd::f64_of(&it, "close"), "rank": it.get("rank").cloned().unwrap_or(json!(0)), "peerPercentile": 85.0, "degraded": false, "disclaimer": DISCLAIMER, "insufficientData": false});
+            if let Some(cp) = bd::company_profile_for(&t) {
+                v["companyProfile"] = cp;
+            }
+            v
         }
         None => {
             return error_response(
@@ -386,7 +390,10 @@ pub async fn dossier(
         .map(|a| a.is_empty())
         .unwrap_or(true);
     let kronos_degraded = chart_empty;
-    let data = json!({"ticker": t, "market": market.as_str(), "lang": lang, "score": bd::f64_of(&it, "mispricingScore"), "breakdown": it.get("components").cloned().unwrap_or(json!({})), "peerComparison": peers, "kronos": kronos_val, "research": {"fundamentalMemo": memo_fund, "technicalMemo": memo_tech, "synthesizerMemo": memo_synth}, "anomaly": it.get("anomaly").cloned().unwrap_or(json!({})), "sector": bd::str_of(&it, "sector"), "rank": it.get("rank").cloned().unwrap_or(json!(0)), "degraded": kronos_degraded, "disclaimer": DISCLAIMER});
+    let mut data = json!({"ticker": t, "market": market.as_str(), "lang": lang, "score": bd::f64_of(&it, "mispricingScore"), "breakdown": it.get("components").cloned().unwrap_or(json!({})), "peerComparison": peers, "kronos": kronos_val, "research": {"fundamentalMemo": memo_fund, "technicalMemo": memo_tech, "synthesizerMemo": memo_synth}, "anomaly": it.get("anomaly").cloned().unwrap_or(json!({})), "sector": bd::str_of(&it, "sector"), "rank": it.get("rank").cloned().unwrap_or(json!(0)), "degraded": kronos_degraded, "disclaimer": DISCLAIMER});
+    if let Some(cp) = bd::company_profile_for(&t) {
+        data["companyProfile"] = cp;
+    }
     with_schema(ok_body(data), StatusCode::OK)
 }
 

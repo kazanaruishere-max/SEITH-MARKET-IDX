@@ -11,7 +11,7 @@ type DossierData = {
   kronos?: { forecastReturn?: number; volatility?: number; chartPoints?: { date:string; value:number; upper:number; lower:number }[] };
   research?: { fundamentalMemo?: string; technicalMemo?: string; synthesizerMemo?: string };
   anomaly?: { z?: number; flag?: boolean; reason?: string };
-  sector?: string; rank?: number; close?: number; disclaimer: string;
+  sector?: string; rank?: number; close?: number; companyProfile?: { name: string; description: string; sourceUrl: string }; disclaimer: string;
 };
 function Bar({ label, value, w }: { label: string; value: number; w: string }) {
   return (
@@ -33,6 +33,7 @@ export default async function DossierPage({ params, searchParams }: { params: { 
   } catch (e: unknown) { error = e instanceof Error ? e.message : String(e); }
   const peers = data?.peerComparison ?? [];
   const b = data?.breakdown;
+  const cp = data?.companyProfile;
   return (
     <div className="space-y-4">
       <div className="overflow-hidden rounded-xl border border-zinc-800 bg-[#11151F] p-4">
@@ -41,8 +42,10 @@ export default async function DossierPage({ params, searchParams }: { params: { 
             <div className="flex flex-wrap items-center gap-2 text-xs">
               <span className="rounded bg-amber-400 px-1.5 py-0.5 font-mono text-[11px] font-bold tracking-widest text-zinc-900">DOSSIER</span>
               <span className="rounded border border-zinc-700 bg-[#0B0E14] px-2 py-0.5 font-mono text-zinc-300">{ticker}</span>
+              {data?.companyProfile ? <span className="rounded bg-zinc-800 px-2 py-0.5 text-zinc-200">{data.companyProfile.name}</span> : null}
               <span className="rounded-full border border-zinc-700 px-2 py-0.5 text-zinc-400">{market.toUpperCase()}</span>
               {data?.sector ? <span className="rounded-full border border-zinc-700 px-2 py-0.5 text-zinc-400">{data.sector}</span> : null}
+              {data?.companyProfile?.sourceUrl ? <a href={data.companyProfile.sourceUrl} target="_blank" rel="noopener noreferrer" className="rounded-full border border-amber-400/20 bg-amber-400/10 px-2 py-0.5 text-amber-300 hover:bg-amber-400/20">idx.co.id ↗</a> : null}
               {data?.rank ? <span className="rounded-full bg-zinc-100 px-2 py-0.5 font-mono text-xs text-zinc-900">rank #{data.rank}</span> : null}
               {data?.anomaly?.flag ? <span className="rounded-full bg-red-500 px-2 py-0.5 text-xs font-semibold text-white">FLAG |Z| {(data.anomaly.z ?? 0).toFixed(1)}</span> : null}
             </div>
