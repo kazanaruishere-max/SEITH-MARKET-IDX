@@ -19,9 +19,9 @@ export default function DossierKronosChart({ kronos, close }: { kronos?: { forec
       <div style={{ width: "100%", height: 200 }}>
         <ResponsiveContainer>
           <LineChart data={hist} margin={{ top: 4, right: 8, bottom: 4, left: -8 }}>
-            <CartesianGrid stroke="#27272a" strokeDasharray="3 3" />
+            <CartesianGrid stroke="#24242e" strokeDasharray="3 3" />
             <XAxis dataKey="date" tick={{ fill: "#a1a1aa", fontSize: 9 }} tickLine={false} interval={4} />
-            <YAxis tick={{ fill: "#a1a1aa", fontSize: 10 }} tickLine={false} domain={["auto", "auto"]} />
+            <YAxis tick={{ fill: "#a1a1aa", fontSize: 9 }} tickLine={false} domain={["auto", "auto"]} />
             <Tooltip contentStyle={{ background: "#11151F", border: "1px solid #27272a", fontSize: 12 }} />
             <Area type="monotone" dataKey="upper" stroke="none" fill="#ef4444" fillOpacity={0} />
             <Area type="monotone" dataKey="lower" stroke="none" fill="#ef4444" fillOpacity={0.10} />
