@@ -20,27 +20,31 @@
 <a id="english"></a>
 ## English — Technical Product Specification
 
-### Contents — 15 Sections
+### Contents — 17 Sections
 
 | # | Section | Purpose |
 |---|---|---|
 | 0 | [Overview & TOC](#0-overview) | One-line product + navigation |
+| 0a | [Jury How-To 60s](#0a-jury-how-to-60s) | 60s ranking → dossier → PDF |
 | 1 | [Positioning & Thesis](#1-positioning) | Why SEITH wins Reveal |
 | 2 | [What is Market Intelligence](#2-what-is-mi) | Track definition vs trader vs value |
 | 3 | [Six Derived Proofs](#3-six-derived-proofs) | Live mapping to `What qualifies` |
-| 4 | [Eight-Gate Workflow — Detailed](#4-eight-gate-workflow) | Per-gate IN→OUT with latency and failure mode |
-| 5 | [Architecture — Hybrid Verifiable](#5-architecture) | Rust + sidecars + envelope |
+| 4 | [Eight-Gate Workflow - Detailed](#4-eight-gate-workflow) | Per-gate IN→OUT with latency and failure mode |
+| 5 | [Architecture - Hybrid Verifiable](#5-architecture) | Rust + sidecars + envelope |
 | 6 | [Data Sources & Universe](#6-data-sources) | 100 stratified + 296 credits + provenance |
 | 7 | [Scoring Engine 0-100](#7-scoring-engine) | Formula, components, clamp |
 | 8 | [Metrics, |Z|, Flags, AA Evaluation](#8-metrics) | Definitions + thresholds + read guide |
-| 9 | [API Contract — 8 Endpoints](#9-api-contract) | Paths, params, examples, errors |
-| 10 | [Web Contract — AA × TV](#10-web-contract) | Routes, rewrites, components |
-| 11 | [Market — IDX × SG](#11-market) | Enum, base_path, median isolation |
-| 12 | [Quick Start — 6 Steps](#12-quick-start) | Clone to cache check |
-| 13 | [Project Structure — 7 Zones](#13-structure) | File placement + violation rule |
+| 9 | [API Contract - 8 Endpoints](#9-api-contract) | Paths, params, examples, errors |
+| 10 | [Web Contract - AA x TV](#10-web-contract) | Routes, rewrites, components |
+| 11 | [Market - IDX x SG](#11-market) | Enum, base_path, median isolation |
+| 12 | [Requirement SEITH](#12-requirement-seith) | Hardware, env, deps, ports |
+| 12a | [OS Support](#12a-os-support) | Windows PowerShell 7+ vs Linux/Mac bash |
+| 12b | [Quick Start - 6 Steps](#12-quick-start) | Clone to cache check |
+| 13 | [Project Structure - 7 Zones](#13-structure) | File placement + violation rule |
+| 13a | [Bahasa + Fungsi Rust](#13a-bahasa--fungsi-rust) | Rust/Python/TS roles |
 | 14 | [Verification & Testing](#14-verification) | Gates, test counts, CI contexts |
 | 15 | [Limitations, Provenance, References, License](#15-limitations) | Ceilings, lineage, whitepaper, freeze |
-
+| 16 | [Deep Technical - 8 Gates](#16-deep-technical-8-gates) | Mermaid + lineage 296c + scoring |
 ---
 
 ### 0. Overview
@@ -54,6 +58,20 @@ SEITH is a **Market Intelligence engine for IDX** — Track 3 Reveal. One workfl
 
 **Navigate:** [EN §1 Positioning](#1-positioning) · [§4 Workflow](#4-eight-gate-workflow) · [§8 Metrics](#8-metrics) · [§9 API](#9-api-contract) · [ID Mirror](#indonesia)
 
+
+---
+
+### 0a. Jury How-To — 60s Ranking → Deep Dive → Export PDF
+
+**3 langkah untuk juri (60 detik):**
+
+1. Buka `/` — lihat heatmap vertikal 5 sektor `aspect-[3/4] min-h-[420px]` + 4 KPI (Universe 100, avg score, flagged |Z|>2, pipeline).
+2. Klik `FINANCE` → `/ranking?sector=FINANCE&market=id` — 25 tickers, sort mispricing desc, pagination 20/page, cell `aspect-[2/3] min-h-[52px]` red→amber→emerald.
+3. Klik `BBCA` → `/dossier/BBCA?market=id` — breakdown 30/20/30/20, peer 5 QV+cap ±50%, Kronos 20 titik amber dashed + ±2σ band, 3 memo, `Download PDF` 2-page A4 `595×842` vector.
+
+![Demo placeholder](docs/assets/demo-placeholder.svg)
+
+> Bukan rekomendasi investasi. Informasi & analisis saja. Sectors CORE — cabut = produk mati. `SEITH_API_BIND=0.0.0.0:8181`.
 ---
 
 ### 1. Positioning & Thesis
@@ -101,7 +119,7 @@ Market Intelligence = **pre-trade information advantage** — analysis generated
 
 | Lens | Weight | Source | Question it answers |
 |---|---|---|---|
-| Quality/Value (QV) | 30% | Sectors ROE/margin/leverage/PE/PB sector percentile | Is cheap also high quality? |
+| Quality/Value (QV) | 30% | Sectors ROE/margin/debt/equity/PE/PB sector percentile | Is cheap also high quality? |
 | Expected move (ER + anomaly) | 30% ER + 20% | Kronos forecast + |Z| divergence | Is price far from forecast? |
 | Context (Sector momentum + peer) | 20% + peer 5 | Sector median + peer QV+cap ±50% | Is this cheapness typical for its sector/market? |
 
@@ -162,7 +180,7 @@ flowchart LR
 | Location | `crates/seith-core` · `seith-api/src/backtest_data.rs:52` + `handlers.rs:77-88` |
 | Rule OHLC | `open/high/low/close` REQUIRED — missing → exclude ticker + `excluded:[{ticker,reason:"missing_ohlc"}]` · currently `MFIN missing_ohlc` + `BMRG sectors_404` in `backtest-100.json:excluded` · pipeline does not crash |
 | Rule volume | `volume/amount` missing → `0.0` (Kronos requires column) |
-| Rule ratios | `ROE/margin/leverage/PE/PB` missing → sector median for that `market` + fallback `0.0` + flag `insufficient_data:true` · medians per `tests/fixtures/sector-median.json` |
+| Rule ratios | `ROE/margin/debt/equity/PE/PB` missing → sector median for that `market` + fallback `0.0` + flag `insufficient_data:true` · medians per `tests/fixtures/sector-median.json` |
 | Rule context | `lookback + pred_len ≤ 512` guard · `lookback>512 → 422 VALIDATION_ERROR max_context 512 exceeded` at `handlers::check_lookback` · `lookback` and `pred_len` must be equal for Kronos batch |
 | Rule timestamp | `x_timestamp / y_timestamp` derived from Sectors `date` for Kronos input |
 | Validation | `serde deny_unknown_fields` + `validator` at boundary, fail fast · `Market enum {Id,Sg}` default `Id` · `ticker ^[A-Z0-9]{3,6}$` · `pageSize max50` · `tickers 1-50` |
@@ -185,7 +203,7 @@ flowchart LR
 | Formula | `score = 0.30*ER_norm + 0.20*(100 - |Z|_norm) + 0.30*QV + 0.20*SM` clamp 0-100 · store 4 components for `StackedTop20 30/20/30/20` + `ScoreBadge bar` |
 | ER 30% | Kronos `forecastReturn` z-normalized → 0-100 |
 | |Z| 20% | `100 - |Z|_norm` — high divergence is flagged, not rewarded |
-| QV 30% | Sectors Quality/Value sector-percentile per market (`ROE/margin/leverage/PE/PB` → percentile, Id ≠ Sg) |
+| QV 30% | Sectors Quality/Value sector-percentile per market (`ROE/margin/debt/equity/PE/PB` → percentile, Id ≠ Sg) |
 | SM 20% | Sector momentum — median sector + relative strength per market |
 | Example | LPPF `ER 50.02 Z 99.91 QV 100 SM 76.58 = 80.3 rank 1` · UNVR `50.35/99.35/100/67.07=78.39 rank 2` · TPIA `50.35/99.51/100/52.34=75.48 rank 3` |
 | Immutability | Returns new object, no mutate · `fn <50 file 200-400` |
@@ -204,7 +222,7 @@ flowchart LR
 | Field | Value |
 |---|---|
 | Runtime | Python `uv` · FastAPI · LangGraph-inspired · `httpx → 9router http://localhost:20128/v1/chat/completions` OpenAI-compatible · combo `SEITH-MARKET-IDX` |
-| Agents | 3 only — `Fund` (Sectors fundamentals ROE/margin/leverage/PE/PB) · `Tech` (price/volume + Kronos path 20) · `Synth` merges two → one paragraph + bull/bear points |
+| Agents | 3 only — `Fund` (Sectors fundamentals ROE/margin/debt/equity/PE/PB) · `Tech` (price/volume + Kronos path 20) · `Synth` merges two → one paragraph + bull/bear points |
 | Input | `{market, ticker, fundamentals, kronosSignal {forecastReturn, volatility}, sector}` |
 | Output | `{fundamentalMemo, technicalMemo, synthesizerMemo}` ID language · no execution advice |
 | Cost control | Only Top-10 dossier runs LLM (10/10 `nemutron` + 90 template fallback) · `research/backtest-100.json` model `nvidia/nemotron-3.5-lightning:free` |
@@ -278,7 +296,7 @@ Sectors REST/MCP (1000 credits, CompositeCache, batch) ─┐
 | Source | `Sectors batch chunks(20)×5 Authorization /v2/daily/{symbol}/` + `/v2/sgx/daily/` — header `Authorization: <SECTORS_API_KEY>` |
 | Rate | 1000 credits budget · 296 consumed live — 98 × OHLCV 19d + 98 × valuation + forecast context · `research/backtest-100.json:credit_cost 296` |
 | Live probe | BBCA `2025-08-01 O 8400 H 8425 L 8300 C 8300 V 86M` → `200` (1 credit) · BBCA `2026-08-10 C 6375` · 61 rows `2025-08-01→2026-08-10` |
-| Fundamentals | Per ticker `ROE/margin/leverage/PE/PB/market_cap` via Sectors valuation endpoint — ratio missing → sector median per market |
+| Fundamentals | Per ticker `ROE/margin/debt/equity/PE/PB/market_cap` via Sectors valuation endpoint — ratio missing → sector median per market |
 | Kronos | Zero-shot 102.3M `max_context 512` `400→20` `T1.0 top_p0.9` — no finetune, `MOCK=0` real |
 | Snapshot | `research/backtest-100.json` pinned live `as_of 2026-09-13 universe 100 degraded false` — `scores_98.json` 98 real 19→20 interim — `regen_backtest_100.py` deterministic 20 `chartPoints` |
 | Excluded | 2 — `BMRG sectors_404`, `MFIN missing_ohlc` — listed under `excluded:[{ticker,reason}]` with `null` rank handled via `z.number().nullable()` |
@@ -301,7 +319,7 @@ clamp 0-100, store 4 components for breakdown
 |---|---|---|---|---|
 | ER | Kronos `forecastReturn` = (predClose - close)/close | z-normalized across sector → 0-100 | 30% | Expected move — positive forecast pulls score up |
 | |Z| | `|Z| = |(actual - forecast)/σ_forecast|` | `100 - |Z|_norm` → 0-100 | 20% | Anomaly distance — large divergence is flagged, not rewarded |
-| QV | Sectors `ROE/margin/leverage/PE/PB` | Sector percentile per market (Id ≠ Sg) → 0-100 | 30% | Quality/Value — cheap quality > value trap |
+| QV | Sectors `ROE/margin/debt/equity/PE/PB` | Sector percentile per market (Id ≠ Sg) → 0-100 | 30% | Quality/Value — cheap quality > value trap |
 | SM | Sector median score + relative strength | Percentile per market → 0-100 | 20% | Sector momentum — context, not absolute price |
 
 **Examples (live):**
@@ -519,7 +537,28 @@ Cleansing exclude is not a global error — ticker appears under `excluded` with
 
 ---
 
-### 12. Quick Start — 6 Steps
+### 12. Requirement SEITH
+
+| Kategori | Kebutuhan |
+|---|---|
+| Hardware | 8GB RAM min, CPU only `MOCK=1` (CI). GPU optional `MOCK=0` 102M Kronos-base cold 2–3m |
+| Env | `.env` server-only: `SECTORS_API_KEY` + `MARKET=id` + `LLM_BASE_URL=http://localhost:20128/v1` + `SEITH_API_BIND=0.0.0.0:8181` — never ke client/log |
+| Deps | Rust 1.82+ `cargo`, Python 3.11 `uv`, Node 20 `pnpm`, `Invoke-WebRequest http://localhost:20128/v1/models` 200 = alive |
+| Ports | `:8181` API, `:8001` Kronos, `:8002` Analysis → `:20128` 9router, `:3000` Web |
+| Guard | Do Not Kill 9router `localhost:20128` — `degraded:true` tetap lolos MI |
+
+### 12a. OS Support
+
+| OS | Shell | Catatan |
+|---|---|---|
+| Windows 11 | PowerShell 7+ | Primary. `Set-Location apps/kronos-sidecar` sebelum `uv sync` — `uv sync --project X` dari root tuang ke `.venv` root (SALAH). `SEITH_API_BIND=0.0.0.0:8181` (8080 dipakai `httpd` 4932) |
+| Linux / Mac | bash | `cd apps/kronos-sidecar && uv sync` — setara PowerShell `Set-Location` |
+
+Pre-flight: `Invoke-WebRequest http://localhost:20128/v1/models` (PowerShell) atau `curl http://localhost:20128/v1/models` (bash) harus 200 sebelum dossier.
+
+---
+
+### 12b. Quick Start — 6 Steps
 
 ```powershell
 # 0 clone — submodules depth 1 (vendor pinned)
@@ -601,6 +640,17 @@ SEITH-MARKET-IDX/
 | Z7 | `scripts/` + `.opencode/` + `.github/` | CI 6 contexts + `freeze-check.sh` + `gitleaks` + `seith-pm` veto `/.wt/` gitignore |
 
 Cross-zone wild import is forbidden. `seith-core` never imports `sectors-client`. `apps/*` never imports `crates/*` except via `seith-api` envelope.
+
+---
+
+### 13a. Bahasa + Fungsi Rust
+
+| Bahasa | Fungsi |
+|---|---|
+| Rust 2021 | `crates/seith-core`: `serde+validator` schemas `Market Id\|Sg` `deny_unknown_fields` ticker `^[A-Z0-9]{3,6}$`, `CompositeCache` `moka` L1 <1ms + `SQLite` L2 `data/seith.db` WAL `busy_timeout 3000` key `market:sector:ticker:date` TTL 24h raw /1h ranking, `scoring/calculator.rs` `30/20/30/20` `fn<50 file200-400 nesting≤4` |
+| Rust 2021 | `crates/seith-api`: `Axum+Tokio` `:8181` envelope `{success,data,error,pagination}` `SCHEMA_VERSION` header, `crates/seith-cli`: `clap` `ranking/dossier/scan` |
+| Python uv | `apps/kronos-sidecar` `:8001` `FastAPI+Uvicorn+torch` Kronos-base 102.3M `predict_batch 400→20 T1.0 top_p0.9 max_context 512`, `apps/analysis` `:8002` TradingAgents-Lite `Fund/Tech/Synth →9router :20128/v1` |
+| TypeScript | `apps/web` Next.js 14 App Router `Tailwind+shadcn+Zod` `recharts 2.12.7` heatmap `aspect-[3/4]` dossier chart amber `±2σ` `react-pdf/renderer` `595×842` vector |
 
 ---
 
@@ -696,6 +746,35 @@ Build window 19 Aug–30 Sep 2026 23:59 WIB · freeze at submit · no commit aft
 
 **Disclaimer:** `Bukan rekomendasi investasi. Informasi & analisis saja.` — on every insight view and response `disclaimer` field. No auto trade execution on any track.
 
+
+---
+
+### 16. Deep Technical — 8 Gates (Mermaid + Lineage 296c)
+
+```mermaid
+flowchart LR
+  A[Sectors REST/MCP<br/>1000 credits<br/>market=id] --> B{Normalize &<br/>Cleansing Gate}
+  B -->|OHLC missing→excluded<br/>BMRG/MFIN| C[Kronos-base :8001<br/>400→20 T1.0 512ctx]
+  B -->|volume null→0<br/>rasio null→median| C
+  C --> D[Scoring 0-100<br/>30ER/20|Z|/30QV/20SM<br/>LPPF 80.3]
+  D --> E[Ranking+Flag<br/>|Z|>2 vol>2σ<br/>25/20/20/20/15]
+  E --> F[Agents Lite :8002<br/>Fund/Tech/Synth<br/>→9router :20128<br/>Top10 nemotron]
+  F --> G[Dossier JSON→PDF<br/>peer5 QV+cap±50%<br/>20 chartPoints ±2σ<br/>595×842]
+  G --> H[Hybrid Delivery<br/>Axum :8181 rewrites<br/>CompositeCache<br/>moka+SQLite]
+```
+
+| Gate | IN | OUT | Latency | Failure |
+|---|---|---|---|---|
+| 1 Sectors | `universe-100.json` 100 stratified | `296 credits` 98×19 OHLCV +98 valuation | batch chunks20 | `degraded:true` + synthetic |
+| 2 Cleansing | raw OHLCV/fundamentals | `500 ohlcv/25 fundamentals` WAL, BMRG/MFIN excluded | <10ms | `excluded:[{ticker,reason}]` |
+| 3 Kronos | `400→20` `T1.0 top_p0.9` | `chartPoints 20` `2026-09-14→2026-10-03` `±2σ band` | 30s timeout | `degraded:true` `[]` + honest chart |
+| 4 Scoring | `ER/QV/SM/|Z|` | `0-100` `30/20/30/20` clamp | <1ms | `insufficient_data:true` |
+| 5 Ranking | scores | `FINANCE25/ENERGY20/...` paginated `50 max` | <5ms | `total 0` |
+| 6 Agents | `Fund+Tech` | `Top10 nemotron` memo | 9router | `degraded:true` template fallback |
+| 7 Dossier | `score+peer5+chart+3memo` | `2-page A4` vector | <200ms | `rank null` untuk excluded |
+| 8 Hybrid | `Axum :8181` | `rewrites → :3000` `health db:{ohlcv,fund}` `x-schema-version` | <2ms L2 | `grep SECTORS_API_KEY .next 0` |
+
+> Bukan rekomendasi investasi — 8 gates ini explainable dan verifiable di repo (`cargo test 89` + `pnpm build 4 routes` + `sqlite 500/25` + `curl :8181/health` + `curl :8001/health is_mock_mode`).
 ---
 
 <a id="indonesia"></a>
@@ -784,7 +863,7 @@ Universe 100 stratified `25/20/20/20/15` → Sectors batch `chunks20×5 Authoriz
 
 ### 7. Scoring
 
-Formula `0.30ER+0.20(100-|Z|)+0.30QV+0.20SM` clamp. ER z-norm forecast, QV percentile ROE/margin/leverage/PE/PB per market Id≠Sg, SM median sektor. Contoh LPPF 50.02/99.91/100/76.58=80.3 rank1.
+Formula `0.30ER+0.20(100-|Z|)+0.30QV+0.20SM` clamp. ER z-norm forecast, QV percentile ROE/margin/debt/equity/PE/PB per market Id≠Sg, SM median sektor. Contoh LPPF 50.02/99.91/100/76.58=80.3 rank1.
 
 ### 8. Metrik, |Z|, Flag, Evaluasi AA
 
