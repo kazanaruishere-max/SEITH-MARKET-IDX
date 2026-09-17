@@ -15,7 +15,6 @@ function c(score: number) {
   return `rgb(${r},${g},${b})`;
 }
 export type HeatItem = { ticker: string; mispricingScore: number; sector?: string; rank?: number };
-const ORDER: Record<string, number> = { FINANCE: 0, ENERGY: 1, CONSUMER: 2, INFRA: 3, OTHER: 4 };
 export default function Heatmap100({ items }: { items: HeatItem[] }) {
   const sorted = [...items].sort((a, b) => (a.rank ?? 999) - (b.rank ?? 999)).slice(0, 100);
   const padded = sorted.length < 100 ? [...sorted, ...Array(100 - sorted.length).fill({ ticker: "-", mispricingScore: 0, sector: "-" })] : sorted;
@@ -25,31 +24,33 @@ export default function Heatmap100({ items }: { items: HeatItem[] }) {
     <div className="card p-4">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-200">Heatmap · treemap by sector</span>
-          <span className="hidden rounded-full border border-zinc-800 bg-[#0B0E14] px-2 py-0.5 text-[10px] font-medium text-zinc-500 md:inline">10×10 rank→score</span>
+          <span className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-200">Heatmap — treemap by sector</span>
+          <span className="hidden rounded-full border border-zinc-800 bg-[#0B0E14] px-2 py-0.5 text-[10px] font-medium text-zinc-500 md:inline">10x10 rank→score</span>
         </div>
-        <span className="flex items-center gap-1.5 text-[11px] text-zinc-500"><span className="h-2 w-3 rounded-sm bg-[#ef4444]" />0 <span className="h-2 w-3 rounded-sm bg-[#fbbf24]" />50 <span className="h-2 w-3 rounded-sm bg-[#10b981]" />100<span className="ml-2 hidden text-zinc-600 md:inline">· red→amber→emerald · dot = mispricing</span></span>
+        <span className="flex items-center gap-1.5 text-[11px] text-zinc-500"><span className="h-2 w-3 rounded-sm bg-[#ef4444]" />0 <span className="h-2 w-3 rounded-sm bg-[#fbbf24]" />50 <span className="h-2 w-3 rounded-sm bg-[#10b981]" />100<span className="ml-2 hidden text-zinc-600 md:inline">— red→amber→emerald — dot = mispricing</span></span>
       </div>
-      <div className="grid gap-3 md:grid-cols-5">
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-5 min-h-[420px]">
         {bySector.map(({ sec, list }) => (
-          <div key={sec} className="overflow-hidden rounded-xl border border-zinc-800/80 bg-[#0B0E14]">
-            <div className="flex items-center justify-between border-b border-zinc-800 px-2.5 py-1.5">
+          <div key={sec} className="flex flex-col overflow-hidden rounded-xl border border-zinc-800/80 bg-[#0B0E14] aspect-[3/4] min-h-[320px]">
+            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-zinc-800 bg-[#0B0E14] px-2.5 py-1.5">
               <span className="text-[11px] font-bold tracking-wide text-zinc-200">{sec}</span>
               <span className="font-mono text-[11px] text-zinc-500">{list.length} · {avg(list)}</span>
             </div>
-            <div className="grid grid-cols-5 gap-[2px] p-1.5">
-              {list.map((r, i) => (
-                <a key={r.ticker + i} href={r.ticker === "-" ? undefined : `/dossier/${r.ticker}?market=id`} title={`${r.ticker} ${r.sector ?? ""} score ${r.mispricingScore.toFixed(1)} rank ${r.rank ?? i + 1}`} className="flex aspect-square items-center justify-center rounded-[4px] text-[7px] font-mono font-bold leading-none transition-all hover:brightness-110 hover:scale-[1.02] hover:shadow-[0_2px_8px_rgba(0,0,0,0.4)]" style={{ background: r.ticker === "-" ? "#1a1a1a" : c(r.mispricingScore), color: r.mispricingScore >= 38 && r.mispricingScore <= 72 ? "#0B0E14" : "#fff" }}>
-                  {r.ticker === "-" ? "" : r.ticker.slice(0, 4)}
-                </a>
-              ))}
-              {list.length === 0 ? <div className="col-span-5 py-4 text-center text-[11px] text-zinc-600">no ticker</div> : null}
+            <div className="flex-1 overflow-y-auto p-1.5 [scrollbar-width:thin]">
+              <div className="grid grid-cols-2 gap-[4px]">
+                {list.map((r, i) => (
+                  <a key={r.ticker + i} href={r.ticker === "-" ? undefined : `/dossier/${r.ticker}?market=id`} aria-label={`${r.ticker} ${sec} score ${r.mispricingScore.toFixed(1)}`} title={`${r.ticker} ${r.sector ?? sec} score ${r.mispricingScore.toFixed(1)} rank ${r.rank ?? i + 1}`} className="flex aspect-[2/3] min-h-[52px] min-w-[52px] items-center justify-center rounded-[6px] font-mono text-[9px] font-bold leading-none tabular-nums transition-all hover:brightness-110 hover:scale-[1.02] hover:shadow-[0_2px_8px_rgba(0,0,0,0.4)]" style={{ background: r.ticker === "-" ? "#1a1a1a" : c(r.mispricingScore), color: r.mispricingScore >= 38 && r.mispricingScore <= 72 ? "#0B0E14" : "#fff" }}>
+                    {r.ticker === "-" ? "" : r.ticker.slice(0, 6)}
+                  </a>
+                ))}
+              </div>
+              {list.length === 0 ? <div className="col-span-2 py-4 text-center text-[11px] text-zinc-600">no ticker</div> : null}
             </div>
           </div>
         ))}
       </div>
       <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-zinc-800/60 pt-2 text-[11px] text-zinc-500">
-        <span>Bukan rekomendasi investasi — warna = mispricingScore 0→100 · tap cell → dossier</span>
+        <span>Bukan rekomendasi investasi — warna = mispricingScore 0→100 — tap cell → dossier</span>
         <span className="font-mono text-zinc-600">{padded.filter((x) => x.ticker !== "-").length} live · grouped AA×TV</span>
       </div>
     </div>
