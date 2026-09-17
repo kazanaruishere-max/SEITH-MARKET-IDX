@@ -12,6 +12,9 @@ One-sentence slice objective — apa yang dikunci task ini (zona mana dari 7 Zon
 In: ... (file/crate spesifik + zona 1-7)
 Out: ... (tidak disentuh task ini — zona lain)
 
+## Todo (`todowrite` WAJIB — AGENTS §8d)
+- [ ] Buka todo `in_progress` sebelum Implement; `completed` hanya setelah Verification hijau.
+
 ## Bagian — Surgical Breakdown (WAJIB dipisah, 1 bagian = 1 fn/struct <50 baris, §8c)
 | Bag | File | Struktur / Fn | Acceptance | Test FAIL |
 |---|---|---|---|---|

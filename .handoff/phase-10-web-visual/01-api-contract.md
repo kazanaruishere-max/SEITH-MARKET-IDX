@@ -15,15 +15,15 @@ Out: Z1 crate handler logic edit (verify only, ranking wire deferred PR34), Z3 `
 ## Bagian — Surgical Breakdown
 | Bag | File | Struktur | Acceptance | Test FAIL |
 |---|---|---|---|---|
-| a | `docs/api-spec.md §3` | `GET /api/v1/ranking?market=id&sector&sort=mispricing|anomaly&order=desc&page&pageSize&lookback≤512` + `GET /api/v1/anomalies?market=id&sector&minZ=2.0&page&pageSize` Top5 | `data:{market,sector,items:[{ticker,mispricingScore,anomaly:{z,flag,reason}}],disclaimer}+pagination+disclaimer` + `sort=anomaly pageSize=5 minZ2.0` is Money Leak Radar Top5 | `curl /api/v1/anomalies?market=id&minZ=2.0&pageSize=5 → 200 Top5 |Z| desc` (future) |
-| b | `docs/api-spec.md §3` | `GET /api/v1/tickers/:ticker/dossier?format=json\|pdf` + `GET /api/v1/backtest?market=id` (new static `research/backtest-100.json` or live) | dossier `{ticker,score,breakdown,peerComparison[3],kronos:{forecastReturn,volatility,chartPoints[]},research:{fundamentalMemo,technicalMemo,synthesizerMemo},degraded}` → `research/backtest-100.json {as_of,universe:100,items,metrics:{hit_rate,drawdown,sharpe,top5_forward_20d},equity_curve}` envelope | `curl /api/v1/backtest → 200 equity_curve` (future) |
-| c | `apps/web/lib/api.ts` spec | `fetchRanking({market,sector,sort,order,page,pageSize,minZ})` + `fetchAnomalies + fetchBacktest + fetchDossier` + zod `rankingDataSchema/scoreDataSchema/dossierDataSchema/backtestDataSchema + envSchema + Pagination` | `baseUrl()=process.env.NEXT_PUBLIC_API_BASE ?? ""` + `fetchEnvelope(path,schema)` + `x-schema-version` check + `Authorization` not in client | `pnpm test lib/api.test.ts` 3→5 cases (ranking sg/dossier BBCA/disclaimer + anomalies Top5 + backtest) |
+| a | `docs/api-spec.md §3` | `GET /api/v1/ranking?market=id&sector&sort=mispricing\|anomaly&order=desc&page&pageSize&lookback≤512` + `GET /api/v1/anomalies?market=id&sector&minZ=2.0&page&pageSize` Top5 | `data:{market,sector,items:[{ticker,mispricingScore,anomaly:{z,flag,reason}}],disclaimer}+pagination+disclaimer` + `sort=anomaly pageSize=5 minZ2.0` is Money Leak Radar Top5 | `curl /api/v1/anomalies?market=id&minZ=2.0&pageSize=5 → 200 Top5 \|Z\| desc` (future) |
+| b | `docs/api-spec.md §3` | `GET /api/v1/tickers/:ticker/dossier?format=json\|pdf&lang=id&market=id` + `GET /api/v1/backtest?market=id` (static `research/backtest-100.json` 100 real) | dossier `{ticker,market,lang:id,score,breakdown:Components 30/20/30/20,peerComparison[5] QV distance+cap±50%,kronos:{forecastReturn,volatility,chartPoints[20],volBand±2σ},research:{fundamentalMemo,technicalMemo,synthesizerMemo ID},degraded,disclaimer} + 9-section PDF contract → `research/backtest-100.json {as_of,universe:100,items,metrics:{hit_rate,drawdown,sharpe,top5_forward_20d},equity_curve}` envelope `success/data/error/pagination + x-schema-version` | `curl /api/v1/tickers/BBCA/dossier?format=json&lang=id → 200 peer[5] + dossier.rs DISCLAIMER` / `curl /api/v1/backtest → 200 equity_curve` (future) |
+| c | `apps/web/lib/api.ts` spec | `fetchRanking({market,sector,sort,order,page,pageSize,minZ})` + `fetchAnomalies + fetchBacktest + fetchDossier(ticker,{market,format,lang})` + zod `rankingDataSchema/scoreDataSchema/dossierDataSchema(peerComparison[5])/backtestDataSchema + envSchema + Pagination + langSchema` | `baseUrl()=process.env.NEXT_PUBLIC_API_BASE ?? ""` + `fetchEnvelope(path,schema)` + `x-schema-version` check + `Authorization` not in client + `lang=id` default + `DossierPDF` consumes `peerComparison[5]` | `pnpm test lib/api.test.ts` 3→6 cases (ranking sg/dossier BBCA/disclaimer ID + anomalies Top5 + backtest + dossier peer[5]) |
 | d | `apps/web/next.config.js` spec | `rewrites: [{source:'/api/v1/:path*', destination:'http://localhost:8181/api/v1/:path*'}]` + `NEXT_PUBLIC_API_BASE=http://localhost:8181` env handling | dev `localhost:3000/api/v1/ranking → 8181` without CORS, prod `NEXT_PUBLIC_API_BASE` override | `pnpm build` no 404 without env |
 
 ## Deliverables + Acceptance
-- `docs/api-spec.md §3` updated with `anomalies Top5` + `backtest` contract + `lib/api.ts` zod schemas `sort/order/minZ/degraded/insufficientData` + envelope — no crate edit
-- `apps/web/lib/api.ts` contract doc + `next.config.js` rewrites doc — docs-only, no fetch impl yet
-- `fn<50` N/A docs-only, `gitleaks 0`, `cargo fmt --check 0 + clippy --all-targets 0 + cargo test 145 + uv 17 + pnpm lint/typecheck 0` no drift (prove)
+- `docs/api-spec.md §3` updated with `anomalies Top5` + `dossier ?format=json|pdf&lang=id` 9-section 2-page + `backtest` contract + `lib/api.ts` zod schemas `sort/order/minZ/degraded/insufficientData/lang/peerComparison[5]` + envelope `success/data/error/pagination + x-schema-version + disclaimer` — no crate edit, `dossier.rs:5 DISCLAIMER` always
+- `apps/web/lib/api.ts` contract doc + `next.config.js` rewrites doc + `DossierPDF.tsx` consumes `peer[5] QV+cap±50%` — docs-only, no fetch impl yet, `lang=id` default (EN future toggle)
+- `fn<50` N/A docs-only, `gitleaks 0`, `cargo fmt --check 0 + clippy --all-targets 0 + cargo test 145 + uv 17 + pnpm lint/typecheck 0` no drift (prove) + `grep peerComparison crates/seith-core/src/dossier.rs → 1`
 
 ## Verification
 ```
@@ -43,10 +43,12 @@ gitleaks detect --no-git -v → 0 leak
 - ♻️ Refactor: docs-only — keep contract narrow, DRY with 02+03
 
 ## Peran + Skill + Sub-agent
-| Peran | Eksekutor | Skill | Sub-agent |
-|---|---|---|---|
-| API Designer | `architect` | `senior-architect` + `no-ai-slop` | — |
-| Docs | `doc-updater` | `remember`+`handoff`+`no-ai-slop` | — |
+| Peran | Eksekutor | Skill | Sub-agent | Kapan |
+|---|---|---|---|---|
+| T1 Docs | sub-agent | `seith-market-intelligence` + `no-ai-slop` + `verification-loop` + `remember`+`handoff`+`no-ai-slop` | `doc-updater` | docs-only 01 — api-contract Top5 backtest |
+| Founder | User | — | — | approve Top5 vs full backtest priority |
+| Architect | `architect` | `senior-architect` + `no-ai-slop` | `architect` | SEBELUM 01 — audit envelope + Bloomberg dark |
+| Doc | `doc-updater` | `remember`+`handoff`+`no-ai-slop` | `doc-updater` | sinkron docs/api-spec §3 |
 
 ## Next Session Prompt
 `skill://seith-market-intelligence` + branch `handoff/10-web-visual` + task `01-api-contract.md` + ritual 3Q

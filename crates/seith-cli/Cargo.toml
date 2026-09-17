@@ -11,3 +11,5 @@ serde_json.workspace = true
 clap.workspace = true
 anyhow.workspace = true
 tokio.workspace = true
+chrono.workspace = true
+rusqlite.workspace = true

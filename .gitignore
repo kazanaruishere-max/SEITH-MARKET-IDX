@@ -1,4 +1,7 @@
 /target/
+/target-pm-audit/
+/target-pm-verify/
+test_out.txt
 **/.venv/
 .env
 .env.local
@@ -16,9 +19,17 @@ __pycache__/
 *.pyc
 apps/analysis/uv.lock
 apps/kronos-sidecar/uv.lock
+research/uv.lock
 apps/web/pnpm-lock.yaml
 api.log
 api.err.log
 serve.log
 serve.err.log
+*-boot.log
+*-boot.err.log
 research/probe-api.ps1
+
+research/*.out.json
+research/*.html
+temp_*.rs
+temp_*.toml

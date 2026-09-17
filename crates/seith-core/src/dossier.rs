@@ -47,6 +47,7 @@ pub fn compose(
     kronos: KronosSection,
     research: ResearchSection,
 ) -> Dossier {
+    let degraded = kronos.chart_points.is_empty();
     Dossier {
         ticker,
         market,
@@ -55,18 +56,33 @@ pub fn compose(
         peer_comparison: peers,
         kronos,
         research,
-        degraded: false,
+        degraded,
         disclaimer: DISCLAIMER.to_string(),
     }
+}
+
+fn pdf_escape(s: &str) -> String {
+    let mut out = String::with_capacity(s.len());
+    for c in s.chars() {
+        match c {
+            '(' | ')' | '\\' => {
+                out.push('\\');
+                out.push(c);
+            }
+            c if c.is_control() => {}
+            c => out.push(c),
+        }
+    }
+    out
 }
 
 pub fn to_pdf_bytes(d: &Dossier) -> Vec<u8> {
     let body = format!(
         "BT /F1 12 Tf 50 750 Td (SEITH Dossier {} {} {:.1}) Tj ET\nBT 50 730 Td ({}) Tj ET\n",
-        d.ticker,
+        pdf_escape(&d.ticker),
         d.market.as_str(),
         d.score,
-        d.disclaimer
+        pdf_escape(&d.disclaimer)
     );
     let mut out = Vec::new();
     out.extend_from_slice(b"%PDF-1.4\n");
@@ -111,6 +127,11 @@ mod tests {
         );
         assert_eq!(d.disclaimer, DISCLAIMER);
     }
+    #[test]
+    fn pdf_escape_parens_backslash() {
+        assert_eq!(pdf_escape("A(B)\\C"), "A\\(B\\)\\\\C");
+    }
+
     #[test]
     fn pdf_starts_with_header() {
         let d = compose(

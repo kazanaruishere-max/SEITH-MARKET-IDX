@@ -39,9 +39,12 @@ jq .metrics research/backtest-100.json → hit_rate etc (future)
 - ♻️ Refactor: keep schema narrow, DRY with 03
 
 ## Peran + Skill + Sub-agent
-| Peran | Eksekutor | Skill | Sub-agent |
-|---|---|---|---|
-| Docs+Arch | `architect` | `senior-architect` + `seith-kronos` | — |
+| Peran | Eksekutor | Skill | Sub-agent | Kapan |
+|---|---|---|---|---|
+| T1 Docs | sub-agent | `seith-market-intelligence` + `seith-kronos` + `verification-loop` + `remember`+`handoff`+`no-ai-slop` | `doc-updater` | docs-only 02 — backtest contract + notebook spec |
+| Founder | User | — | — | approve backtest schema + metrics (Sharpe/maxDD) |
+| Architect | `architect` | `senior-architect` + `seith-kronos` | `architect` | SEBELUM 02 — audit pipeline 8 gerbang |
+| Doc | `doc-updater` | `remember`+`handoff`+`no-ai-slop` | `doc-updater` | sinkron backtest-contract.md |
 
 ## Next Session Prompt
 `skill://seith-market-intelligence` + branch `handoff/09-100-backtest` + task `02-backtest-pipeline.md` + ritual 3Q

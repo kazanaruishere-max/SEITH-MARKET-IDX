@@ -35,6 +35,7 @@ Non-critical (util, UI presentational): test ringan.
 - Mock: `mockito`/`wiremock` untuk Sectors/Kronos/9router; Kronos predictor mock deterministik fixture.
 
 ## 6. Workflow per Handoff (T1/T2 wajib skill://seith-market-intelligence di awal)
+0) Buka `todowrite` setelah Plan — exactly-one `in_progress`, update realtime (AGENTS §8d). Tanpa jejak todo = FAIL.
 1) Tulis failing test untuk slice berikutnya (mis. `score clamp 0-100`, `cleanse missing OHLC → exclude`, `CompositeCache L1 miss → L2 hit`, `market sg → sg endpoint`, `kronos timeout → degraded`, `9router down → template memo`).
 2) Implement minimal (immutable return, fn <50 baris, nesting ≤4).
 3) Green → refactor → `cargo fmt`/`clippy`.
@@ -53,6 +54,7 @@ Non-critical (util, UI presentational): test ringan.
 Internals Kronos, Sectors API itself, LLM prose exact (assert shape + disclaimer + degraded flag, bukan string equality), SQLite durability beyond trait (mocked).
 
 ## 9. Checklist Before Claim Done
+- `todowrite` trace `pending→in_progress→completed` ada — klaim done tanpa todo = FAIL.
 - `cargo test` (incl. seith-cli + sectors-client CompositeCache) + `uv run pytest` pass, assertion meaningful (no assertion-less test).
 - `cargo clippy` clean (`-D warnings`), `cargo fmt --check` clean.
 - `pnpm lint/typecheck` clean jika sentuh FE.

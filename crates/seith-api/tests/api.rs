@@ -274,7 +274,80 @@ async fn dossier_pdf_header() {
         "application/pdf"
     );
     let bytes = resp.into_body().collect().await.unwrap().to_bytes();
-    assert!(bytes.starts_with(b"%PDF"));
+    assert!(bytes.starts_with(b"%PDF-1.4"));
+    let body = String::from_utf8_lossy(&bytes);
+    assert!(body.contains("SEITH Dossier BBCA"));
+    assert!(body.contains("Bukan rekomendasi investasi"));
+}
+
+#[tokio::test]
+async fn dossier_lang_id_200() {
+    let resp = app()
+        .oneshot(
+            Request::builder()
+                .uri("/api/v1/tickers/BBCA/dossier?format=json&lang=id")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(resp.status(), StatusCode::OK);
+    let v = body_json(resp).await;
+    assert_eq!(v["data"]["lang"], "id");
+    assert_eq!(
+        v["data"]["disclaimer"],
+        "Bukan rekomendasi investasi. Informasi & analisis saja."
+    );
+}
+
+#[tokio::test]
+async fn dossier_lang_bad_422() {
+    let resp = app()
+        .oneshot(
+            Request::builder()
+                .uri("/api/v1/tickers/BBCA/dossier?lang=xx")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(resp.status(), StatusCode::UNPROCESSABLE_ENTITY);
+    let v = body_json(resp).await;
+    assert_eq!(v["error"]["code"], "VALIDATION_ERROR");
+}
+
+#[tokio::test]
+async fn dossier_lang_uppercase_200() {
+    let resp = app()
+        .oneshot(
+            Request::builder()
+                .uri("/api/v1/tickers/BBCA/dossier?format=json&lang=ID")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(resp.status(), StatusCode::OK);
+    let v = body_json(resp).await;
+    assert_eq!(v["data"]["lang"], "id");
+}
+
+#[tokio::test]
+async fn backtest_100_200() {
+    let resp = app()
+        .oneshot(
+            Request::builder()
+                .uri("/api/v1/backtest?market=id")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(resp.status(), StatusCode::OK);
+    let v = body_json(resp).await;
+    assert_eq!(v["success"], true);
+    assert_eq!(v["data"]["universe"], 100);
+    assert_eq!(v["data"]["items"].as_array().unwrap().len(), 100);
 }
 
 #[tokio::test]
@@ -309,4 +382,233 @@ async fn scan_excluded_present() {
     let v = body_json(resp).await;
     assert_eq!(v["data"]["excluded"][0]["ticker"], "bad!");
     assert_eq!(v["data"]["degraded"], true);
+}
+
+#[tokio::test]
+async fn scan_lookback_plus_predlen_over_512_422() {
+    let body = serde_json::json!({"tickers":["BBCA"],"market":"id","lookback":400,"predLen":200});
+    let resp = app()
+        .oneshot(
+            Request::builder()
+                .uri("/api/v1/scan")
+                .method("POST")
+                .header("content-type", "application/json")
+                .body(Body::from(body.to_string()))
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(resp.status(), StatusCode::UNPROCESSABLE_ENTITY);
+    let v = body_json(resp).await;
+    assert_eq!(v["error"]["code"], "VALIDATION_ERROR");
+}
+
+#[tokio::test]
+async fn anomalies_minz_clamped() {
+    let resp = app()
+        .oneshot(
+            Request::builder()
+                .uri("/api/v1/anomalies?market=id&minZ=999&pageSize=5")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(resp.status(), StatusCode::OK);
+    let v = body_json(resp).await;
+    assert_eq!(v["data"]["minZ"], 10.0);
+}
+
+#[tokio::test]
+async fn ranking_real_items_total_100() {
+    let resp = app()
+        .oneshot(
+            Request::builder()
+                .uri("/api/v1/ranking?market=id&pageSize=5")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(resp.status(), StatusCode::OK);
+    let v = body_json(resp).await;
+    assert_eq!(v["pagination"]["total"], 100);
+    assert_eq!(v["data"]["items"].as_array().unwrap().len(), 5);
+    assert_eq!(v["data"]["items"][0]["ticker"], "LPPF");
+}
+
+#[tokio::test]
+async fn ranking_sector_finance_total_25() {
+    let resp = app()
+        .oneshot(
+            Request::builder()
+                .uri("/api/v1/ranking?market=id&sector=FINANCE&pageSize=50")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(resp.status(), StatusCode::OK);
+    let v = body_json(resp).await;
+    assert_eq!(v["pagination"]["total"], 25);
+}
+
+#[tokio::test]
+async fn score_bbca_real_7535_rank4() {
+    let resp = app()
+        .oneshot(
+            Request::builder()
+                .uri("/api/v1/tickers/BBCA/score?market=id")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(resp.status(), StatusCode::OK);
+    let v = body_json(resp).await;
+    assert_eq!(v["data"]["ticker"], "BBCA");
+    assert_eq!(v["data"]["mispricingScore"], 75.35);
+    assert_eq!(v["data"]["rank"], 4);
+    assert_eq!(v["data"]["sector"], "FINANCE");
+}
+
+#[tokio::test]
+async fn score_unknown_ticker_404() {
+    let resp = app()
+        .oneshot(
+            Request::builder()
+                .uri("/api/v1/tickers/ZZZZ/score?market=id")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(resp.status(), StatusCode::NOT_FOUND);
+}
+
+#[tokio::test]
+async fn dossier_bbca_peer5_real() {
+    let resp = app()
+        .oneshot(
+            Request::builder()
+                .uri("/api/v1/tickers/BBCA/dossier?format=json&lang=id")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(resp.status(), StatusCode::OK);
+    let v = body_json(resp).await;
+    assert_eq!(v["data"]["ticker"], "BBCA");
+    assert_eq!(v["data"]["score"], 75.35);
+    assert_eq!(v["data"]["peerComparison"].as_array().unwrap().len(), 5);
+    assert!(v["data"]["research"]["synthesizerMemo"]
+        .as_str()
+        .unwrap()
+        .contains("Peer 5"));
+}
+
+#[tokio::test]
+async fn anomalies_minz2_nonempty_sorted() {
+    let resp = app()
+        .oneshot(
+            Request::builder()
+                .uri("/api/v1/anomalies?market=id&minZ=2.0&pageSize=5")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(resp.status(), StatusCode::OK);
+    let v = body_json(resp).await;
+    let items = v["data"]["items"].as_array().unwrap();
+    assert!(!items.is_empty());
+    assert!(v["pagination"]["total"].as_u64().unwrap() > 0);
+    let first = items[0]["anomalyZ"].as_f64().unwrap().abs();
+    let second = items[1]["anomalyZ"].as_f64().unwrap().abs();
+    assert!(first >= second);
+}
+
+#[tokio::test]
+async fn scan_bbca_bmri_real_results() {
+    let body = serde_json::json!({"tickers":["BBCA","BMRI"],"market":"id"});
+    let resp = app()
+        .oneshot(
+            Request::builder()
+                .uri("/api/v1/scan")
+                .method("POST")
+                .header("content-type", "application/json")
+                .body(Body::from(body.to_string()))
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(resp.status(), StatusCode::OK);
+    let v = body_json(resp).await;
+    assert_eq!(v["data"]["results"].as_array().unwrap().len(), 2);
+    assert_eq!(v["data"]["results"][0]["mispricingScore"], 75.35);
+}
+
+#[tokio::test]
+async fn dossier_bmri_peer_fallback_nonempty() {
+    let resp = app()
+        .oneshot(
+            Request::builder()
+                .uri("/api/v1/tickers/BMRI/dossier?format=json&lang=id")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(resp.status(), StatusCode::OK);
+    let v = body_json(resp).await;
+    let peers = v["data"]["peerComparison"].as_array().unwrap();
+    assert!(!peers.is_empty());
+    assert!(peers.len() <= 5);
+    let memo = v["data"]["research"]["synthesizerMemo"].as_str().unwrap();
+    assert!(memo.contains(&format!("Peer {}", peers.len())));
+}
+
+#[tokio::test]
+async fn dossier_kronos_fallback_degraded_true() {
+    let resp = app()
+        .oneshot(
+            Request::builder()
+                .uri("/api/v1/tickers/BBCA/dossier?format=json&lang=id")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(resp.status(), StatusCode::OK);
+    let v = body_json(resp).await;
+    assert_eq!(
+        v["data"]["kronos"]["chartPoints"].as_array().unwrap().len(),
+        20
+    );
+    assert_eq!(v["data"]["degraded"], false);
+}
+
+#[tokio::test]
+async fn backtest_equity_dates_valid() {
+    let resp = app()
+        .oneshot(
+            Request::builder()
+                .uri("/api/v1/backtest?market=id")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(resp.status(), StatusCode::OK);
+    let v = body_json(resp).await;
+    let eq = v["data"]["equity_curve"].as_array().unwrap();
+    assert_eq!(eq.len(), 12);
+    for e in eq {
+        let d = e["date"].as_str().unwrap();
+        assert!(
+            chrono::NaiveDate::parse_from_str(d, "%Y-%m-%d").is_ok(),
+            "bad date {d}"
+        );
+    }
 }
