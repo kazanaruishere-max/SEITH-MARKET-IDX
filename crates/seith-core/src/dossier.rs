@@ -77,24 +77,39 @@ fn pdf_escape(s: &str) -> String {
 }
 
 pub fn to_pdf_bytes(d: &Dossier) -> Vec<u8> {
-    let body = format!(
-        "BT /F1 12 Tf 50 750 Td (SEITH Dossier {} {} {:.1}) Tj ET\nBT 50 730 Td ({}) Tj ET\n",
+    let body1 = format!(
+        "BT /F1 12 Tf 50 750 Td (SEITH Dossier {} {} {:.1}) Tj ET\nBT 50 730 Td ({}) Tj ET\nBT 50 710 Td (Page 1/2 Cover Executive Mispricing) Tj ET\n",
         pdf_escape(&d.ticker),
         d.market.as_str(),
         d.score,
+        pdf_escape(&d.disclaimer)
+    );
+    let body2 = format!(
+        "BT /F1 10 Tf 50 750 Td (Fundamental: {}) Tj ET\nBT 50 730 Td (Teknikal: {}) Tj ET\nBT 50 710 Td (Sintesis: {}) Tj ET\nBT 50 690 Td ({}) Tj ET\n",
+        pdf_escape(&d.research.fundamental_memo),
+        pdf_escape(&d.research.technical_memo),
+        pdf_escape(&d.research.synthesizer_memo),
         pdf_escape(&d.disclaimer)
     );
     let mut out = Vec::new();
     out.extend_from_slice(b"%PDF-1.4\n");
     out.extend_from_slice(
         format!(
-            "1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj\n2 0 obj << /Type /Pages /Kids [3 0 R] /Count 1 >> endobj\n3 0 obj << /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >> >> endobj\n4 0 obj << /Length {} >> stream\n",
-            body.len()
+            "1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj\n2 0 obj << /Type /Pages /Kids [3 0 R 5 0 R] /Count 2 >> endobj\n3 0 obj << /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 4 0 R /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >> >> endobj\n4 0 obj << /Length {} >> stream\n",
+            body1.len()
         )
         .as_bytes(),
     );
-    out.extend_from_slice(body.as_bytes());
-    out.extend_from_slice(b"\nendstream endobj\nxref\n0 5\n0000000000 65535 f \ntrailer << /Root 1 0 R /Size 5 >>\nstartxref\n0\n%%EOF");
+    out.extend_from_slice(body1.as_bytes());
+    out.extend_from_slice(
+        format!(
+            "\nendstream endobj\n5 0 obj << /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 6 0 R /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >> >> endobj\n6 0 obj << /Length {} >> stream\n",
+            body2.len()
+        )
+        .as_bytes(),
+    );
+    out.extend_from_slice(body2.as_bytes());
+    out.extend_from_slice(b"\nendstream endobj\nxref\n0 7\n0000000000 65535 f \ntrailer << /Root 1 0 R /Size 7 >>\nstartxref\n0\n%%EOF");
     out
 }
 

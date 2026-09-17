@@ -19,6 +19,7 @@
     "seith-data-reviewer",
     "seith-quant-reviewer",
     "seith-security-reviewer",
-    "seith-doc-reviewer"
+    "seith-doc-reviewer",
+    "seith-jury"
   ]
 }

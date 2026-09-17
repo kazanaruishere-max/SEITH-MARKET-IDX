@@ -1,9 +1,10 @@
-/** @type {import('next').NextConfig} */
+﻿/** @type {import('next').NextConfig} */
 const nextConfig = {
   async rewrites() {
+    const base = process.env.NEXT_PUBLIC_API_BASE || 'http://127.0.0.1:8181';
     return [
-      { source: '/api/v1/:path*', destination: 'http://127.0.0.1:8181/api/v1/:path*' },
-      { source: '/health', destination: 'http://127.0.0.1:8181/health' },
+      { source: '/api/v1/:path*', destination: base + '/api/v1/:path*' },
+      { source: '/health', destination: base + '/health' },
     ];
   },
 };

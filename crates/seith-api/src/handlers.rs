@@ -200,8 +200,9 @@ pub struct ScanBody {
 
 pub async fn health() -> Response {
     let db = bd::db_counts().unwrap_or((0, 0));
+    let degraded = db.0 == 0;
     let body = ok_body(
-        json!({"status":"ok","schema":SCHEMA_VERSION, "db":{"ohlcv": db.0, "fundamentals": db.1}}),
+        json!({"status":"ok","schema":SCHEMA_VERSION, "degraded": degraded, "db":{"ohlcv": db.0, "fundamentals": db.1}}),
     );
     with_schema(body, StatusCode::OK)
 }
@@ -476,9 +477,9 @@ fn dossier_pdf(
         Vec::new(),
         kronos_sec,
         dossier::ResearchSection {
-            fundamental_memo: memo.clone(),
-            technical_memo: memo.clone(),
-            synthesizer_memo: memo,
+            fundamental_memo: format!("{} — Fundamental", memo.clone()),
+            technical_memo: format!("{} — Teknikal |Z|/vol", memo.clone()),
+            synthesizer_memo: format!("{} — Sintesis", memo),
         },
     );
     dossier::to_pdf_bytes(&d)
