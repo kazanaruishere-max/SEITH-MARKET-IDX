@@ -35,3 +35,4 @@ research/*.html
 dev-web.log
 serve.log
 
+.coverage
