@@ -185,3 +185,32 @@ pub fn dossier_memo(it: &Value, peer_count: usize) -> String {
         peer_count
     )
 }
+
+pub fn research_of(it: &Value) -> Option<(String, String, String)> {
+    let r = it.get("research")?;
+    if r.get("source").and_then(|s| s.as_str()) != Some("llm") {
+        return None;
+    }
+    let f = r
+        .get("fundamental_memo")
+        .and_then(|s| s.as_str())
+        .unwrap_or("")
+        .trim()
+        .to_string();
+    let t = r
+        .get("technical_memo")
+        .and_then(|s| s.as_str())
+        .unwrap_or("")
+        .trim()
+        .to_string();
+    let s = r
+        .get("synthesizer_memo")
+        .and_then(|s| s.as_str())
+        .unwrap_or("")
+        .trim()
+        .to_string();
+    if f.is_empty() && t.is_empty() && s.is_empty() {
+        return None;
+    }
+    Some((f, t, s))
+}

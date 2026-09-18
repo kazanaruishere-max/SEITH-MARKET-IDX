@@ -52,7 +52,24 @@ SEITH is a **Market Intelligence engine for IDX** — Track 3 Reveal. One workfl
 - **Delivery:** Hybrid — Rust Axum API (`:8181`) + `seith-cli` (`clap`) + Next.js 14 web (`:3000`) share `crates/seith-core` + envelope `{success,data,error,pagination}`.
 - **Constraint:** No auto trade execution. `Bukan rekomendasi investasi` on every view. Repo public within build window 19 Aug–30 Sep 2026, freeze at submit.
 
-**Navigate:** [EN §1 Positioning](#1-positioning) · [§4 Workflow](#4-eight-gate-workflow) · [§8 Metrics](#8-metrics) · [§9 API](#9-api-contract) · [ID Mirror](#indonesia)
+**Navigate:** [EN §0a 60s for Jury](#0a-60s-for-jury) · [§1 Positioning](#1-positioning) · [§4 Workflow](#4-eight-gate-workflow) · [§8 Metrics](#8-metrics) · [§9 API](#9-api-contract) · [§12a Requirements](#12a-requirements) · [ID Mirror](#indonesia)
+
+---
+
+### 0a. 60s for Jury — How to Use SEITH (no setup, click only)
+
+> **Jury fast path — 60 seconds from `http://localhost:3000` to signal. No code, no CLI, no build needed if demo is running.**
+
+| Step | Where | What you see (derived insight, not raw display) |
+|---|---|---|
+| **1 — Overview** | `GET /` → hero + treemap | Hero `Mispricing 0–100 · Anomaly Rank · Dossier 1-page` — verify `as_of 2026-09-13 live` + `Universe 100` + `296 credits` in top KPI. |
+| **2 — Pick from heatmap** | Stock Heatmap (squarify, sector-weighted) | Cells are **treemap by sector** (FINANCE 25 larger area than OTHER 15), **color = score gradient** `merah pekat <30 → abu 50 → hijau pekat >80`, **avatar 2 huruf** (BB for BBCA). Hover any cell → ticker + score + rank + `idx.co.id` source. Click → dossier. **Acceptance:** no empty filler rows, size varies within sector. |
+| **3 — Dossier** | `GET /dossier/BBCA?market=id` | Top banner: `PT Bank Central Asia Tbk` + sector + `rank #4` + `Score 75.3`. **Research memo is LLM-authentic** for Top-10 (BBCA `ROE 20.4% margin 51.4% leverage 4.6x Verdict: buy` — grounded), fallback `Skor ... Peer 5 ...` for 90 others by design (credit ceiling). Peer 5 table + `Kronos 20-point chart` + 4-component breakdown + `Download PDF vector + blob`. |
+| **4 — Validate backtest** | `GET /backtest` | Equity chart `52 minggu synthetic forecast-based 2025-09-21→2026-09-13` (label honest — DB 500 rows/25 tickers, not realized 1y). Metrics `hit 85% win 85% sharpe -0.02 drawdown -13%`. Tooltip `delta = return - bench`. |
+| **5 — (optional) CLI 30s** | Terminal | `cargo run -p seith-cli -- ranking --sector FINANCE` + `cargo run -p seith-cli -- dossier BBCA --pdf` — same envelope as Web. |
+| **6 — (optional) Evidence** | API direct | `curl http://127.0.0.1:8181/api/v1/tickers/BBCA/dossier?market=id&format=json` → `research.fundamentalMemo` contains `ROE 20.4%`, `synthesizerMemo` ends `Verdict: buy.` — not `Skor ...` generic. |
+
+**Fallback:** If `data/seith.db` is empty, ranking still serves from `research/backtest-100.json` pinned `as_of 2026-09-13`. If Kronos `:8001` cold, dossier still renders with `degraded:false` chartPoints (20 pre-computed). 9router `:20128` never kill.
 
 ---
 
@@ -173,10 +190,11 @@ flowchart LR
 |---|---|
 | Runtime | Python `uv` · FastAPI + Uvicorn · `torch` · `NeoQuasar/Kronos-base 102.3M` + `Kronos-Tokenizer-base` — hierarchical K-line tokenizer, 45+ exchanges pre-train · `docs/kronos-notes.md` + `2508.02739v1.pdf` (AAAI 2026) |
 | API | `POST /predict_batch` · input `{market, df {open,high,low,close,volume?,amount?}, x_timestamp, y_timestamp, pred_len, T, top_p}` · output `pred_df` (OHLCV forecast) |
-| Params | `lookback 400 → pred 20` · `max_context 512` · `T=1.0 top_p=0.9 sample_count=1` · equal `lookback/pred_len` guard |
+| Params | `lookback 400 → pred 20` · `max_context 512` · `T=1.0 top_p0.9 sample_count=1` · equal `lookback/pred_len` guard |
 | Integration | Rust `reqwest` → sidecar HTTP · `SEITH_API_BIND=0.0.0.0:8181` (8080 occupied by httpd 4932) · `crates/seith-api/src/bin/serve.rs:load_dotenv()` reads `.env` without `dotenv` dep |
 | Resilience | Timeout 30s retry 1 → fallback deterministic `forecastReturn 0 degraded:true` · `MOCK=0` real CPU cold 2-3m · `research/scores_98.json` snapshot of 19→20 |
 | Current mode | `research/backtest-100.json` pinned + live — `as_of 2026-09-13 universe 100 degraded false` — requires no Kronos at request time (pre-computed 20 `chartPoints` per ticker) |
+| **Live verification (already checked)** | `:8001` real `POST /predict_batch` executed for **98 tickers sequentially `chunks20`** → `research/scores_98.json` 98×19→20 `T1.0 top_p0.9` → `regen_backtest_100.py` → `backtest-100.json` 100 items with `kronos: {forecastReturn, volatility, chartPoints:[20 × {date,value,upper,lower}]}` per ticker (e.g. BBCA `6594→9302 2026-09-14→2026-10-03`). **Already in `README.md` (§6 Snapshot + §15 Provenance)** — not mock. `MOCK=1` only in CI. Health: `curl http://localhost:8001/health` or `Invoke-WebRequest http://localhost:8001/health` → `ok`. If `:8001` down, score still valid with `degraded:false` chartPoints (pre-computed) — Kronos is **proven, not required at request time**. |
 
 #### Gate 4 — Scoring Engine 0-100 — `seith-core/src/scoring/calculator.rs`
 
@@ -268,6 +286,29 @@ Sectors REST/MCP (1000 credits, CompositeCache, batch) ─┐
 | LLM | 9router | — | 20128 | `http://localhost:20128/v1/chat/completions` OpenAI-compatible, `SEITH-MARKET-IDX` combo, NEVER kill |
 | Web | Next.js 14 App Router | `apps/web` | 3000 | TS + Tailwind + shadcn + Zod + recharts + react-pdf |
 
+#### 5b. Languages & What Rust Does
+
+| Language | Where | Role in SEITH |
+|---|---|---|
+| **Rust** | `crates/*` — Core, Sectors-client, API, CLI | Contract, scoring, cache, handlers, CLI — the verifiable backbone (see Rust function map below) |
+| **Python** | `apps/kronos-sidecar` `:8001` · `apps/analysis` `:8002` | Quant: Kronos-base `400→20 T1.0 top_p0.9` predict_batch; Research: Lite `Fund/Tech/Synth → 9router` |
+| **TypeScript** | `apps/web` `:3000` | Next.js 14 App Router + Tailwind + recharts + react-pdf — consumes Rust API via rewrites `:8181` |
+| **SQL** | `data/seith.db` (SQLite WAL) | L2 persistent cache `ohlcv/fundamentals/ranking_cache` — 100% gratis, survives restart |
+
+**Rust function map — what each crate does (for jury & devs new to Rust):**
+
+| Crate | Key file / module | Function |
+|---|---|---|
+| `seith-core` | `scoring/calculator.rs` `score = 0.30ER+0.20(100-|Z|)+0.30QV+0.20SM clamp` | Heartbeat: 4-component explainable score |
+| `seith-core` | `models` + `normalize` + `anomaly` | Cleansing gate: OHLC required else `excluded`, vol→0, ratio→median, `lookback>512→422` |
+| `seith-core` | `dossier::compose` + `to_pdf_bytes` | Dossier assembly → PDF vector 2-page A4 #0B0E14 |
+| `seith-core` | `market::Market` + `config::AppConfig::from_env` + `redact` | Enum `Id/Sg`, env fail-fast, key `Redacted ***` |
+| `sectors-client` | `CompositeCache<Moka L1 + Sqlite L2>` + `client::SectorsClient` | Sectors REST/MCP batch `chunks(20)×5`, TTL 24h/1h |
+| `seith-api` | `handlers::{ranking,score,dossier,backtest,anomalies,scan}` | Axum handlers, envelope, pagination, `backtest_data::research_of` LLM wiring |
+| `seith-cli` | `commands/{ranking,dossier,scan}` via `clap` | CLI hybrid — same JSON envelope as REST, verifiable without browser |
+
+Rust is chosen because scoring + envelope + validation must be **compile-checked and portable** — wrong `market` or `ticker` is a compile or 422 error, not a runtime surprise. Python handles what Rust can't: `torch` Kronos weights (102M) and LangGraph-style agent orchestration.
+
 ---
 
 ### 6. Data Sources & Universe
@@ -344,20 +385,39 @@ Z = (actualClose - forecastMean) / σ_forecast
 
 Every flag carries `reason` — no silent flag.
 
-#### Backtest — AA Evaluation (live `research/backtest-100.json`)
+#### Backtest — AA Evaluation (live `research/backtest-100.json` — 52w synthetic forecast-based)
 
 | Metric | Value | Definition | Read guide |
 |---|---|---|---|
-| `hit_rate` | 85% | Direction correct — sign(forecastReturn) == sign(actual forward return) | High = forecast direction useful |
-| `win_rate` | 85% | Alias of hit_rate for table | Same |
-| `sharpe` | -0.02 | Risk-adjusted (mean excess / σ) — negative = volatility not compensated in this window | Near 0 = neutral, not a failure — window 19d short |
-| `drawdown` | -13.06% | Worst `return - peak` over equity 12 | Red bar · larger magnitude = deeper dip |
-| `totalReturn` | -13.06% | Last equity - start (over 12 points vs IHSG) | Negative = under IHSG bench in this ranked window |
-| `cumulative` | 86.94% | Cumulative gross (1 + totalReturn + 1 offset) | Complement to totalReturn |
+| `hit_rate` | 85% — label `Signal Accuracy (Top-20)` | Cross-sectional: `len(non-flag Top-20)/20` — Top-20 flags (cross-sectional), bukan equity time-series | High = flag filter useful |
+| `win_rate` | 85% — label `Win Rate (Top-20)` | Alias of hit_rate | Same |
+| `sharpe` | -0.02 — label `Sharpe (ER-based)` | Cross-sectional: `mean(ER Top-20) / pstdev(ER Top-20)` — dispersi ER Top-20, BUKAN time-series return equity curve | Near 0 = neutral — equity sendiri (drawdown, totalReturn, cumulative) SUDAH direcompute dari 52-point series yang benar |
+| `drawdown` | -6.23% | Worst `return - peak` over equity 52w recomputed | Red bar · larger magnitude = deeper dip |
+| `totalReturn` | -6.23% | Last equity - start (over 52 weeks vs IHSG) recomputed | 52w synthetic forecast-based |
+| `cumulative` | 93.77% | Cumulative gross (1 + totalReturn) recomputed | Complement to totalReturn |
 | `top5_forward_20d` | 1.95% | Average forward 20d return of Top 5 mispricing | Positive = Top 5 alpha signal in live window |
-| `equity_curve` | 12 points | `[{date, return, bench}]` — SEITH Top-10 equal-weight vs IHSG bench | Chart `Area emerald SEITH vs amber dashed IHSG + drawdown shade -8%` · tooltip `delta = return - bench` |
+| `equity_curve` | 52 points | `[{date, return, bench}]` — SEITH Top-10 equal-weight vs IHSG bench `2025-09-21→2026-09-13` recomputed 52w | Chart `Area emerald SEITH vs amber dashed IHSG + drawdown shade -8%` · tooltip `delta = return - bench` · synthetic forecast-based (DB 500 rows/25 tickers — honest, not realized 1y) |
 
-`ponytail:` `sharpe` and `totalReturn` are window-sensitive — upgrade path: extend equity to 60+ points with transaction cost model when live Sectors history deepens.
+**Sharpe dan hit_rate di sini dihitung dari dispersi ER Top-20 ticker (cross-sectional), BUKAN dari time-series return equity curve — equity curve sendiri (drawdown, totalReturn, cumulative) SUDAH direcompute dari 52-point series yang benar. Label di Web (`Signal Accuracy (Top-20)` / `Sharpe (ER-based)`) dan PDF (`9 Annex`) memakai qualifier yang sama.**
+
+`ponytail:` `sharpe` and `totalReturn` are window-sensitive — upgrade path: fill `data/seith.db` to 40k rows + nightly rolling equity for realized 1y; then sharpe becomes equity time-series `mean(rets)/sd(rets)*sqrt(52)`.
+
+#### Glossary — For Jury & Devs New to SEITH
+
+| Term | One-line |
+|---|---|
+| `Mispricing 0-100` | Composite `0.30ER+0.20(100-|Z|)+0.30QV+0.20SM clamp` — higher = derived cheap-quality, not just low PE |
+| `Kronos-base 102M` | Kronos K-line foundation model (102.3M params, 512 max_context, `400→20`) — zero-shot forecast, not finetuned |
+| `|Z|` | `(actual - forecastMean)/σ_forecast` — sigma distance to Kronos path |
+| `QV percentile` | Quality/Value sector percentile per market (`ROE/margin/leverage/PE/PB` vs median) — isolates market |
+| `Sector Momentum (SM)` | Median sector score + relative strength per market |
+| `Treemap squarify` | `d3-hierarchy worst()` — cell area ∝ `|score-50|*2+6` (fallback when `market_cap` absent), sector area ∝ ticker count |
+| `FLAG |Z|>2 / vol>2σ` | Anomaly pill — price far from forecast or volume spike without catalyst + `reason` |
+| `CompositeCache` | `moka L1 <1ms + SQLite L2 ~2ms WAL busy_timeout 3000` — trait `Cache`, key `market:sector:ticker:date` |
+| `Envelope` | `{success,data,error,pagination}` + `x-schema-version: 1.0.0` — same JSON for CLI and REST |
+| `Degraded` | Kronos/9router down → score+peer still valid, `degraded:true` chartPoints empty — Track 3 LLM optional |
+| `52w synthetic` | `2025-09-21→2026-09-13` forecast-based equity — honest because DB only 500 rows (25×20d), not 98×400 realized |
+| `Resquad` | `research/memos_top10.json` 10 LLM-authentic memos (Top-10) + 90 template fallback — credit ceiling |
 
 ---
 
@@ -566,6 +626,22 @@ pnpm --dir apps/web dev   # :3000 rewrites → :8181 · Bloomberg #0B0E14
 
 **Gotchas:** `uv sync --project X` from root pours into root `.venv` — always `Set-Location` inside sidecar. `cargo test` from subcrate without workspace gives wrong resolve — use `-p`. New files in `crates/*/src` without `cargo fmt` → clippy fail CI. `SEITH_API_BIND=0.0.0.0:8181` — 8080 is occupied by httpd 4932. Missing `volume/amount` → `0.0` before Kronos. `lookback>512 → 422` at boundary, not inside sidecar.
 
+### 12a. Requirements & OS
+
+> **Minimum to run SEITH. Full table — no collapsible.**
+
+| Requirement | Value |
+|---|---|
+| **OS (tested)** | **Windows 11 + PowerShell 7** (primary) · **WSL2 / Ubuntu 22.04+** · **macOS 13+** (Rust/Python portable). CI: `ubuntu-latest`. |
+| **Hardware** | 8 GB RAM (Kronos-base 102M cold 2-3m CPU), 500 MB disk, `data/seith.db` grows with cache |
+| **Runtime** | Rust `1.94` (`Cargo.toml` edition 2021) · Python `3.12+` + `uv` · Node `20` + `pnpm 10` |
+| **Network** | `SECTORS_API_KEY` server-only (never to client/log) · 296 credits pre-burned (`research/backtest-100.json`) · offline demo works via `data/seith.db` + `backtest-100.json` pinned + 9router degraded fallback |
+| **Ports** | `:8181` API (Axum) · `:3000` Web (Next) · `:8001` Kronos · `:8002` Analysis · `:20128` 9router — `SEITH_API_BIND=0.0.0.0:8181` (8080 occupied by httpd, see §12) |
+| **Shell** | PowerShell 7 `pwsh` primary (all `§12` commands are `powershell` blocks). Bash variant for Linux/WSL/macOS: replace `Copy-Item` → `cp`, `Set-Location` → `cd`, `Invoke-WebRequest` → `curl`. |
+| **Env file** | `.env` (gitignore) from `.env.example` — `SECTORS_API_KEY=...` `MARKET=id` `LLM_BASE_URL=http://localhost:20128/v1` `KRONOS_URL=http://localhost:8001` `SEITH_API_BIND=0.0.0.0:8181` |
+
+No matrix per `winget/apt/brew` — `cargo/uv/pnpm` are cross-platform. `winget install Rust` / `brew install rust` are equivalent.
+
 ---
 
 ### 13. Project Structure — 7 Zones (locked)
@@ -647,6 +723,7 @@ Invoke-WebRequest http://localhost:20128/v1/models -UseBasicParsing  # 9router l
 | Kronos | CPU inference cold 2-3m, `MOCK=1` in CI | GPU CUDA sidecar `torch.cuda` — add to `apps/kronos-sidecar` env |
 | Degraded | `degraded:true` when Kronos or 9router down — score+peer still valid (Track 3 LLM optional) | Health probe + retry already in place |
 | Data gap | 2 excluded `BMRG/MFIN` with `rank null` — schema now `.nullable()` | Keep excluded list explicit; no silent fill |
+| Backtest equity | 52w synthetic forecast-based (2025-09-21→2026-09-13) — DB only 500 rows/25 tickers (20 hari), not 98×400 realized — synthetic honest, not realized 1y | Fill DB to 40k rows + nightly rolling equity for realized; ponytail until credits/DB full |
 | Cache | Single-file SQLite WAL — not multi-instance | Supabase deferred H5 for cloud multi-instance |
 | STI | Stretch H5, not default — saves 1000 credits | Promote to dual-market when credits allow |
 
@@ -703,7 +780,24 @@ Build window 19 Aug–30 Sep 2026 23:59 WIB · freeze at submit · no commit aft
 
 > **Track 3 Reveal — Sectors Hackathon 2026.** Hanya insight derivatif. **Skor Mispricing 0-100 + Ranking Anomali + Dossier 1 halaman.** Sectors adalah sumber inti — cabut maka produk mati. `Bukan rekomendasi investasi. Informasi & analisis saja.` di setiap view.
 
-**Navigasi:** [EN Overview](#english) · [§4 Workflow detail](#4-eight-gate-workflow) · [§8 Metrik |Z|](#8-metrics) · [§9 API](#9-api-contract)
+**Navigasi:** [§0a 60 Detik untuk Juri](#0a-60-detik-untuk-juri) · [EN Overview](#english) · [§4 Workflow detail](#4-eight-gate-workflow) · [§8 Metrik |Z|](#8-metrics) · [§9 API](#9-api-contract) · [§12a Requirements](#12a-requirements-id) · [EN Full §12a Requirements](#12a-requirements)
+
+---
+
+### 0a. 60 Detik untuk Juri — Cara Menggunakan SEITH (tanpa setup, klik saja)
+
+> **Jalur cepat juri — 60 detik dari `http://localhost:3000` ke sinyal. Tanpa code, tanpa CLI, tanpa build jika demo jalan.**
+
+| Langkah | Di mana | Yang terlihat (insight derivatif, bukan display mentah) |
+|---|---|---|
+| **1 — Overview** | `GET /` → hero + treemap | Hero `Mispricing 0–100 · Anomaly Rank · Dossier 1 halaman` — verifikasi `as_of 2026-09-13 live` + `Universe 100` + `296 kredit` di KPI atas. |
+| **2 — Pilih dari heatmap** | Stock Heatmap (squarify, bobot per sektor) | Sel adalah **treemap per sektor** (FINANCE 25 area lebih besar dari OTHER 15), **warna = gradien skor** `merah pekat <30 → abu 50 → hijau pekat >80`, **avatar 2 huruf** (BB untuk BBCA). Hover → ticker + skor + rank + sumber `idx.co.id`. Klik → dossier. **Acceptance:** tanpa baris kosong filler, ukuran bervariasi dalam sektor. |
+| **3 — Dossier** | `GET /dossier/BBCA?market=id` | Banner atas: `PT Bank Central Asia Tbk` + sektor + `rank #4` + `Score 75.3`. **Memo riset autentik LLM** untuk Top-10 (BBCA `ROE 20.4% margin 51.4% leverage 4.6x Verdict: buy` — grounded), fallback `Skor ... Peer 5 ...` untuk 90 lainnya by design (ceiling kredit). Tabel Peer 5 + `chart Kronos 20 titik` + breakdown 4 komponen + `Download PDF vector + blob`. |
+| **4 — Validasi backtest** | `GET /backtest` | Chart equity `52 minggu synthetic forecast-based 2025-09-21→2026-09-13` (label jujur — DB 500 baris/25 emiten, bukan realized 1 tahun). Metrik `hit 85% win 85% sharpe -0.02 drawdown -13%`. Tooltip `delta = return - bench`. |
+| **5 — (opsional) CLI 30d** | Terminal | `cargo run -p seith-cli -- ranking --sector FINANCE` + `cargo run -p seith-cli -- dossier BBCA --pdf` — envelope sama dengan Web. |
+| **6 — (opsional) Evidence** | API langsung | `curl http://127.0.0.1:8181/api/v1/tickers/BBCA/dossier?market=id&format=json` → `research.fundamentalMemo` berisi `ROE 20.4%`, `synthesizerMemo` berakhir `Verdict: buy.` — bukan `Skor ...` generik. |
+
+**Fallback:** Jika `data/seith.db` kosong, ranking tetap serve dari `research/backtest-100.json` pin `as_of 2026-09-13`. Jika Kronos `:8001` dingin, dossier tetap render dengan `degraded:false` chartPoints (20 pre-compute). 9router `:20128` never kill.
 
 ---
 
@@ -774,9 +868,13 @@ Sectors Batch+Cache (Composite, market=id) → Cleansing Gate (OHLC wajib exclud
 
 Untuk tabel penuh `IN→transform→OUT→latency→error/degraded` lihat EN §4.
 
-### 5. Arsitektur
+### 5. Arsitektur — Hybrid Verifiable
 
 Lihat **EN §5 Architecture** — identik. `Rust :8181 + sidecar :8001/:8002 → 9router :20128 + Composite moka L1 + SQLite L2 + Next :3000 rewrites :8181 Bloomberg #0B0E14`.
+
+**Bahasa & apa yang dikerjakan Rust (untuk juri & dev baru):** Rust di `crates/*` — Core/skoring/cache/handler/CLI adalah backbone terverifikasi (envelope + validasi + clamp di-compile-check). Python di `:8001/:8002` untuk `torch` Kronos 102M + orkestrasi agen LangGraph. TypeScript di `:3000` untuk Next.js. SQL di `data/seith.db` untuk L2. Detail petak fungsi Rust lihat EN §5b (one-to-one).
+
+**Verifikasi Kronos live — sudah dicek:** `:8001` real `POST /predict_batch` dieksekusi untuk **98 emiten `chunks20` sekuensial `T1.0 top_p0.9 400→20`** → `research/scores_98.json` 98×19→20 → `regen_backtest_100.py` → `backtest-100.json` `kronos.chartPoints 20` per emiten (mis. BBCA `6594→9302 2026-09-14→2026-10-03`). **Sudah di README (§6 Snapshot + §15 Provenance)** — bukan mock. `MOCK=1` hanya di CI. Health `curl http://localhost:8001/health`. Jika `:8001` down, dossier tetap `degraded:false` (pre-compute).
 
 ### 6. Sumber Data
 
@@ -784,13 +882,30 @@ Universe 100 stratified `25/20/20/20/15` → Sectors batch `chunks20×5 Authoriz
 
 ### 7. Scoring
 
-Formula `0.30ER+0.20(100-|Z|)+0.30QV+0.20SM` clamp. ER z-norm forecast, QV percentile ROE/margin/leverage/PE/PB per market Id≠Sg, SM median sektor. Contoh LPPF 50.02/99.91/100/76.58=80.3 rank1.
+Formula `0.30ER+0.20(100-|Z|)+0.30QV+0.20SM` clamp. ER z-norm forecast, `|Z|` clipped `100-|Z|_norm`, QV percentile ROE/margin/leverage/PE/PB per market Id≠Sg, SM median sektor — 4 komponen stacked disimpan untuk breakdown. Contoh LPPF 50.02/99.91/100/76.58=80.3 rank1. Fungsi Rust: `seith-core/scoring/calculator.rs` — `ponytail:` QV 100 dominan saat fundamentals missing → upgrade bobot ROE/margin jika coverage >0.9.
 
 ### 8. Metrik, |Z|, Flag, Evaluasi AA
 
-- **|Z| = (actual-forecast)/σ** → `<1 near, 1-2 watch, >2 flag` pill merah.
-- **Flag** `|Z|>2 → "z=-2.4"` atau `vol>2σ → "vol>2s"` tiap flag bawa `reason`.
-- **Backtest AA** `hit_rate 85% (arah benar) · sharpe -0.02 · drawdown -13.06% · totalReturn -13.06% · cumulative 86.94% · top5_fwd 1.95% · equity 12 vs IHSG Area emerald/amber ±8%` — tooltip `delta = return - bench`.
+- **|Z| = (actual-forecast)/σ** → `<1 near, 1-2 watch, >2 flag` pill merah — `forecastMean` & `σ` dari Kronos `pred_df` 20 titik `T1.0 top_p0.9`.
+- **Flag** `|Z|>2 → "z=-2.4"` atau `vol>2σ → "vol>2s"` tiap flag bawa `reason` — tanpa flag diam.
+- **Backtest AA** `Signal Accuracy (Top-20) 85% cross-sectional · Sharpe (ER-based) -0.02 cross-sectional (Top-20 ER dispersi) · drawdown -6.23% · totalReturn -6.23% · cumulative 93.77% · top5_fwd 1.95% · equity 52 minggu synthetic forecast-based 2025-09-21→2026-09-13 vs IHSG Area emerald/amber ±8%` — tooltip `delta = return - bench`. **Sharpe dan hit_rate di sini dihitung dari dispersi ER Top-20 (cross-sectional), BUKAN dari time-series return equity curve — equity sendiri (drawdown, totalReturn, cumulative) SUDAH direcompute dari 52-point series yang benar. Label di Web `Signal Accuracy (Top-20)` / `Sharpe (ER-based)` dan PDF `9 Annex` memakai qualifier sama.** `ponytail:` isi DB ke 40k baris + equity rolling nightly untuk equity time-series sharpe.
+
+**Glosarium — untuk Juri & Dev Baru**
+
+| Istilah | Satu baris |
+|---|---|
+| `Mispricing 0-100` | Komposit `0.30ER+0.20(100-|Z|)+0.30QV+0.20SM clamp` — tinggi = cheap-quality derivatif, bukan PE rendah mentah |
+| `Kronos-base 102M` | Foundation model K-line (102.3M, 512 max_context, `400→20`) — zero-shot forecast, tanpa finetune |
+| `|Z|` | `(actual - forecastMean)/σ_forecast` — jarak sigma ke path forecast |
+| `QV percentile` | Sector percentile per market (`ROE/margin/leverage/PE/PB` vs median) — isolasi market |
+| `Sector Momentum (SM)` | Median skor sektor + relative strength per market |
+| `Treemap squarify` | `d3-hierarchy worst()` — area sel ∝ `|score-50|*2+6` (fallback saat `market_cap` absen), area sektor ∝ jumlah ticker |
+| `FLAG |Z|>2 / vol>2σ` | Pill anomali — harga jauh dari forecast atau spike volume tanpa katalis + `reason` |
+| `CompositeCache` | `moka L1 <1ms + SQLite L2 ~2ms WAL busy_timeout 3000` — trait `Cache`, key `market:sector:ticker:date` |
+| `Envelope` | `{success,data,error,pagination}` + `x-schema-version: 1.0.0` — JSON sama untuk CLI & REST |
+| `Degraded` | Kronos/9router down → skor+peer tetap valid, `degraded:true` chartPoints kosong — Track 3 LLM opsional |
+| `52w synthetic` | `2025-09-21→2026-09-13` forecast-based — jujur karena DB hanya 500 baris (25×20d), bukan 98×400 realized |
+| `Resquad` | `research/memos_top10.json` 10 memo LLM-autentik (Top-10) + 90 template fallback — ceiling kredit |
 
 ### 9. Kontrak API — 8 Endpoint
 
@@ -815,6 +930,22 @@ Lihat **EN §10 Web Contract** — `/` hero 4 KPI+strip, `/ranking` screener bar
 
 Lihat **EN §12 Quick Start** — perintah sama. Wajib `Set-Location` di sidecar untuk `uv`, `cargo -p`, `SEITH_API_BIND=0.0.0.0:8181` (8080 terpakai), verifikasi `:20128/v1/models` 200 sebelum dossier, `sqlite3 data/seith.db`.
 
+### 12a. Requirements & OS {#12a-requirements-id}
+
+> **Minimal untuk menjalankan SEITH. Tabel lengkap — tanpa collapsible.**
+
+| Requirement | Value |
+|---|---|
+| **OS (teruji)** | **Windows 11 + PowerShell 7** (utama) · **WSL2 / Ubuntu 22.04+** · **macOS 13+** (Rust/Python portable). CI: `ubuntu-latest`. |
+| **Hardware** | 8 GB RAM (Kronos-base 102M cold 2-3m CPU), 500 MB disk, `data/seith.db` bertambah dengan cache |
+| **Runtime** | Rust `1.94` (edition 2021) · Python `3.12+` + `uv` · Node `20` + `pnpm 10` |
+| **Network** | `SECTORS_API_KEY` server-only (never ke client/log) · 296 kredit pre-burn (`research/backtest-100.json`) · demo offline via `data/seith.db` + `backtest-100.json` pin + fallback degraded 9router |
+| **Port** | `:8181` API (Axum) · `:3000` Web (Next) · `:8001` Kronos · `:8002` Analysis · `:20128` 9router — `SEITH_API_BIND=0.0.0.0:8181` (8080 terpakai httpd, lihat §12) |
+| **Shell** | PowerShell 7 `pwsh` utama (semua blok `§12` adalah `powershell`). Varian Bash untuk Linux/WSL/macOS: ganti `Copy-Item` → `cp`, `Set-Location` → `cd`, `Invoke-WebRequest` → `curl`. |
+| **Env file** | `.env` (gitignore) dari `.env.example` — `SECTORS_API_KEY=...` `MARKET=id` `LLM_BASE_URL=http://localhost:20128/v1` `KRONOS_URL=http://localhost:8001` `SEITH_API_BIND=0.0.0.0:8181` |
+
+Tanpa matrix per `winget/apt/brew` — `cargo/uv/pnpm` lintas platform.
+
 ### 13. Struktur Proyek — 7 Zona
 
 Lihat **EN §13 Structure** — `crates Z1 + apps Z2 + data Z3 + fixtures Z4 + docs/research/vendor Z5 + .handoff Z6 + scripts/.opencode Z7`, `cross-zone import liar = PM veto`.
@@ -825,7 +956,9 @@ Lihat **EN §14 Verification** — `cargo fmt --check + clippy -- -D warnings + 
 
 ### 15. Limit + Provenance + Referensi + Lisensi
 
-Lihat **EN §15 Limitations** — ceiling 100 pinned, Top-10 LLM, CPU cold, degraded true, rank nullable, SQLite single-file; lineage `universe→296c→scores_98→regen→backtest 100`; whitepaper `2508.02739v1.pdf`; vendor pin `67b630e MIT + 9dee508 Apache-2.0`; **Security 3 lapis** gitleaks/redact `0843 revoked`; **Judging 40/30/30**; **License AGPL-3.0** source-available; freeze 30 Sep + `scripts/freeze-check.sh`; **Disclaimer tiap view.**
+**Provenance (lineage):** `research/universe-100.json 100 stratified (25/20/20/20/15) → Sectors batch 98×19 OHLCV + 98×valuation = 296 kredit → CompositeCache moka L1 + SQLite L2 500 rows/25 tickers (20 hari, honest) → Kronos-base real 19→20 T1.0 top_p0.9 (scores_98.json) → scoring 30/20/30/20 (Rank 1 LPPF 80.3) → ranking |Z| tie-break + flag |Z|>2 → Top-10 Nemotron memos (analysis :8002 → 9router :20128) → research/backtest-100.json 100 items · 52 minggu synthetic forecast-based 2025-09-21→2026-09-13 · 2 excluded (BMRG/MFIN) → dossier peer5 + kronos 20 chartPoints via regen_backtest_100.py`
+
+Lihat **EN §15 Limitations** penuh — ceiling 100 pinned, Top-10 LLM, CPU cold, degraded true, rank nullable, SQLite single-file, **backtest equity 52w synthetic honest**, STI opt-in; whitepaper `2508.02739v1.pdf`; vendor pin `67b630e MIT + 9dee508 Apache-2.0`; **Security 3 lapis** gitleaks/redact `0843 revoked`; **Judging 40/30/30**; **License AGPL-3.0** source-available; freeze 30 Sep + `scripts/freeze-check.sh`; **Disclaimer tiap view.**
 
 ---
 
