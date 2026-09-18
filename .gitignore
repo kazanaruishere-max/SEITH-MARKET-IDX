@@ -31,3 +31,7 @@ research/probe-api.ps1
 
 research/*.out.json
 research/*.html
+
+dev-web.log
+serve.log
+
