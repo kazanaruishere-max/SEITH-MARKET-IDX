@@ -33,3 +33,5 @@ research/*.out.json
 research/*.html
 temp_*.rs
 temp_*.toml
+dev-web.log
+serve.log
