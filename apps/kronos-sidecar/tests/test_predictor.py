@@ -12,6 +12,7 @@ from app.predictor import (
     to_ohlcv_list,
 )
 
+
 def _ohlcv_dict(n, base=100.0):
     return [
         {"open": base + i * 0.01, "high": base + i * 0.01 + 1, "low": base + i * 0.01 - 1, "close": base + i * 0.01, "volume": 1000.0, "amount": 100000.0, "timestamp": i}
