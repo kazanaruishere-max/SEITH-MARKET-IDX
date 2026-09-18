@@ -35,3 +35,4 @@ temp_*.rs
 temp_*.toml
 dev-web.log
 serve.log
+.coverage
