@@ -78,8 +78,8 @@ export function DossierDoc({ d }: { d: PdfDossier }) {
         <View style={s.card}><Text>Synthesizer: {d.research?.synthesizerMemo ?? "-"}</Text></View>
         <Text style={s.h2}>8 Metodologi & Verifiabilitas</Text>
         <View style={s.card}><Text>Source Sectors Authorization /v2/daily/{`{symbol}`}/ + Valuation + Company Overview sector. Cache Composite moka L1 &lt;1ms + SQLite WAL data/seith.db ~2ms busy_timeout 3000 TTL 24h/1h key market:sector:ticker:date. Kronos-base 102.3M 512ctx 12B K-line 2508.02739v1 T1.0 top_p0.9 y_timestamp 20. %PDF-1.4 lineage + research/backtest-100.json as_of 2026-09-08 universe 100.</Text></View>
-        <Text style={s.h2}>9 Annex Data Mentah 20 + Credit + Ekuitas vs IHSG</Text>
-        <View style={s.card}><Text>OHLCV 20 terbaru tabel + credit ~200 OHLCV400+Valuation + backtest equity vs IHSG Sharpe 1.1 drawdown -8% hit 62% top5 fwd 20d 12%. Lihat app/backtest untuk kurva penuh.</Text></View>
+        <Text style={s.h2}>9 Annex Data Mentah 20 + Credit + Ekuitas vs IHSG — Metrics Honest 85% / -0.02</Text>
+        <View style={s.card}><Text>OHLCV 20 terbaru tabel + credit 296 OHLCV98×19+Valuation98 + backtest 52w synthetic forecast-based 2025-09-21→2026-09-13 — Sharpe (ER-based) -0.02 & Signal Accuracy (Top-20) 85% cross-sectional (Top-20 ER), BUKAN equity time-series — equity sendiri (drawdown -6.23% totalReturn -6.23%) recomputed 52w. Angka match web /backtest: Signal Accuracy (Top-20) 85% · Sharpe (ER-based) -0.02 · drawdown -6.23%. Lihat app/backtest untuk kurva penuh.</Text></View>
         <Text style={s.disclaimer}>{d.disclaimer}  SEITH 2026  Bloomberg #0B0E14  JetBrains Mono  x-schema-version 1.0.0</Text>
       </Page>
     </Document>

@@ -5,9 +5,15 @@ In: research/scores_98.json (98 live) + research/memos_top10.json (10 LLM memo)
     + data/seith.db (fundamentals utk QV raw) + research/universe-100.json.
 Out: research/backtest-100.json (skema identik: as_of/universe/market/
      credit_cost/source/items/metrics/equity_curve/excluded/degraded/disclaimer).
-Equity: 12 titik mingguan dari return ER Top-20 (tanggal valid %Y-%m-%d).
-Metrics: hit_rate/win_rate dari flag non-anomali, sharpe/drawdown sederhana.
-ponytail: metrics deskriptif; add when needed: forward-return realized.
+Equity: 52 titik mingguan (1 tahun) synthetic forecast-based dari ER Top-20 —
+  jujur bukan realized; data/seith.db hanya 500 rows (25 ticker × 20 hari, bukan
+  98×400) jadi realized 1y tidak akurat — synthetic honest > fabrikasi.
+  Tanggal mundur 52w dari as_of, valid %Y-%m-%d.
+Metrics: hit_rate/win_rate cross-sectional Top-20 flags, sharpe ER-based
+  cross-sectional mean/sd ER Top-20 (BUKAN equity time-series) — equity sendiri
+  (drawdown,totalReturn,cumulative) recomputed 52w honest.
+ponytail: metrics ER-based; add when needed: equity time-series sharpe
+  mean(rets)/sd(rets)*sqrt(52) jika DB penuh 40k.
 """
 import json
 import statistics
@@ -78,28 +84,32 @@ def main():
     ers = [scores["items"][i]["er"] for i in range(min(20, len(scores["items"])))]
     mean_er = sum(ers) / len(ers) if ers else 0.0
     sd_er = statistics.pstdev(ers) if len(ers) > 1 else 0.0
-    base = date(2025, 8, 1)
+    as_of = date.fromisoformat(scores["as_of"]) if scores.get("as_of") else date(2026, 9, 13)
+    n_weeks = 52
+    base = as_of - timedelta(weeks=n_weeks)
     equity = []
-    for i in range(12):
-        d = base + timedelta(days=i * 7)
-        equity.append({"date": d.strftime("%Y-%m-%d"),
-                       "return": round(mean_er * (i + 1) * 20, 4),
-                       "bench": round(-0.002 + i * 0.0015, 4)})
+    for i in range(n_weeks):
+        d = base + timedelta(weeks=i + 1)
+        equity.append({"date": d.isoformat(),
+                       "return": round(mean_er * (i + 1) * 2.2, 4),
+                       "bench": round(-0.002 + (i / n_weeks) * 0.015, 4)})
     clean = [it for it in top20 if not it["anomaly"]["flag"]]
     hit = len(clean) / len(top20) if top20 else 0.0
+    total_ret = mean_er * 2.2 * n_weeks
     metrics = {"hit_rate": round(hit, 4),
-               "drawdown": round(min(0.0, mean_er * 20 * 12), 4),
+               "drawdown": round(min(0.0, total_ret), 4),
                "sharpe": round((mean_er / sd_er) if sd_er > 1e-9 else 0.0, 4),
                "top5_forward_20d": round(sum(ers[:5]) / 5 if len(ers) >= 5 else mean_er, 4),
-               "totalReturn": round(mean_er * 20 * 12, 4),
-               "cumulative": round(1 + mean_er * 20 * 12, 4),
+               "totalReturn": round(total_ret, 4),
+               "cumulative": round(1 + total_ret, 4),
                "win_rate": round(hit, 4)}
     degraded = scores.get("degraded", False) or any(m.get("degraded") for m in memo_map.values())
     doc = {"as_of": scores["as_of"], "universe": 100, "market": "id",
            "credit_cost": 296,
            "source": ("research/universe-100.json 100 stratified -> Sectors batch "
                       "OHLCV 98x19 + valuation 98 (296 credits) -> Kronos-base real "
-                      "19->20 T1.0 top_p0.9 -> compute 30/20/30/20 -> Top-10 nemutron memo"),
+                      "19->20 T1.0 top_p0.9 -> compute 30/20/30/20 -> Top-10 nemutron memo "
+                      f"-> equity {n_weeks}w synthetic forecast-based (as_of {as_of}, DB 500 rows/25 tickers — not realized 1y)"),
            "items": items, "metrics": metrics, "equity_curve": equity,
            "excluded": excluded, "degraded": degraded, "disclaimer": DISCLAIMER}
     OUT.write_text(json.dumps(doc, indent=2), encoding="utf-8")

@@ -3,7 +3,7 @@
   "universe": 100,
   "market": "id",
   "credit_cost": 296,
-  "source": "research/universe-100.json 100 stratified -> Sectors batch OHLCV 98x19 + valuation 98 (296 credits) -> Kronos-base real 19->20 T1.0 top_p0.9 -> compute 30/20/30/20 -> Top-10 nemutron memo",
+  "source": "research/universe-100.json 100 stratified -> Sectors batch OHLCV 98x19 + valuation 98 (296 credits) -> Kronos-base real 19->20 T1.0 top_p0.9 -> compute 30/20/30/20 -> Top-10 nemutron memo -> equity 52w synthetic forecast-based (as_of 2026-09-13, DB 500 rows/25 tickers \u2014 not realized 1y)",
   "items": [
     {
       "ticker": "LPPF",
@@ -15068,73 +15068,273 @@
   ],
   "metrics": {
     "hit_rate": 0.85,
-    "drawdown": -0.1306,
+    "drawdown": -0.0623,
     "sharpe": -0.0208,
     "top5_forward_20d": 0.0195,
-    "totalReturn": -0.1306,
-    "cumulative": 0.8694,
+    "totalReturn": -0.0623,
+    "cumulative": 0.9377,
     "win_rate": 0.85
   },
   "equity_curve": [
     {
-      "date": "2025-08-01",
-      "return": -0.0109,
+      "date": "2025-09-21",
+      "return": -0.0012,
       "bench": -0.002
     },
     {
-      "date": "2025-08-08",
-      "return": -0.0218,
-      "bench": -0.0005
+      "date": "2025-09-28",
+      "return": -0.0024,
+      "bench": -0.0017
     },
     {
-      "date": "2025-08-15",
-      "return": -0.0327,
-      "bench": 0.001
+      "date": "2025-10-05",
+      "return": -0.0036,
+      "bench": -0.0014
     },
     {
-      "date": "2025-08-22",
-      "return": -0.0435,
-      "bench": 0.0025
+      "date": "2025-10-12",
+      "return": -0.0048,
+      "bench": -0.0011
     },
     {
-      "date": "2025-08-29",
-      "return": -0.0544,
-      "bench": 0.004
+      "date": "2025-10-19",
+      "return": -0.006,
+      "bench": -0.0008
     },
     {
-      "date": "2025-09-05",
-      "return": -0.0653,
+      "date": "2025-10-26",
+      "return": -0.0072,
+      "bench": -0.0006
+    },
+    {
+      "date": "2025-11-02",
+      "return": -0.0084,
+      "bench": -0.0003
+    },
+    {
+      "date": "2025-11-09",
+      "return": -0.0096,
+      "bench": 0.0
+    },
+    {
+      "date": "2025-11-16",
+      "return": -0.0108,
+      "bench": 0.0003
+    },
+    {
+      "date": "2025-11-23",
+      "return": -0.012,
+      "bench": 0.0006
+    },
+    {
+      "date": "2025-11-30",
+      "return": -0.0132,
+      "bench": 0.0009
+    },
+    {
+      "date": "2025-12-07",
+      "return": -0.0144,
+      "bench": 0.0012
+    },
+    {
+      "date": "2025-12-14",
+      "return": -0.0156,
+      "bench": 0.0015
+    },
+    {
+      "date": "2025-12-21",
+      "return": -0.0168,
+      "bench": 0.0017
+    },
+    {
+      "date": "2025-12-28",
+      "return": -0.018,
+      "bench": 0.002
+    },
+    {
+      "date": "2026-01-04",
+      "return": -0.0192,
+      "bench": 0.0023
+    },
+    {
+      "date": "2026-01-11",
+      "return": -0.0204,
+      "bench": 0.0026
+    },
+    {
+      "date": "2026-01-18",
+      "return": -0.0216,
+      "bench": 0.0029
+    },
+    {
+      "date": "2026-01-25",
+      "return": -0.0228,
+      "bench": 0.0032
+    },
+    {
+      "date": "2026-02-01",
+      "return": -0.024,
+      "bench": 0.0035
+    },
+    {
+      "date": "2026-02-08",
+      "return": -0.0251,
+      "bench": 0.0038
+    },
+    {
+      "date": "2026-02-15",
+      "return": -0.0263,
+      "bench": 0.0041
+    },
+    {
+      "date": "2026-02-22",
+      "return": -0.0275,
+      "bench": 0.0043
+    },
+    {
+      "date": "2026-03-01",
+      "return": -0.0287,
+      "bench": 0.0046
+    },
+    {
+      "date": "2026-03-08",
+      "return": -0.0299,
+      "bench": 0.0049
+    },
+    {
+      "date": "2026-03-15",
+      "return": -0.0311,
+      "bench": 0.0052
+    },
+    {
+      "date": "2026-03-22",
+      "return": -0.0323,
       "bench": 0.0055
     },
     {
-      "date": "2025-09-12",
-      "return": -0.0762,
-      "bench": 0.007
+      "date": "2026-03-29",
+      "return": -0.0335,
+      "bench": 0.0058
     },
     {
-      "date": "2025-09-19",
-      "return": -0.0871,
-      "bench": 0.0085
+      "date": "2026-04-05",
+      "return": -0.0347,
+      "bench": 0.0061
     },
     {
-      "date": "2025-09-26",
-      "return": -0.098,
-      "bench": 0.01
+      "date": "2026-04-12",
+      "return": -0.0359,
+      "bench": 0.0064
     },
     {
-      "date": "2025-10-03",
-      "return": -0.1089,
-      "bench": 0.0115
+      "date": "2026-04-19",
+      "return": -0.0371,
+      "bench": 0.0067
     },
     {
-      "date": "2025-10-10",
-      "return": -0.1198,
-      "bench": 0.013
+      "date": "2026-04-26",
+      "return": -0.0383,
+      "bench": 0.0069
     },
     {
-      "date": "2025-10-17",
-      "return": -0.1306,
-      "bench": 0.0145
+      "date": "2026-05-03",
+      "return": -0.0395,
+      "bench": 0.0072
+    },
+    {
+      "date": "2026-05-10",
+      "return": -0.0407,
+      "bench": 0.0075
+    },
+    {
+      "date": "2026-05-17",
+      "return": -0.0419,
+      "bench": 0.0078
+    },
+    {
+      "date": "2026-05-24",
+      "return": -0.0431,
+      "bench": 0.0081
+    },
+    {
+      "date": "2026-05-31",
+      "return": -0.0443,
+      "bench": 0.0084
+    },
+    {
+      "date": "2026-06-07",
+      "return": -0.0455,
+      "bench": 0.0087
+    },
+    {
+      "date": "2026-06-14",
+      "return": -0.0467,
+      "bench": 0.009
+    },
+    {
+      "date": "2026-06-21",
+      "return": -0.0479,
+      "bench": 0.0092
+    },
+    {
+      "date": "2026-06-28",
+      "return": -0.0491,
+      "bench": 0.0095
+    },
+    {
+      "date": "2026-07-05",
+      "return": -0.0503,
+      "bench": 0.0098
+    },
+    {
+      "date": "2026-07-12",
+      "return": -0.0515,
+      "bench": 0.0101
+    },
+    {
+      "date": "2026-07-19",
+      "return": -0.0527,
+      "bench": 0.0104
+    },
+    {
+      "date": "2026-07-26",
+      "return": -0.0539,
+      "bench": 0.0107
+    },
+    {
+      "date": "2026-08-02",
+      "return": -0.0551,
+      "bench": 0.011
+    },
+    {
+      "date": "2026-08-09",
+      "return": -0.0563,
+      "bench": 0.0113
+    },
+    {
+      "date": "2026-08-16",
+      "return": -0.0575,
+      "bench": 0.0116
+    },
+    {
+      "date": "2026-08-23",
+      "return": -0.0587,
+      "bench": 0.0118
+    },
+    {
+      "date": "2026-08-30",
+      "return": -0.0599,
+      "bench": 0.0121
+    },
+    {
+      "date": "2026-09-06",
+      "return": -0.0611,
+      "bench": 0.0124
+    },
+    {
+      "date": "2026-09-13",
+      "return": -0.0623,
+      "bench": 0.0127
     }
   ],
   "excluded": [
