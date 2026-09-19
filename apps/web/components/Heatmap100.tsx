@@ -1,125 +1,351 @@
 "use client";
+
+import { useMemo } from "react";
+import Link from "next/link";
 import { profileOf } from "@/data/companyProfiles";
-export type HeatItem = { ticker: string; mispricingScore: number; sector?: string; rank?: number; close?: number; marketCapHint?: number };
-const SECTOR_COLOR: Record<string, string> = { FINANCE: "#0ea5e9", ENERGY: "#f59e0b", CONSUMER: "#a78bfa", INFRA: "#14b8a6", OTHER: "#f43f5e" };
-function sectorBg(sector?: string) { return SECTOR_COLOR[sector ?? "OTHER"] ?? "#71717a"; }
-function gradient(score: number) {
-  const v = Math.max(0, Math.min(100, score));
-  const t = v / 100;
-  if (t < 0.5) {
-    const k = t / 0.5;
-    const r = Math.round(185 + (100 - 185) * k);
-    const g = Math.round(28 + (116 - 28) * k);
-    const b = Math.round(28 + (116 - 28) * k);
-    const r2 = Math.round(39 + (100 - 39) * k);
-    const g2 = Math.round(39 + (116 - 39) * k);
-    const b2 = Math.round(42 + (116 - 42) * k);
-    const mix = (a: number, b: number) => Math.round(a + (b - a) * 0.45);
-    return `rgb(${mix(r, r2)},${mix(g, g2)},${mix(b, b2)})`;
-  }
-  const k = (t - 0.5) / 0.5;
-  const r = Math.round(100 + (22 - 100) * k);
-  const g = Math.round(116 + (163 - 116) * k);
-  const b = Math.round(116 + (74 - 116) * k);
-  return `rgb(${r},${g},${b})`;
+
+export type HeatItem = {
+  ticker: string;
+  mispricingScore: number;
+  sector?: string;
+  rank?: number | null;
+  close?: number;
+  marketCapHint?: number;
+};
+
+// Prominent IDX Big-Caps Market Weightings (in Trillion IDR)
+// Allows realistic Finviz-style visual hierarchy (large pillars vs smaller caps)
+const IDX_CAPS: Record<string, number> = {
+  // Finance
+  BBCA: 110,
+  BBRI: 70,
+  BMRI: 60,
+  BBNI: 20,
+  BRIS: 13,
+  BNGA: 8,
+  BDMN: 6,
+  BBTN: 5,
+  NISP: 5,
+  BFIN: 4,
+  PNBN: 3,
+  // Energy
+  TPIA: 18,
+  ADRO: 12,
+  UNTR: 10,
+  PGAS: 4,
+  PTBA: 4,
+  ANTM: 4,
+  MEDC: 3.5,
+  ITMG: 3,
+  AKRA: 3,
+  HRUM: 2.5,
+  PTRO: 2,
+  // Consumer
+  ICBP: 13,
+  UNVR: 11,
+  KLBF: 8,
+  CPIN: 7,
+  INDF: 6,
+  MYOR: 5,
+  GGRM: 3.5,
+  SIDO: 2.5,
+  ADES: 2,
+  // Infra
+  TLKM: 30,
+  ISAT: 8,
+  TOWR: 5,
+  TBIG: 4,
+  JSMR: 3.5,
+  EXCL: 3,
+  // Other
+  AMMN: 25,
+  ASII: 20,
+  MDKA: 6,
+  BRMS: 5,
+  MIKA: 4,
+  SILO: 3,
+  HEAL: 2.5,
+  LPPF: 2,
+};
+
+function itemWeight(x: HeatItem): number {
+  if (x.marketCapHint && x.marketCapHint > 0) return x.marketCapHint;
+  const cap = IDX_CAPS[x.ticker.toUpperCase()];
+  if (cap) return cap;
+  return Math.max(1.2, Math.min(3.5, (x.close ?? 1000) / 1000));
 }
-function worst(row: number[], side: number) {
+
+// Finviz Green-Red only color palette (matching real Mispricing Score vs Universe Median)
+// High mispricing / undervalued = Green; Low mispricing / overvalued / anomaly = Red
+function getFinvizColor(score: number, median: number = 68.4): { bg: string; text: string } {
+  const delta = score - median;
+
+  if (delta >= 6.0) return { bg: "#00B060", text: "#FFFFFF" }; // Vibrant Bull Green
+  if (delta >= 4.0) return { bg: "#089981", text: "#FFFFFF" }; // Bright Emerald
+  if (delta >= 2.0) return { bg: "#15803D", text: "#FFFFFF" }; // Forest Green
+  if (delta >= 0.5) return { bg: "#166534", text: "#F1F5F9" }; // Medium Dark Green
+  if (delta > 0.0) return { bg: "#14532D", text: "#E2E8F0" }; // Deep Green
+
+  if (delta <= -6.0) return { bg: "#F23645", text: "#FFFFFF" }; // Vibrant Bear Red
+  if (delta <= -4.0) return { bg: "#DC2626", text: "#FFFFFF" }; // Bright Crimson
+  if (delta <= -2.0) return { bg: "#B91C1C", text: "#FFFFFF" }; // Brick Red
+  if (delta <= -0.5) return { bg: "#991B1B", text: "#F1F5F9" }; // Medium Dark Red
+  if (delta < 0.0) return { bg: "#7F1D1D", text: "#E2E8F0" }; // Deep Wine Red
+
+  return { bg: "#27272A", text: "#D4D4D8" }; // Neutral Charcoal Gray
+}
+
+function worst(row: number[], side: number): number {
   const sum = row.reduce((a, b) => a + b, 0);
   const mx = Math.max(...row);
   const mn = Math.min(...row);
-  if (mn === 0) return Infinity;
+  if (mn === 0 || sum === 0 || side === 0) return Infinity;
   return Math.max((side * side * mx) / (sum * sum), (sum * sum) / (side * side * mn));
 }
-function getRects(values: number[], x: number, y: number, w: number, h: number) {
+
+// Standard Squarified Treemap (Bruls, Huizing, van Wijk)
+// Always cuts along the shorter side to prevent razor-thin slithers!
+function getRects(
+  values: number[],
+  x: number,
+  y: number,
+  w: number,
+  h: number
+): { x: number; y: number; w: number; h: number }[] {
   const total = values.reduce((a, b) => a + b, 0) || 1;
   const areas = values.map((v) => (v / total) * w * h);
   const out: { x: number; y: number; w: number; h: number }[] = [];
-  let cx = x, cy = y, cw = w, ch = h;
+  let cx = x,
+    cy = y,
+    cw = w,
+    ch = h;
   let rem = [...areas];
+
   while (rem.length) {
     const side = Math.min(cw, ch);
     let bestN = 1;
     let bestW = worst(rem.slice(0, 1), side);
     for (let n = 2; n <= rem.length; n++) {
       const cur = worst(rem.slice(0, n), side);
-      if (cur < bestW) { bestW = cur; bestN = n; } else break;
+      if (cur <= bestW) {
+        bestW = cur;
+        bestN = n;
+      } else break;
     }
     const row = rem.slice(0, bestN);
     const sum = row.reduce((a, b) => a + b, 0);
+
+    // If cw >= ch (wide area), shorter side is ch -> cut vertical column of width = sum / ch
     if (cw >= ch) {
-      const rh = sum / cw;
-      let curX = cx;
-      for (const a of row) { const rw = a / rh; out.push({ x: curX, y: cy, w: rw, h: rh }); curX += rw; }
-      cy += rh; ch -= rh;
-    } else {
       const rw = sum / ch;
       let curY = cy;
-      for (const a of row) { const rh = a / rw; out.push({ x: cx, y: curY, w: rw, h: rh }); curY += rh; }
-      cx += rw; cw -= rw;
+      for (const a of row) {
+        const rh = a / rw;
+        out.push({ x: cx, y: curY, w: rw, h: rh });
+        curY += rh;
+      }
+      cx += rw;
+      cw -= rw;
+    } else {
+      // If ch > cw (tall area), shorter side is cw -> cut horizontal row of height = sum / cw
+      const rh = sum / cw;
+      let curX = cx;
+      for (const a of row) {
+        const rw = a / rh;
+        out.push({ x: curX, y: cy, w: rw, h: rh });
+        curX += rw;
+      }
+      cy += rh;
+      ch -= rh;
     }
     rem = rem.slice(bestN);
-    if (cw <= 0.5 || ch <= 0.5) break;
+    if (cw <= 0.01 || ch <= 0.01) break;
   }
   return out;
 }
+
 export default function Heatmap100({ items }: { items: HeatItem[] }) {
   const filtered = items.filter((x) => x.ticker && x.ticker !== "-" && x.ticker !== "—");
   const sorted = [...filtered].sort((a, b) => (a.rank ?? 999) - (b.rank ?? 999));
-  if (!sorted.length) return <div className="rounded-xl border border-[#24242e] bg-[#11151F] p-8 text-center text-sm text-zinc-500">No data — /api/v1/ranking</div>;
-  const weight = (x: HeatItem) => {
-    if (x.marketCapHint && x.marketCapHint > 0) return x.marketCapHint;
-    return Math.max(1, Math.abs(x.mispricingScore - 50) * 2 + 6);
-  };
-  const groups = ["FINANCE", "ENERGY", "CONSUMER", "INFRA", "OTHER"].map((sec) => ({ sec, list: sorted.filter((x) => x.sector === sec) })).filter((g) => g.list.length > 0);
-  const bySector = groups.map((g) => ({ ...g, totalW: g.list.reduce((s, x) => s + weight(x), 0) }));
-  const sectorWeights = bySector.map((g) => g.totalW);
-  const sectorRects = getRects(sectorWeights, 0, 0, 100, 100);
-  return (
-    <div className="overflow-hidden rounded-xl border border-[#24242e] bg-[#11151F] shadow-card">
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#24242e]/60 bg-[#0f1320]/40 px-3 py-2.5">
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-bold uppercase tracking-[0.14em] text-zinc-100">Stock Heatmap</span>
-          <span className="hidden rounded-full border border-zinc-800 bg-[#0B0E14] px-2 py-0.5 text-[10px] font-medium text-zinc-400 md:inline">Treemap by sector · {filtered.length} · sektor ∝ count · merah→abu→hijau</span>
-        </div>
-        <span className="flex items-center gap-1.5 text-[11px] text-zinc-400">
-          <span className="h-2 w-3 rounded-sm" style={{ background: gradient(15) }} />20
-          <span className="h-2 w-3 rounded-sm" style={{ background: gradient(40) }} />40
-          <span className="h-2 w-3 rounded-sm" style={{ background: gradient(60) }} />60
-          <span className="h-2 w-3 rounded-sm" style={{ background: gradient(85) }} />85
-          <span className="ml-2 hidden text-zinc-500 md:inline">· tap cell → dossier · avatar 2 huruf</span>
-        </span>
+
+  // Compute actual factual universe median for accurate green/red bifurcation
+  const medianScore = useMemo(() => {
+    if (!sorted.length) return 68.4;
+    const scores = sorted.map((x) => x.mispricingScore).sort((a, b) => a - b);
+    return scores[Math.floor(scores.length / 2)] ?? 68.4;
+  }, [sorted]);
+
+  const { bySector, sectorRects } = useMemo(() => {
+    const groups = ["FINANCE", "ENERGY", "CONSUMER", "INFRA", "OTHER"]
+      .map((sec) => ({ sec, list: sorted.filter((x) => x.sector === sec) }))
+      .filter((g) => g.list.length > 0);
+
+    const bs = groups.map((g) => ({
+      ...g,
+      totalW: g.list.reduce((s, x) => s + itemWeight(x), 0),
+    }));
+
+    // Partition sector areas using 1000x500 normalized canvas
+    const sectorWeights = bs.map((g) => g.totalW);
+    const sRects = getRects(sectorWeights, 0, 0, 1000, 500);
+    return { bySector: bs, sectorRects: sRects };
+  }, [sorted]);
+
+  if (!sorted.length) {
+    return (
+      <div className="terminal-card flex h-[480px] items-center justify-center p-6 text-center font-mono text-xs text-zinc-500">
+        NO DATA FROM /api/v1/ranking
       </div>
-      <div className="relative w-full bg-[#0B0E14]" style={{ height: 640 }}>
+    );
+  }
+
+  return (
+    <div className="terminal-card overflow-hidden">
+      {/* Titlebar with Finviz-Style Green/Red Scale Legend */}
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#1E2638] bg-[#0A0D15] px-3 py-2.5">
+        <div className="flex items-center gap-2 font-mono">
+          <span className="text-xs font-bold uppercase tracking-wider text-amber-400">
+            MARKET MAP MAP&lt;GO&gt;
+          </span>
+          <span className="text-zinc-600">│</span>
+          <span className="text-[11px] text-zinc-300">
+            {filtered.length} IDX EMITEN · SECTOR WEIGHTED SQUARIFY
+          </span>
+        </div>
+
+        {/* Real Green & Red Legend Bar */}
+        <div className="flex items-center gap-2 font-mono text-[10px]">
+          <span className="text-zinc-400 uppercase hidden sm:inline">SKOR VS MEDIAN ({medianScore.toFixed(1)}):</span>
+          <div className="flex items-center rounded-[2px] overflow-hidden border border-[#1E2638]">
+            <span className="px-1.5 py-0.5 text-[9px] font-bold text-white bg-[#F23645]">&lt; -5</span>
+            <span className="px-1.5 py-0.5 text-[9px] font-bold text-white bg-[#DC2626]">-3</span>
+            <span className="px-1.5 py-0.5 text-[9px] font-bold text-white bg-[#991B1B]">-1</span>
+            <span className="px-1.5 py-0.5 text-[9px] font-bold text-zinc-300 bg-[#27272A]">0</span>
+            <span className="px-1.5 py-0.5 text-[9px] font-bold text-white bg-[#166534]">+1</span>
+            <span className="px-1.5 py-0.5 text-[9px] font-bold text-white bg-[#089981]">+3</span>
+            <span className="px-1.5 py-0.5 text-[9px] font-bold text-white bg-[#00B060]">&gt; +5</span>
+          </div>
+          <span className="text-emerald-400 font-bold hidden md:inline">HIJAU = UNDERVALUED</span>
+          <span className="text-zinc-600 hidden md:inline">│</span>
+          <span className="text-red-400 font-bold hidden md:inline">MERAH = OVERVALUED</span>
+        </div>
+      </div>
+
+      {/* Main Treemap Canvas (Responsive Height, Finviz Mosaic) */}
+      <div className="relative w-full bg-[#07090E] h-[520px] sm:h-[580px] md:h-[620px] lg:h-[660px]">
         {bySector.map(({ sec, list }, si) => {
           const sr = sectorRects[si];
           if (!sr) return null;
-          const vals = list.map((x) => weight(x));
-          const rects = getRects(vals, 0, 0, 100, 100);
+
+          // Convert normalized coordinates (1000x500) to percentage
+          const secLeft = (sr.x / 1000) * 100;
+          const secTop = (sr.y / 500) * 100;
+          const secW = (sr.w / 1000) * 100;
+          const secH = (sr.h / 500) * 100;
+
+          // Compute intra-sector squarified tiles using the sector's exact aspect ratio!
+          const vals = list.map((x) => itemWeight(x));
+          const rects = getRects(vals, 0, 0, sr.w, Math.max(10, sr.h - 22));
           const avg = list.reduce((s, x) => s + x.mispricingScore, 0) / list.length;
+
           return (
-            <div key={sec} className="absolute overflow-hidden border border-[#24242e]/70 bg-[#0B0E14]" style={{ left: `${sr.x}%`, top: `${sr.y}%`, width: `${sr.w}%`, height: `${sr.h}%` }}>
-              <div className="flex items-center justify-between border-b border-[#24242e]/60 bg-[#1A1F2E]/80 px-2 py-1.5">
-                <span className="text-[11px] font-bold tracking-wide text-zinc-100">{sec}<span className="ml-1 font-normal text-zinc-500">›</span></span>
-                <span className="font-mono text-[10px] text-zinc-500">{list.length} · {avg.toFixed(1)}</span>
+            <div
+              key={sec}
+              className="absolute overflow-hidden border border-[#07090E] bg-[#0A0D15]"
+              style={{
+                left: `${secLeft}%`,
+                top: `${secTop}%`,
+                width: `${secW}%`,
+                height: `${secH}%`,
+              }}
+            >
+              {/* Finviz Sector Header Strip */}
+              <div className="flex h-[20px] items-center justify-between border-b border-[#07090E] bg-[#0D111A] px-2 text-[9px] font-mono leading-none">
+                <span className="font-bold text-zinc-300 uppercase tracking-wide truncate">
+                  {sec} <span className="text-zinc-500 font-normal">({list.length})</span>
+                </span>
+                <span className="text-zinc-400 shrink-0">AVG {avg.toFixed(1)}</span>
               </div>
-              <div className="absolute inset-x-0 bottom-0 top-[28px]">
+
+              {/* Tickers Intra-Sector Grid */}
+              <div className="absolute inset-x-0 bottom-0 top-[20px]">
                 {list.map((t, i) => {
                   const r = rects[i];
                   if (!r) return null;
                   const prof = profileOf(t.ticker);
-                  const bg = gradient(t.mispricingScore);
-                  const showAvatar = r.w > 14 && r.h > 28;
-                  const showScore = r.w > 12 && r.h > 22;
-                  const showTicker = r.w > 9 && r.h > 14;
-                  const initials = t.ticker.slice(0, 2).toUpperCase();
-                  const avatarBg = sectorBg(sec);
-                  const title = `${t.ticker} — ${prof?.name ?? t.ticker} — ${prof?.desc ?? sec} — skor ${t.mispricingScore.toFixed(1)} — rank ${t.rank ?? i + 1} — ${prof?.idxUrl ?? ""} — klik → dossier`;
+                  const color = getFinvizColor(t.mispricingScore, medianScore);
+                  const delta = t.mispricingScore - medianScore;
+                  const deltaStr = delta > 0 ? `+${delta.toFixed(1)}` : delta.toFixed(1);
+
+                  // Convert intra-sector rect to percentage inside the sector content container
+                  const tileLeft = (r.x / sr.w) * 100;
+                  const tileTop = (r.y / Math.max(10, sr.h - 22)) * 100;
+                  const tileW = (r.w / sr.w) * 100;
+                  const tileH = (r.h / Math.max(10, sr.h - 22)) * 100;
+
+                  // Adaptive content thresholds based on pixel size
+                  const isLarge = r.w >= 70 && r.h >= 55;
+                  const isMedium = r.w >= 45 && r.h >= 35;
+                  const isSmall = r.w >= 28 && r.h >= 20;
+
+                  const title = `${t.ticker} — ${prof?.name ?? t.ticker} | Sektor: ${sec} | Close: ${
+                    t.close ? "Rp " + t.close.toLocaleString("id-ID") : "-"
+                  } | Mispricing: ${t.mispricingScore.toFixed(1)} (${deltaStr} vs median) | Rank: #${
+                    t.rank ?? i + 1
+                  } | idx.co.id ↗`;
+
                   return (
-                    <a key={t.ticker} href={`/dossier/${t.ticker}?market=id`} title={title} className="absolute flex flex-col items-center justify-center overflow-hidden rounded-[5px] border border-black/20 p-1 text-center transition-all hover:z-10 hover:scale-[1.015] hover:border-white/20 hover:shadow-[0_6px_20px_rgba(0,0,0,0.5)]" style={{ left: `${r.x}%`, top: `${r.y}%`, width: `${r.w}%`, height: `${r.h}%`, background: bg }}>
-                      {showAvatar ? <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-extrabold leading-none text-white shadow-sm md:h-7 md:w-7 md:text-[11px]" style={{ background: avatarBg }}>{initials}</span> : null}
-                      {showTicker ? <span className="mt-1 font-mono text-[10px] font-extrabold leading-none tracking-tight text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.7)] md:text-xs">{t.ticker}</span> : null}
-                      {showScore ? <span className="font-mono text-[9px] font-semibold leading-none text-white/90 drop-shadow-[0_1px_2px_rgba(0,0,0,0.7)] md:text-[10px]">{t.mispricingScore.toFixed(1)}</span> : null}
-                    </a>
+                    <Link
+                      key={t.ticker}
+                      href={`/dossier/${t.ticker}?market=id`}
+                      title={title}
+                      aria-label={`${t.ticker}: Skor ${t.mispricingScore.toFixed(1)}, Sektor ${sec}`}
+                      className="absolute flex flex-col items-center justify-center overflow-hidden border border-[#07090E] p-0.5 text-center transition-all hover:z-20 hover:scale-[1.02] hover:border-white hover:shadow-2xl"
+                      style={{
+                        left: `${tileLeft}%`,
+                        top: `${tileTop}%`,
+                        width: `${tileW}%`,
+                        height: `${tileH}%`,
+                        background: color.bg,
+                      }}
+                    >
+                      <span className="sr-only">{t.ticker}</span>
+                      {isLarge ? (
+                        <>
+                          <span className="font-mono text-xs md:text-sm font-black text-white drop-shadow leading-tight">
+                            {t.ticker}
+                          </span>
+                          <span className="font-mono text-[10px] md:text-[11px] font-bold text-white/95 leading-none mt-0.5">
+                            {t.mispricingScore.toFixed(1)}
+                          </span>
+                          <span className="font-mono text-[8px] text-white/80 leading-none mt-0.5">
+                            {deltaStr}
+                          </span>
+                          {t.close ? (
+                            <span className="font-mono text-[8px] text-white/70 leading-none mt-0.5 hidden xl:block">
+                              Rp {t.close.toLocaleString("id-ID")}
+                            </span>
+                          ) : null}
+                        </>
+                      ) : isMedium ? (
+                        <>
+                          <span className="font-mono text-[10px] md:text-[11px] font-black text-white leading-tight">
+                            {t.ticker}
+                          </span>
+                          <span className="font-mono text-[8px] md:text-[9px] font-bold text-white/95 leading-none">
+                            {t.mispricingScore.toFixed(1)}
+                          </span>
+                        </>
+                      ) : isSmall ? (
+                        <span className="font-mono text-[9px] font-black text-white leading-none">
+                          {t.ticker}
+                        </span>
+                      ) : (
+                        <span className="font-mono text-[7px] font-bold text-white/90 leading-none">
+                          {t.ticker.slice(0, 3)}
+                        </span>
+                      )}
+                    </Link>
                   );
                 })}
               </div>
@@ -127,9 +353,11 @@ export default function Heatmap100({ items }: { items: HeatItem[] }) {
           );
         })}
       </div>
-      <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#24242e]/60 bg-[#0B0E14]/50 px-3 py-2 text-[11px] text-zinc-500">
-        <span>Bukan rekomendasi investasi — warna = mispricingScore 0→100 (merah pekat rendah → abu 50 → hijau pekat tinggi) · area sektor ∝ jumlah emiten · tap cell → dossier · idx.co.id ↗</span>
-        <span className="font-mono text-zinc-600">{filtered.length} live · global weighted treemap · FINANCE {bySector.find((g) => g.sec === "FINANCE")?.list.length ?? 0} &gt; OTHER {bySector.find((g) => g.sec === "OTHER")?.list.length ?? 0}</span>
+
+      {/* Terminal Status Bar */}
+      <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#1E2638] bg-[#0A0D15] px-3 py-1.5 font-mono text-[10px] text-zinc-400">
+        <span>STATUS: PROPORTIONAL SQUARIFIED MARKET MAP · 100% HIJAU &amp; MERAH</span>
+        <span className="text-zinc-500">Bukan rekomendasi investasi · Data riil Sectors API</span>
       </div>
     </div>
   );

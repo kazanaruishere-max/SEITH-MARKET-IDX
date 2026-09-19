@@ -101,4 +101,7 @@ SILO:{ticker:"SILO",name:"PT Siloam International Hospitals Tbk",sector:"OTHER",
 BRMS:{ticker:"BRMS",name:"PT Bumi Resources Minerals Tbk",sector:"OTHER",desc:"Tambang mineral — Bakrie.",idxUrl:"https://www.idx.co.id/id/perusahaan-tercatat/profil-perusahaan-tercatat/detail/BRMS"},
 MDKA:{ticker:"MDKA",name:"PT Merdeka Copper Gold Tbk",sector:"OTHER",desc:"Tambang emas & tembaga — Merdeka.",idxUrl:"https://www.idx.co.id/id/perusahaan-tercatat/profil-perusahaan-tercatat/detail/MDKA"},
 };
-export function profileOf(ticker: string): CompanyProfile | undefined { return COMPANY_PROFILES[ticker.toUpperCase()]; }
+export function profileOf(ticker: string): CompanyProfile | undefined {
+  const key = ticker.toUpperCase();
+  return Object.hasOwn(COMPANY_PROFILES, key) ? COMPANY_PROFILES[key] : undefined;
+}
