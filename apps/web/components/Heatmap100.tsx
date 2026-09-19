@@ -72,12 +72,14 @@ export default function Heatmap100({ items }: { items: HeatItem[] }) {
   };
   const groups = ["FINANCE", "ENERGY", "CONSUMER", "INFRA", "OTHER"].map((sec) => ({ sec, list: sorted.filter((x) => x.sector === sec) })).filter((g) => g.list.length > 0);
   const bySector = groups.map((g) => ({ ...g, totalW: g.list.reduce((s, x) => s + weight(x), 0) }));
+  const sectorWeights = bySector.map((g) => g.totalW);
+  const sectorRects = getRects(sectorWeights, 0, 0, 100, 100);
   return (
     <div className="overflow-hidden rounded-xl border border-[#24242e] bg-[#11151F] shadow-card">
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#24242e]/60 bg-[#0f1320]/40 px-3 py-2.5">
         <div className="flex items-center gap-2">
           <span className="text-xs font-bold uppercase tracking-[0.14em] text-zinc-100">Stock Heatmap</span>
-          <span className="hidden rounded-full border border-zinc-800 bg-[#0B0E14] px-2 py-0.5 text-[10px] font-medium text-zinc-400 md:inline">Treemap by sector · {filtered.length} · merah→abu→hijau</span>
+          <span className="hidden rounded-full border border-zinc-800 bg-[#0B0E14] px-2 py-0.5 text-[10px] font-medium text-zinc-400 md:inline">Treemap by sector · {filtered.length} · sektor ∝ count · merah→abu→hijau</span>
         </div>
         <span className="flex items-center gap-1.5 text-[11px] text-zinc-400">
           <span className="h-2 w-3 rounded-sm" style={{ background: gradient(15) }} />20
@@ -87,18 +89,20 @@ export default function Heatmap100({ items }: { items: HeatItem[] }) {
           <span className="ml-2 hidden text-zinc-500 md:inline">· tap cell → dossier · avatar 2 huruf</span>
         </span>
       </div>
-      <div className="grid gap-2 p-2 md:grid-cols-2 xl:grid-cols-3">
-        {bySector.map(({ sec, list }) => {
+      <div className="relative w-full bg-[#0B0E14]" style={{ height: 640 }}>
+        {bySector.map(({ sec, list }, si) => {
+          const sr = sectorRects[si];
+          if (!sr) return null;
           const vals = list.map((x) => weight(x));
           const rects = getRects(vals, 0, 0, 100, 100);
           const avg = list.reduce((s, x) => s + x.mispricingScore, 0) / list.length;
           return (
-            <div key={sec} className="overflow-hidden rounded-xl border border-[#24242e]/70 bg-[#0B0E14]">
-              <div className="flex items-center justify-between border-b border-[#24242e]/60 bg-[#1A1F2E]/70 px-3 py-2">
-                <span className="text-xs font-bold tracking-wide text-zinc-100">{sec}<span className="ml-1 font-normal text-zinc-500">›</span></span>
-                <span className="font-mono text-xs text-zinc-500">{list.length} · {avg.toFixed(1)}</span>
+            <div key={sec} className="absolute overflow-hidden border border-[#24242e]/70 bg-[#0B0E14]" style={{ left: `${sr.x}%`, top: `${sr.y}%`, width: `${sr.w}%`, height: `${sr.h}%` }}>
+              <div className="flex items-center justify-between border-b border-[#24242e]/60 bg-[#1A1F2E]/80 px-2 py-1.5">
+                <span className="text-[11px] font-bold tracking-wide text-zinc-100">{sec}<span className="ml-1 font-normal text-zinc-500">›</span></span>
+                <span className="font-mono text-[10px] text-zinc-500">{list.length} · {avg.toFixed(1)}</span>
               </div>
-              <div className="relative h-[280px] w-full bg-[#0B0E14] md:h-[320px]">
+              <div className="absolute inset-x-0 bottom-0 top-[28px]">
                 {list.map((t, i) => {
                   const r = rects[i];
                   if (!r) return null;
@@ -111,7 +115,7 @@ export default function Heatmap100({ items }: { items: HeatItem[] }) {
                   const avatarBg = sectorBg(sec);
                   const title = `${t.ticker} — ${prof?.name ?? t.ticker} — ${prof?.desc ?? sec} — skor ${t.mispricingScore.toFixed(1)} — rank ${t.rank ?? i + 1} — ${prof?.idxUrl ?? ""} — klik → dossier`;
                   return (
-                    <a key={t.ticker} href={`/dossier/${t.ticker}?market=id`} title={title} className="absolute flex flex-col items-center justify-center overflow-hidden rounded-[6px] border border-black/20 p-1 text-center transition-all hover:z-10 hover:scale-[1.015] hover:border-white/20 hover:shadow-[0_6px_20px_rgba(0,0,0,0.5)]" style={{ left: `${r.x}%`, top: `${r.y}%`, width: `${r.w}%`, height: `${r.h}%`, background: bg }}>
+                    <a key={t.ticker} href={`/dossier/${t.ticker}?market=id`} title={title} className="absolute flex flex-col items-center justify-center overflow-hidden rounded-[5px] border border-black/20 p-1 text-center transition-all hover:z-10 hover:scale-[1.015] hover:border-white/20 hover:shadow-[0_6px_20px_rgba(0,0,0,0.5)]" style={{ left: `${r.x}%`, top: `${r.y}%`, width: `${r.w}%`, height: `${r.h}%`, background: bg }}>
                       {showAvatar ? <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-extrabold leading-none text-white shadow-sm md:h-7 md:w-7 md:text-[11px]" style={{ background: avatarBg }}>{initials}</span> : null}
                       {showTicker ? <span className="mt-1 font-mono text-[10px] font-extrabold leading-none tracking-tight text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.7)] md:text-xs">{t.ticker}</span> : null}
                       {showScore ? <span className="font-mono text-[9px] font-semibold leading-none text-white/90 drop-shadow-[0_1px_2px_rgba(0,0,0,0.7)] md:text-[10px]">{t.mispricingScore.toFixed(1)}</span> : null}
@@ -124,8 +128,8 @@ export default function Heatmap100({ items }: { items: HeatItem[] }) {
         })}
       </div>
       <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#24242e]/60 bg-[#0B0E14]/50 px-3 py-2 text-[11px] text-zinc-500">
-        <span>Bukan rekomendasi investasi — warna = mispricingScore 0→100 (merah pekat rendah → abu 50 → hijau pekat tinggi) · tap cell → dossier · avatar 2 huruf per sektor · idx.co.id ↗</span>
-        <span className="font-mono text-zinc-600">{filtered.length} live · no filler · weighted treemap</span>
+        <span>Bukan rekomendasi investasi — warna = mispricingScore 0→100 (merah pekat rendah → abu 50 → hijau pekat tinggi) · area sektor ∝ jumlah emiten · tap cell → dossier · idx.co.id ↗</span>
+        <span className="font-mono text-zinc-600">{filtered.length} live · global weighted treemap · FINANCE {bySector.find((g) => g.sec === "FINANCE")?.list.length ?? 0} &gt; OTHER {bySector.find((g) => g.sec === "OTHER")?.list.length ?? 0}</span>
       </div>
     </div>
   );
