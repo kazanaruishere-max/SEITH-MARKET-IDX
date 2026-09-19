@@ -35,7 +35,7 @@
 | 5 | [Architecture — Hybrid Verifiable](#5-architecture) | Rust + sidecars + envelope |
 | 6 | [Data Sources & Universe](#6-data-sources) | 100 stratified + 296 credits + provenance |
 | 7 | [Scoring Engine 0-100](#7-scoring-engine) | Formula, components, clamp |
-| 8 | [Metrics, |Z|, Flags, AA Evaluation](#8-metrics) | Definitions + thresholds + read guide |
+| 8 | [Metrics, \|Z\|, Flags, AA Evaluation](#8-metrics) | Definitions + thresholds + read guide |
 | 9 | [API Contract — 8 Endpoints](#9-api-contract) | Paths, params, examples, errors |
 | 10 | [Web Contract — AA × TV](#10-web-contract) | Routes, rewrites, components |
 | 11 | [Market — IDX × SG](#11-market) | Enum, base_path, median isolation |
@@ -153,7 +153,7 @@ Market Intelligence = **pre-trade information advantage** — analysis generated
 | Lens | Weight | Source | Question it answers |
 |---|---|---|---|
 | Quality/Value (QV) | 30% | Sectors ROE/margin/leverage/PE/PB sector percentile | Is cheap also high quality? |
-| Expected move (ER + anomaly) | 30% ER + 20% | Kronos forecast + |Z| divergence | Is price far from forecast? |
+| Expected move (ER + anomaly) | 30% ER + 20% | Kronos forecast + \|Z\| divergence | Is price far from forecast? |
 | Context (Sector momentum + peer) | 20% + peer 5 | Sector median + peer QV+cap ±50% | Is this cheapness typical for its sector/market? |
 
 If you remove Sectors, the product is dead. Derived insight is the gate.
@@ -166,11 +166,11 @@ All six map to `What qualifies`. Each is derived inside SEITH, not a re-skin.
 
 | # | Qualifies | SEITH implementation | Live proof (2026-09-13) |
 |---|---|---|---|
-| 1 | Signals / scores | Mispricing 0-100 `0.30*ER + 0.20*(100-|Z|_norm) + 0.30*QV + 0.20*SM` clamp | `research/backtest-100.json` 100 items, LPPF 80.3 rank 1 (50.02/99.91/100/76.58) |
-| 2 | Rankings | Sort by mispricing desc, `|Z|` tie-break, pagination `page/pageSize max50` | `GET /api/v1/ranking?market=id` total 100, FINANCE 25 / ENERGY 20 / CONSUMER 20 / INFRA 20 / OTHER 15 |
+| 1 | Signals / scores | Mispricing 0-100 `0.30*ER + 0.20*(100-\|Z\|_norm) + 0.30*QV + 0.20*SM` clamp | `research/backtest-100.json` 100 items, LPPF 80.3 rank 1 (50.02/99.91/100/76.58) |
+| 2 | Rankings | Sort by mispricing desc, `\|Z\|` tie-break, pagination `page/pageSize max50` | `GET /api/v1/ranking?market=id` total 100, FINANCE 25 / ENERGY 20 / CONSUMER 20 / INFRA 20 / OTHER 15 |
 | 3 | Screener with custom logic | Filter `?sector=FINANCE&sort=anomaly&minZ` — QV sector percentile + median per market, not raw PE sort | `GET /api/v1/ranking?sector=FINANCE&pageSize=10` + `GET /api/v1/anomalies?minZ=2` |
-| 4 | Anomaly detection | `|Z|>2` price divergence or `vol>2σ` without fundamental catalyst + `reason` string | ANTM `z=-2.41 flag true reason "z=-2.4"` · SIDO `vol>2s flag true` |
-| 5 | Comparative analysis | Peer 5 per dossier: same sector+market, ordered by `|QV - target_QV|` + `|Z|` tie-break, cap band close `±50%`, fallback `same_sector loose → cross_sector` | `GET /api/v1/tickers/BBCA/dossier` → 5 peers |
+| 4 | Anomaly detection | `\|Z\|>2` price divergence or `vol>2σ` without fundamental catalyst + `reason` string | ANTM `z=-2.41 flag true reason "z=-2.4"` · SIDO `vol>2s flag true` |
+| 5 | Comparative analysis | Peer 5 per dossier: same sector+market, ordered by `|QV - target_QV|` + `\|Z\|` tie-break, cap band close `±50%`, fallback `same_sector loose → cross_sector` | `GET /api/v1/tickers/BBCA/dossier` → 5 peers |
 | 6 | Synthesized research | TradingAgents-Lite 3-agent (Fund/Tech/Synth) via 9router `nemotron-3.5-lightning:free` → Top-10 dossier memo | `research/backtest-100.json` items 0-9 `research source llm model nemotron` — Top-10 live, remaining 90 template (cost ceiling) |
 
 Raw table without any of the six = FAIL. SEITH passes on all six with verifiable artifacts.
@@ -234,9 +234,9 @@ flowchart LR
 
 | Field | Value |
 |---|---|
-| Formula | `score = 0.30*ER_norm + 0.20*(100 - |Z|_norm) + 0.30*QV + 0.20*SM` clamp 0-100 · store 4 components for `StackedTop20 30/20/30/20` + `ScoreBadge bar` |
+| Formula | `score = 0.30*ER_norm + 0.20*(100 - \|Z\|_norm) + 0.30*QV + 0.20*SM` clamp 0-100 · store 4 components for `StackedTop20 30/20/30/20` + `ScoreBadge bar` |
 | ER 30% | Kronos `forecastReturn` z-normalized → 0-100 |
-| |Z| 20% | `100 - |Z|_norm` — high divergence is flagged, not rewarded |
+| \|Z\| 20% | `100 - \|Z\|_norm` — high divergence is flagged, not rewarded |
 | QV 30% | Sectors Quality/Value sector-percentile per market (`ROE/margin/leverage/PE/PB` → percentile, Id ≠ Sg) |
 | SM 20% | Sector momentum — median sector + relative strength per market |
 | Example | LPPF `ER 50.02 Z 99.91 QV 100 SM 76.58 = 80.3 rank 1` · UNVR `50.35/99.35/100/67.07=78.39 rank 2` · TPIA `50.35/99.51/100/52.34=75.48 rank 3` |
@@ -246,10 +246,10 @@ flowchart LR
 
 | Field | Value |
 |---|---|
-| Sort | `mispricing desc` primary · `|Z|` absolute tie-break |
-| Flag | `|Z|>2` price divergence OR `volume spike >2σ` without fundamental catalyst → `flag:true + reason` string (e.g. `"z=-2.4"`, `"vol>2s"`) · `anomaly` displayed as pill |
+| Sort | `mispricing desc` primary · `\|Z\|` absolute tie-break |
+| Flag | `\|Z\|>2` price divergence OR `volume spike >2σ` without fundamental catalyst → `flag:true + reason` string (e.g. `"z=-2.4"`, `"vol>2s"`) · `anomaly` displayed as pill |
 | Pagination | `page/pageSize max50` · `pagination {page,pageSize,total}` in envelope |
-| Anomalies | `GET /api/v1/anomalies?minZ=2.0` Top5 `|Z|` Money Leak Radar — sorted `|Z| desc` per market |
+| Anomalies | `GET /api/v1/anomalies?minZ=2.0` Top5 `\|Z\|` Money Leak Radar — sorted `\|Z\| desc` per market |
 
 #### Gate 6 — TradingAgents-Lite :8002 → 9router :20128/v1
 
@@ -268,7 +268,7 @@ flowchart LR
 | Field | Value |
 |---|---|
 | Compose | `score + breakdown 4 + peerComparison 5 + kronos {forecastReturn, volatility, chartPoints 20, volBand ±2σ} + research 3 memo → JSON` |
-| Peer 5 | Same sector+market, sorted by `|QV - target_QV|` + `|Z|` tie-break, cap band `close ±50%`, fallback `same_sector loose cap → cross_sector` · `backtest_data.rs:108-175 peer_pool/sort` |
+| Peer 5 | Same sector+market, sorted by `|QV - target_QV|` + `\|Z\|` tie-break, cap band `close ±50%`, fallback `same_sector loose cap → cross_sector` · `backtest_data.rs:108-175 peer_pool/sort` |
 | Kronos | 20 `chartPoints` per ticker deterministic via `research/regen_backtest_100.py` · `value/upper/lower` per day `2026-09-14→2026-10-03` · Area ±2σ |
 | PDF | `POST /api/v1/tickers/BBCA/dossier?format=pdf&lang=id` → `@react-pdf/renderer` vector `612×792` A4 · 9-section 2-page (P1 Cover/Executive/Mispricing/Valuation/Peer+cap/Anomaly + P2 Catalyst/Methodology/Annex) · disclaimer per footer `Bukan rekomendasi` · `@react-pdf/renderer 3.4.4` |
 | JSON | `GET /api/v1/tickers/BBCA/dossier?format=json&lang=id` → same data as PDF |
@@ -333,7 +333,7 @@ Sectors REST/MCP (1000 credits, CompositeCache, batch) ─┐
 
 | Crate | Key file / module | Function |
 |---|---|---|
-| `seith-core` | `scoring/calculator.rs` `score = 0.30ER+0.20(100-|Z|)+0.30QV+0.20SM clamp` | Heartbeat: 4-component explainable score |
+| `seith-core` | `scoring/calculator.rs` `score = 0.30ER+0.20(100-\|Z\|)+0.30QV+0.20SM clamp` | Heartbeat: 4-component explainable score |
 | `seith-core` | `models` + `normalize` + `anomaly` | Cleansing gate: OHLC required else `excluded`, vol→0, ratio→median, `lookback>512→422` |
 | `seith-core` | `dossier::compose` + `to_pdf_bytes` | Dossier assembly → PDF vector 2-page A4 #0B0E14 |
 | `seith-core` | `market::Market` + `config::AppConfig::from_env` + `redact` | Enum `Id/Sg`, env fail-fast, key `Redacted ***` |
@@ -375,45 +375,47 @@ clamp 0-100, store 4 components for breakdown
 | Component | Input | Transform | Weight | Meaning |
 |---|---|---|---|---|
 | ER | Kronos `forecastReturn` = (predClose - close)/close | z-normalized across sector → 0-100 | 30% | Expected move — positive forecast pulls score up |
-| |Z| | `|Z| = |(actual - forecast)/σ_forecast|` | `100 - |Z|_norm` → 0-100 | 20% | Anomaly distance — large divergence is flagged, not rewarded |
+| \|Z\| | `\|Z\| = \|(actual - forecast)/σ_forecast\|` | `100 - \|Z\|_norm` → 0-100 | 20% | Anomaly distance — large divergence is flagged, not rewarded |
 | QV | Sectors `ROE/margin/leverage/PE/PB` | Sector percentile per market (Id ≠ Sg) → 0-100 | 30% | Quality/Value — cheap quality > value trap |
 | SM | Sector median score + relative strength | Percentile per market → 0-100 | 20% | Sector momentum — context, not absolute price |
 
 **Examples (live):**
 
-| Ticker | ER | |Z| | QV | SM | Score | Rank |
+| Ticker | ER | \|Z\| | QV | SM | Score | Rank |
 |---|---|---|---|---|---|---|
 | LPPF | 50.02 | 99.91 | 100.0 | 76.58 | 80.30 | 1 |
 | UNVR | 50.35 | 99.35 | 100.0 | 67.07 | 78.39 | 2 |
 | TPIA | 50.35 | 99.51 | 100.0 | 52.34 | 75.48 | 3 |
 | BBCA | 50.23 | 99.38 | 100.0 | 52.04 | 75.35 | 4 |
 
-`ponytail:` ceiling `QV 100` on low-ROE tickers = sector median fallback dominates when fundamentals missing — upgrade path: weight ROE/margin higher when coverage >0.9.
+> `ponytail:` ceiling `QV 100` on low-ROE tickers = sector median
+> fallback dominates when fundamentals missing — upgrade path:
+> weight ROE/margin higher when coverage >0.9.
 
 ---
 
-### 8. Metrics, |Z|, Flags, AA Evaluation
+### 8. Metrics, \|Z\|, Flags, AA Evaluation
 
-#### |Z| — Forecast divergence
+#### \|Z\| — Forecast divergence
 
 ```
 Z = (actualClose - forecastMean) / σ_forecast
-|Z| = absolute Z
+\|Z\| = absolute Z
 ```
 
 `forecastMean` and `σ_forecast` come from Kronos `pred_df` 20-point sample (`T=1.0 top_p0.9`). `|Z|` is unitless sigma distance.
 
-| |Z| | Interpretation |
+| \|Z\| | Interpretation |
 |---|---|
 | <1.0 | Near forecast — no anomaly |
 | 1.0-2.0 | Elevated — watch |
-| >2.0 | **Flagged anomaly** — price far from forecast path — pill `FLAG |Z| x.x` red |
+| >2.0 | **Flagged anomaly** — price far from forecast path — pill `FLAG \|Z\| x.x` red |
 
 #### Flags
 
 | Trigger | Code | Example | Display |
 |---|---|---|---|
-| `|Z|>2` | `flag:true reason "z=-2.4"` | ANTM `z=-2.41 flag true` | Red pill + table `|Z|` bold red |
+| `\|Z\|>2` | `flag:true reason "z=-2.4"` | ANTM `z=-2.41 flag true` | Red pill + table `\|Z\|` bold red |
 | `vol>2σ` without catalyst | `flag:true reason "vol>2s"` | SIDO `z=-0.44 vol>2s flag true` | Red pill + `reason` tooltip |
 | Otherwise | `flag:false reason ""` | LPPF `z=0.09 flag false` | Grey dot |
 
@@ -440,13 +442,13 @@ Every flag carries `reason` — no silent flag.
 
 | Term | One-line |
 |---|---|
-| `Mispricing 0-100` | Composite `0.30ER+0.20(100-|Z|)+0.30QV+0.20SM clamp` — higher = derived cheap-quality, not just low PE |
+| `Mispricing 0-100` | Composite `0.30ER+0.20(100-\|Z\|)+0.30QV+0.20SM clamp` — higher = derived cheap-quality, not just low PE |
 | `Kronos-base 102M` | Kronos K-line foundation model (102.3M params, 512 max_context, `400→20`) — zero-shot forecast, not finetuned |
-| `|Z|` | `(actual - forecastMean)/σ_forecast` — sigma distance to Kronos path |
+| `\|Z\|` | `(actual - forecastMean)/σ_forecast` — sigma distance to Kronos path |
 | `QV percentile` | Quality/Value sector percentile per market (`ROE/margin/leverage/PE/PB` vs median) — isolates market |
 | `Sector Momentum (SM)` | Median sector score + relative strength per market |
-| `Treemap squarify` | `d3-hierarchy worst()` — cell area ∝ `|score-50|*2+6` (fallback when `market_cap` absent), sector area ∝ ticker count |
-| `FLAG |Z|>2 / vol>2σ` | Anomaly pill — price far from forecast or volume spike without catalyst + `reason` |
+| `Treemap squarify` | `d3-hierarchy worst()` — cell area ∝ `\|score-50\|*2+6` (fallback when `market_cap` absent), sector area ∝ ticker count |
+| `FLAG \|Z\|>2 / vol>2σ` | Anomaly pill — price far from forecast or volume spike without catalyst + `reason` |
 | `CompositeCache` | `moka L1 <1ms + SQLite L2 ~2ms WAL busy_timeout 3000` — trait `Cache`, key `market:sector:ticker:date` |
 | `Envelope` | `{success,data,error,pagination}` + `x-schema-version: 1.0.0` — same JSON for CLI and REST |
 | `Degraded` | Kronos/9router down → score+peer still valid, `degraded:true` chartPoints empty — Track 3 LLM optional |
@@ -588,7 +590,7 @@ Cleansing exclude is not a global error — ticker appears under `excluded` with
 | Route | Purpose | Data | Visual |
 |---|---|---|---|
 | `/` | Hero + overview | `ranking 100 + backtest metrics + anomalies Top5` | Sector strip (5 pills + avg bar) + hero 4 KPI (universe/avg/flagged/pipeline) + AA leaderboard preview Top10 |
-| `/ranking` | Screener + discovery | `ranking ?sector & sort` + `ranking 100` for charts | Heatmap treemap 5× grouped (FINANCE→OTHER) 10×10 → score · Stacked Top20 30/20/30/20 · Scatter ER vs |Z| size=close flag red · Table screener sticky bar+pill |
+| `/ranking` | Screener + discovery | `ranking ?sector & sort` + `ranking 100` for charts | Heatmap treemap 5× grouped (FINANCE→OTHER) 10×10 → score · Stacked Top20 30/20/30/20 · Scatter ER vs \|Z\| size=close flag red · Table screener sticky bar+pill |
 | `/backtest` | Evaluation | `backtest universe 100` | Equity Area emerald SEITH vs amber dashed IHSG + drawdown shade -8% · 4 KPI (hit/sharpe/drawdown/total) · Metrics table AA · Top10 holdings |
 | `/dossier/[ticker]` | 1-page decision | `dossier json + peer5 + kronos 20` | ScoreBadge pill + DossierKronosChart amber dashed + ±2σ band · peer benchmark · 3-agent memo · dual download blob+vector PDF |
 
@@ -876,10 +878,10 @@ Market Intelligence = **keunggulan informasi pra-trade** — analisis yang dihas
 
 | # | Qualifies | Implementasi | Bukti live 2026-09-13 |
 |---|---|---|---|
-| 1 | Signal/skor | Mispricing `0.30ER+0.20(100-|Z|)+0.30QV+0.20SM` clamp | 100 item LPPF 80.3 rank 1 |
-| 2 | Ranking | Sort mispricing desc tie-break |Z|, pagination | total 100 FINANCE25/ENERGY20/CONSUMER20/INFRA20/OTHER15 |
+| 1 | Signal/skor | Mispricing `0.30ER+0.20(100-\|Z\|)+0.30QV+0.20SM` clamp | 100 item LPPF 80.3 rank 1 |
+| 2 | Ranking | Sort mispricing desc tie-break \|Z\|, pagination | total 100 FINANCE25/ENERGY20/CONSUMER20/INFRA20/OTHER15 |
 | 3 | Screener custom | Filter `?sector=FINANCE&sort=anomaly` QV percentile bukan sort PE mentah | `GET /ranking?sector=FINANCE` |
-| 4 | Deteksi anomali | Flag `|Z|>2` atau `vol>2σ` + `reason` | ANTM z -2.41 flag true |
+| 4 | Deteksi anomali | Flag `\|Z\|>2` atau `vol>2σ` + `reason` | ANTM z -2.41 flag true |
 | 5 | Komparatif | Peer 5 same sector+market `|QV-target|` + cap ±50% | `GET /dossier/BBCA` 5 peers |
 | 6 | Riset tersintesis | Lite 3 agen nemotron Top-10 | 10 memo llm + 90 template |
 
@@ -931,13 +933,13 @@ Formula `0.30ER+0.20(100-|Z|)+0.30QV+0.20SM` clamp. ER z-norm forecast, `|Z|` cl
 
 | Istilah | Satu baris |
 |---|---|
-| `Mispricing 0-100` | Komposit `0.30ER+0.20(100-|Z|)+0.30QV+0.20SM clamp` — tinggi = cheap-quality derivatif, bukan PE rendah mentah |
+| `Mispricing 0-100` | Komposit `0.30ER+0.20(100-\|Z\|)+0.30QV+0.20SM clamp` — tinggi = cheap-quality derivatif, bukan PE rendah mentah |
 | `Kronos-base 102M` | Foundation model K-line (102.3M, 512 max_context, `400→20`) — zero-shot forecast, tanpa finetune |
-| `|Z|` | `(actual - forecastMean)/σ_forecast` — jarak sigma ke path forecast |
+| `\|Z\|` | `(actual - forecastMean)/σ_forecast` — jarak sigma ke path forecast |
 | `QV percentile` | Sector percentile per market (`ROE/margin/leverage/PE/PB` vs median) — isolasi market |
 | `Sector Momentum (SM)` | Median skor sektor + relative strength per market |
 | `Treemap squarify` | `d3-hierarchy worst()` — area sel ∝ `|score-50|*2+6` (fallback saat `market_cap` absen), area sektor ∝ jumlah ticker |
-| `FLAG |Z|>2 / vol>2σ` | Pill anomali — harga jauh dari forecast atau spike volume tanpa katalis + `reason` |
+| `FLAG \|Z\|>2 / vol>2σ` | Pill anomali — harga jauh dari forecast atau spike volume tanpa katalis + `reason` |
 | `CompositeCache` | `moka L1 <1ms + SQLite L2 ~2ms WAL busy_timeout 3000` — trait `Cache`, key `market:sector:ticker:date` |
 | `Envelope` | `{success,data,error,pagination}` + `x-schema-version: 1.0.0` — JSON sama untuk CLI & REST |
 | `Degraded` | Kronos/9router down → skor+peer tetap valid, `degraded:true` chartPoints kosong — Track 3 LLM opsional |
