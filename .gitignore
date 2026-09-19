@@ -36,5 +36,6 @@ temp_*.toml
 dev-web.log
 serve.log
 .coverage
-# Teaser source with space/caps (keep committed docs/assets/seith-teaser.mp4)
+# Teaser source with space/caps (keep committed docs/assets/seith-teaser.gif)
 Seith Teaser.mp4
+Seith Teaser.gif
