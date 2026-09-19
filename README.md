@@ -15,6 +15,12 @@
 
 ![SEITH Bloomberg Dark Preview](docs/assets/demo-placeholder.svg)
 
+> **🎬 Motion Teaser — 10s loop (no sound).** `docs/assets/seith-teaser.mp4` — preview the 60s ranking → deep dossier → export PDF flow at a glance.
+
+<video src="docs/assets/seith-teaser.mp4" controls autoplay muted loop playsinline width="100%" poster="docs/assets/demo-placeholder.svg" style="max-width: 100%; border-radius: 12px; border: 1px solid #24242e;"></video>
+
+> Fallback if GitHub does not autoplay: [▶ Watch Teaser — docs/assets/seith-teaser.mp4](docs/assets/seith-teaser.mp4) · [Static Preview — docs/assets/demo-placeholder.svg](docs/assets/demo-placeholder.svg)
+
 ---
 
 <a id="english"></a>
