@@ -69,6 +69,8 @@ export default async function RankingPage({
     .map((it) => ({
       ticker: it.ticker,
       er: it.components!.expected_return,
+      score: it.mispricingScore,
+      sector: it.sector,
       z: it.anomaly?.z ?? it.anomalyZ ?? 0,
       close: it.close!,
       flag: it.anomaly?.flag ?? it.anomalyFlag ?? false,
