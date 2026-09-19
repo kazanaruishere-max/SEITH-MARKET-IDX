@@ -87,7 +87,18 @@ pub fn page_slice(items: &[Value], page: u32, page_size: u32) -> Vec<Value> {
 }
 
 pub fn to_ranking_item(it: &Value, rank: usize) -> Value {
-    json!({"ticker": str_of(it, "ticker"), "market": str_of(it, "market"), "sector": str_of(it, "sector"), "close": f64_of(it, "close"), "mispricingScore": f64_of(it, "mispricingScore"), "components": it.get("components").cloned().unwrap_or(json!({})), "anomalyFlag": flag_of(it), "anomalyZ": z_of(it), "rank": rank})
+    let excluded = it
+        .get("excluded")
+        .and_then(|v| v.as_bool())
+        .unwrap_or(false);
+    let reason = it
+        .get("anomaly")
+        .and_then(|a| a.get("reason"))
+        .and_then(|r| r.as_str())
+        .unwrap_or("")
+        .to_string();
+    let rank_val = if excluded { json!(null) } else { json!(rank) };
+    json!({"ticker": str_of(it, "ticker"), "market": str_of(it, "market"), "sector": str_of(it, "sector"), "close": f64_of(it, "close"), "mispricingScore": f64_of(it, "mispricingScore"), "components": it.get("components").cloned().unwrap_or(json!({})), "anomalyFlag": flag_of(it), "anomalyZ": z_of(it), "rank": rank_val, "excluded": excluded, "reason": reason})
 }
 
 pub fn find_item(v: &Value, ticker: &str, market: &str) -> Option<Value> {
