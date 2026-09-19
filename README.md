@@ -381,14 +381,16 @@ clamp 0-100, store 4 components for breakdown
 
 **Examples (live):**
 
-| Ticker | ER | |Z| | QV | SM | Score | Rank |
+| Ticker | ER | \|Z\| | QV | SM | Score | Rank |
 |---|---|---|---|---|---|---|
 | LPPF | 50.02 | 99.91 | 100.0 | 76.58 | 80.30 | 1 |
 | UNVR | 50.35 | 99.35 | 100.0 | 67.07 | 78.39 | 2 |
 | TPIA | 50.35 | 99.51 | 100.0 | 52.34 | 75.48 | 3 |
 | BBCA | 50.23 | 99.38 | 100.0 | 52.04 | 75.35 | 4 |
 
-`ponytail:` ceiling `QV 100` on low-ROE tickers = sector median fallback dominates when fundamentals missing — upgrade path: weight ROE/margin higher when coverage >0.9.
+> `ponytail:` ceiling `QV 100` on low-ROE tickers = sector median
+> fallback dominates when fundamentals missing — upgrade path:
+> weight ROE/margin higher when coverage >0.9.
 
 ---
 
