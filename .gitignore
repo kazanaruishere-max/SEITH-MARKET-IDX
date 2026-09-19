@@ -33,3 +33,8 @@ research/*.out.json
 research/*.html
 temp_*.rs
 temp_*.toml
+dev-web.log
+serve.log
+.coverage
+# Teaser source with space/caps (keep committed docs/assets/seith-teaser.mp4)
+Seith Teaser.mp4

@@ -14,6 +14,7 @@ export default async function Page() {
   let universe = 100;
   let asOf = "";
   let degraded: boolean | undefined;
+  let error: string | null = null;
   try {
     const [r, b, a] = await Promise.all([
       fetchRanking({ market: "id", pageSize: 100 }),
@@ -27,7 +28,7 @@ export default async function Page() {
     asOf = bd.as_of ?? "";
     degraded = bd.degraded;
     leaks = ((a.data as { items: typeof leaks }).items ?? []) as typeof leaks;
-  } catch { }
+  } catch (e: unknown) { error = e instanceof Error ? e.message : String(e); }
   const flagged = items.filter((x) => x.anomalyFlag ?? x.anomaly?.flag).length;
   const avg = items.length ? (items.reduce((s, x) => s + x.mispricingScore, 0) / items.length).toFixed(1) : "-";
   const top10 = [...items].sort((x, y) => y.mispricingScore - x.mispricingScore).slice(0, 10) as never[];
@@ -41,12 +42,28 @@ export default async function Page() {
         <span className="font-mono font-semibold text-zinc-300">IDX</span><span className="text-zinc-700">›</span><span>Sectors 100</span><span className="text-zinc-700">›</span><span className="text-zinc-400">Market Intelligence</span><span className="ml-2 hidden rounded-full border border-zinc-800 bg-[#11151F] px-2 py-0.5 font-mono text-[10px] md:inline">as_of {asOf || "live"} · {degraded ? "degraded" : "live"}</span>
       </nav>
 
+      {error ? (
+        <div role="alert" className="flex flex-col gap-2 rounded-[14px] border border-red-900/60 bg-red-950/40 px-4 py-3 md:flex-row md:items-center md:justify-between">
+          <div className="flex items-start gap-3">
+            <span className="mt-0.5 h-2 w-2 shrink-0 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.7)]" />
+            <div className="min-w-0">
+              <div className="text-sm font-semibold text-red-200">API offline — data tidak dapat dimuat</div>
+              <div className="mt-0.5 font-mono text-[11px] leading-relaxed text-red-300/80 break-all">ranking · backtest · anomalies dari http://127.0.0.1:8181 — {error}</div>
+            </div>
+          </div>
+          <div className="flex shrink-0 items-center gap-2 md:pl-4">
+            <span className="hidden font-mono text-[10px] text-red-300/60 md:inline">./scripts/fast-boot.ps1</span>
+            <a href="/" className="rounded-full border border-red-800/60 bg-red-900/30 px-3 py-1 text-xs font-medium text-red-200 hover:bg-red-900/60 transition-colors">Retry ↻</a>
+          </div>
+        </div>
+      ) : null}
+
       <section className="overflow-hidden rounded-[16px] border border-[#24242e] bg-gradient-to-br from-[#11151F] via-[#11151F] to-[#0f1320] p-5 md:p-6 shadow-card">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div className="min-w-0">
             <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/20 bg-amber-400/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-amber-300"><span className="h-1.5 w-1.5 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.6)]" /> Market Intelligence · IDX · Sectors 100</div>
             <h1 className="mt-3 font-mono text-[28px] font-extrabold leading-none tracking-[-0.03em] md:text-[34px]">SEITH<span className="ml-2 align-super text-[11px] font-semibold tracking-[0.16em] text-zinc-500">BLOOMBERG GRADE</span></h1>
-            <p className="mt-2 max-w-[60ch] text-balance text-sm leading-6 text-zinc-400">Mispricing <span className="font-mono font-semibold text-zinc-200">0–100</span> · Anomaly Rank · Dossier 1-page. <span className="text-zinc-300">60s ranking → deep dive → export PDF.</span> Warna = skor, bukan harga. TradingView sector flow + Artificial Analysis density.</p>
+            <p className="mt-2 max-w-[60ch] text-balance text-sm leading-6 text-zinc-400">Mispricing <span className="font-mono font-semibold text-zinc-200">0–100</span> · Anomaly Rank · Dossier 1-page. <span className="text-zinc-300">60s ranking → deep dive → export PDF.</span> Warna = skor, bukan harga. TradingView sector flow + Artificial Analysis density. <span className="text-zinc-300">100 profil emiten idx.co.id ↗ — hover/klik treemap → dossier.</span></p>
             <div className="mt-4 flex flex-wrap gap-2">
               <div className="flex gap-2">
                 <Link href="/ranking" className="rounded-full bg-amber-400 px-5 py-2 text-sm font-bold text-zinc-900 hover:bg-amber-300 active:scale-[0.98] transition-all shadow-[0_1px_0_rgba(255,255,255,0.5)_inset,0_8px_20px_-12px_rgba(251,191,36,0.6)]">Lihat Ranking →</Link>

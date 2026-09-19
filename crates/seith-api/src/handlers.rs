@@ -368,7 +368,10 @@ pub async fn dossier(
         .as_ref()
         .map(|v| bd::peer_five(v, &it))
         .unwrap_or_default();
-    let memo = bd::dossier_memo(&it, peers.len());
+    let (fund_memo, tech_memo, synth_memo) = bd::research_of(&it).unwrap_or_else(|| {
+        let m = bd::dossier_memo(&it, peers.len());
+        (m.clone(), m.clone(), m)
+    });
     let kronos_val = it
         .get("kronos")
         .cloned()
@@ -379,7 +382,7 @@ pub async fn dossier(
         .map(|a| a.is_empty())
         .unwrap_or(true);
     let kronos_degraded = chart_empty;
-    let data = json!({"ticker": t, "market": market.as_str(), "lang": lang, "score": bd::f64_of(&it, "mispricingScore"), "breakdown": it.get("components").cloned().unwrap_or(json!({})), "peerComparison": peers, "kronos": kronos_val, "research": {"fundamentalMemo": memo, "technicalMemo": memo, "synthesizerMemo": memo}, "anomaly": it.get("anomaly").cloned().unwrap_or(json!({})), "sector": bd::str_of(&it, "sector"), "rank": it.get("rank").cloned().unwrap_or(json!(0)), "degraded": kronos_degraded, "disclaimer": DISCLAIMER});
+    let data = json!({"ticker": t, "market": market.as_str(), "lang": lang, "score": bd::f64_of(&it, "mispricingScore"), "breakdown": it.get("components").cloned().unwrap_or(json!({})), "peerComparison": peers, "kronos": kronos_val, "research": {"fundamentalMemo": fund_memo, "technicalMemo": tech_memo, "synthesizerMemo": synth_memo}, "anomaly": it.get("anomaly").cloned().unwrap_or(json!({})), "sector": bd::str_of(&it, "sector"), "rank": it.get("rank").cloned().unwrap_or(json!(0)), "degraded": kronos_degraded, "disclaimer": DISCLAIMER});
     with_schema(ok_body(data), StatusCode::OK)
 }
 
@@ -405,7 +408,7 @@ fn dossier_pdf(
     found: Option<&serde_json::Value>,
     peer_count: usize,
 ) -> Vec<u8> {
-    let (score, comps, memo) = match found {
+    let (score, comps, fund_memo, tech_memo, synth_memo) = match found {
         Some(it) => {
             let c = it.get("components");
             let co = Components {
@@ -426,11 +429,11 @@ fn dossier_pdf(
                     .and_then(|x| x.as_f64())
                     .unwrap_or(50.0) as f32,
             };
-            (
-                bd::f64_of(it, "mispricingScore") as f32,
-                co,
-                bd::dossier_memo(it, peer_count),
-            )
+            let (f, t, s) = bd::research_of(it).unwrap_or_else(|| {
+                let m = bd::dossier_memo(it, peer_count);
+                (m.clone(), m.clone(), m)
+            });
+            (bd::f64_of(it, "mispricingScore") as f32, co, f, t, s)
         }
         None => (
             72.5,
@@ -440,6 +443,8 @@ fn dossier_pdf(
                 quality_value: 50.0,
                 sector_mom: 50.0,
             },
+            String::new(),
+            String::new(),
             String::new(),
         ),
     };
@@ -470,9 +475,9 @@ fn dossier_pdf(
         Vec::new(),
         kronos_sec,
         dossier::ResearchSection {
-            fundamental_memo: memo.clone(),
-            technical_memo: memo.clone(),
-            synthesizer_memo: memo,
+            fundamental_memo: fund_memo,
+            technical_memo: tech_memo,
+            synthesizer_memo: synth_memo,
         },
     );
     dossier::to_pdf_bytes(&d)

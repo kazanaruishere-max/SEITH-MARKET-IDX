@@ -11,7 +11,7 @@ export default async function RankingPage({ searchParams }: { searchParams: { ma
   const sort = searchParams.sort ?? "mispricing";
   const order = searchParams.order ?? "desc";
   const page = searchParams.page ? parseInt(searchParams.page, 10) : 1;
-  const pageSize = searchParams.pageSize ? parseInt(searchParams.pageSize, 10) : 20;
+  const pageSize = searchParams.pageSize ? parseInt(searchParams.pageSize, 10) : 50;
   let items: Item[] = [];
   let pagination = { page, pageSize, total: 0 };
   let error: string | null = null;
@@ -24,6 +24,7 @@ export default async function RankingPage({ searchParams }: { searchParams: { ma
     allForCharts = ((rc.data as { items: Item[] }).items ?? []) as Item[];
   } catch (e: unknown) { error = e instanceof Error ? e.message : String(e); }
   const link = (s: string) => `/ranking?market=${market}${sector ? `&sector=${sector}` : ""}&sort=${s}&order=${order}&page=${page}&pageSize=${pageSize}`;
+  const pageHref = (p: number) => `/ranking?market=${market}${sector ? `&sector=${sector}` : ""}&sort=${sort}&order=${order}&page=${p}&pageSize=${pageSize}`;
   const scatterItems = allForCharts.map((it) => ({ ticker: it.ticker, er: it.components?.expected_return ?? 50, z: it.anomaly?.z ?? it.anomalyZ ?? 0, close: it.close ?? 1000, flag: it.anomaly?.flag ?? it.anomalyFlag ?? false }));
   const stackItems = allForCharts.filter((x) => x.components).slice(0, 20).map((x) => ({ ticker: x.ticker, mispricingScore: x.mispricingScore, components: x.components! }));
   return (
@@ -67,7 +68,7 @@ export default async function RankingPage({ searchParams }: { searchParams: { ma
         <StackedTop20 items={stackItems} />
         <ScatterERvsZ items={scatterItems} />
       </div>
-      <RankingTable items={items as never} pagination={pagination} />
+      <RankingTable items={items as never} pagination={pagination} pageHref={pageHref} />
       <p className="text-xs leading-relaxed text-zinc-500">Bukan rekomendasi investasi. Informasi &amp; analisis saja · Sectors CORE · Kronos 400→20 · 30/20/30/20 · pagination server · heatmap treemap by sector</p>
     </div>
   );

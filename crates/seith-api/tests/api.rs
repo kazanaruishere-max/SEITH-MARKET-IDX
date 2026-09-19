@@ -502,10 +502,12 @@ async fn dossier_bbca_peer5_real() {
     assert_eq!(v["data"]["ticker"], "BBCA");
     assert_eq!(v["data"]["score"], 75.35);
     assert_eq!(v["data"]["peerComparison"].as_array().unwrap().len(), 5);
-    assert!(v["data"]["research"]["synthesizerMemo"]
+    let synth = v["data"]["research"]["synthesizerMemo"]
         .as_str()
         .unwrap()
-        .contains("Peer 5"));
+        .to_lowercase();
+    assert!(synth.contains("verdict: buy") || synth.contains("verdict:buy"));
+    assert!(synth.contains("roe") && synth.contains("20,4%"));
 }
 
 #[tokio::test]
@@ -565,8 +567,11 @@ async fn dossier_bmri_peer_fallback_nonempty() {
     let peers = v["data"]["peerComparison"].as_array().unwrap();
     assert!(!peers.is_empty());
     assert!(peers.len() <= 5);
-    let memo = v["data"]["research"]["synthesizerMemo"].as_str().unwrap();
-    assert!(memo.contains(&format!("Peer {}", peers.len())));
+    let synth = v["data"]["research"]["synthesizerMemo"]
+        .as_str()
+        .unwrap()
+        .to_lowercase();
+    assert!(synth.contains("cautious") || synth.contains("caution") || synth.contains("verdict"));
 }
 
 #[tokio::test]
@@ -603,7 +608,9 @@ async fn backtest_equity_dates_valid() {
     assert_eq!(resp.status(), StatusCode::OK);
     let v = body_json(resp).await;
     let eq = v["data"]["equity_curve"].as_array().unwrap();
-    assert_eq!(eq.len(), 12);
+    assert_eq!(eq.len(), 52);
+    assert_eq!(eq[0]["date"].as_str().unwrap(), "2025-09-21");
+    assert_eq!(eq[51]["date"].as_str().unwrap(), "2026-09-13");
     for e in eq {
         let d = e["date"].as_str().unwrap();
         assert!(

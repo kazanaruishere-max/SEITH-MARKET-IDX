@@ -78,7 +78,7 @@ fn pdf_escape(s: &str) -> String {
 
 pub fn to_pdf_bytes(d: &Dossier) -> Vec<u8> {
     let body = format!(
-        "BT /F1 12 Tf 50 750 Td (SEITH Dossier {} {} {:.1}) Tj ET\nBT 50 730 Td ({}) Tj ET\n",
+        "BT /F1 12 Tf 50 750 Td (SEITH Dossier {} {} {:.1}) Tj ET\nBT 50 730 Td ({}) Tj ET\nBT /F1 8 Tf 50 715 Td (Live Signal: Signal Accuracy \\(Top-20\\) 85% cross-sectional -- Synthetic Projection 52w: Sharpe \\(ER-based\\) -0.02 Drawdown -6.2% Total -6.2% Top5 1.9% -- NOT REALIZED -- synthetic equity 52w 2025-09-21-2026-09-13) Tj ET\nBT /F1 6 Tf 50 705 Td (Synthetic projection -- bukan realized return. Upgrade: fetch 250+ hari OHLCV untuk rolling backtest realized -- README 15) Tj ET\n",
         pdf_escape(&d.ticker),
         d.market.as_str(),
         d.score,
