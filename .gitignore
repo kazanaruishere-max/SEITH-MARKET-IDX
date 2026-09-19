@@ -34,6 +34,8 @@ research/*.html
 temp_*.rs
 temp_*.toml
 dev-web.log
+dev.log
+apps/web/dev.log
 serve.log
 .coverage
 # Teaser source with space/caps (keep committed docs/assets/seith-teaser.gif)

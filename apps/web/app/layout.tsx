@@ -1,42 +1,113 @@
 import "./globals.css";
 import Link from "next/link";
+import { fetchRanking } from "@/lib/api";
+import TickerTape, { type TapeItem } from "@/components/TickerTape";
+import QuickSearch from "@/components/QuickSearch";
+
 export const metadata = {
-  title: "SEITH — Market Intelligence IDX · Artificial Analysis × TradingView grade",
+  title: "SEITH — Bloomberg × TradingView Grade Market Intelligence for IDX",
   description: "Mispricing 0-100 · Anomaly Rank · Dossier 1-page · Sectors CORE · Kronos 400→20",
   openGraph: { title: "SEITH — Market Intelligence IDX", description: "Mispricing 0-100 derived insight for IDX" },
 };
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  let tapeItems: TapeItem[] = [];
+  try {
+    const r = await fetchRanking({ market: "id", pageSize: 12 });
+    tapeItems = ((r.data as { items: TapeItem[] }).items ?? []).map((x) => ({
+      ticker: x.ticker,
+      close: x.close,
+      mispricingScore: x.mispricingScore,
+      rank: x.rank,
+      anomalyFlag: x.anomalyFlag,
+    }));
+  } catch {
+    // fallback if offline
+  }
+
   return (
     <html lang="id">
-      <body className="min-h-screen bg-[#0B0E14] text-zinc-100 antialiased selection:bg-amber-400 selection:text-zinc-900">
-        <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-amber-400 focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-zinc-900">Skip to content</a>
-        <header className="sticky top-0 z-30 border-b border-[#24242e]/80 bg-[#0B0E14]/80 glass supports-[backdrop-filter]:bg-[#0B0E14]/60">
-          <div className="mx-auto flex h-[52px] max-w-[1360px] items-center justify-between gap-4 px-4 md:px-6">
-            <div className="flex items-center gap-5">
-              <Link href="/" className="flex items-center gap-3 group">
-                <span className="rounded-[6px] bg-amber-400 px-2 py-1 font-mono text-xs font-extrabold tracking-[0.18em] text-zinc-900 shadow-[0_1px_0_rgba(255,255,255,0.4)_inset] group-hover:bg-amber-300 transition-colors">SEITH</span>
-                <span className="hidden flex-col leading-none md:flex">
-                  <span className="text-[11px] font-semibold tracking-[0.14em] text-zinc-100">MARKET INTELLIGENCE</span>
-                  <span className="text-[11px] tracking-wide text-zinc-500">IDX · Sectors 100 · Kronos</span>
+      <body className="min-h-screen bg-[#07090E] text-[#E2E8F0] antialiased selection:bg-amber-400 selection:text-zinc-900">
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[100] focus:rounded-[4px] focus:bg-amber-400 focus:px-3 focus:py-1.5 focus:font-mono focus:text-xs focus:font-bold focus:text-zinc-900"
+        >
+          Skip to content
+        </a>
+
+        {/* TradingView Real Ticker Tape */}
+        <TickerTape items={tapeItems} />
+
+        {/* Bloomberg Command Header */}
+        <header className="sticky top-0 z-40 border-b border-[#1E2638] bg-[#07090E]/90 glass">
+          <div className="mx-auto flex h-[48px] max-w-[1440px] items-center justify-between gap-3 px-3 sm:px-4 md:px-6">
+            <div className="flex items-center gap-4">
+              <Link href="/" className="flex items-center gap-2.5 group">
+                <span className="rounded-[3px] bg-amber-400 px-2 py-0.5 font-mono text-xs font-black tracking-widest text-zinc-900 group-hover:bg-amber-300 transition-colors shadow-sm">
+                  SEITH
+                </span>
+                <span className="hidden flex-col leading-none sm:flex">
+                  <span className="font-mono text-[11px] font-bold tracking-[0.14em] text-zinc-200">
+                    TERMINAL // MI
+                  </span>
+                  <span className="text-[10px] tracking-tight text-zinc-500">
+                    IDX · KRONOS 400→20
+                  </span>
                 </span>
               </Link>
-              <span className="hidden h-6 w-px bg-zinc-800 md:block" />
-              <span className="hidden items-center gap-1.5 rounded-full border border-emerald-900/50 bg-emerald-950/30 px-2.5 py-1 text-[11px] font-medium text-emerald-300 md:inline-flex"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" /> LIVE 100</span>
+              <span className="hidden h-5 w-px bg-[#1E2638] sm:block" />
+              <div className="hidden lg:block">
+                <QuickSearch />
+              </div>
             </div>
-            <nav className="flex items-center gap-1 text-[13px]">
-              <Link href="/ranking" className="rounded-full px-3.5 py-1.5 font-medium text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors">Ranking</Link>
-              <Link href="/backtest" className="rounded-full px-3.5 py-1.5 font-medium text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors">Backtest</Link>
-              <Link href="/dossier/BBCA?market=id" className="rounded-full px-3.5 py-1.5 font-medium text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors">Dossier</Link>
-              <span className="ml-1 hidden rounded-full border border-zinc-800 bg-zinc-900/60 px-2.5 py-1 text-[10px] leading-none tracking-wide text-zinc-400 md:inline">Bukan rekomendasi investasi</span>
+
+            <div className="flex lg:hidden flex-1 justify-center max-w-xs">
+              <QuickSearch />
+            </div>
+
+            <nav className="flex items-center gap-1.5 font-mono text-xs">
+              <Link
+                href="/ranking"
+                className="rounded-[3px] border border-transparent px-2.5 py-1 text-zinc-300 hover:border-[#1E2638] hover:bg-[#0D111A] hover:text-white transition-colors"
+              >
+                <span className="text-zinc-500 mr-1">F1</span>RANK
+              </Link>
+              <Link
+                href="/backtest"
+                className="rounded-[3px] border border-transparent px-2.5 py-1 text-zinc-300 hover:border-[#1E2638] hover:bg-[#0D111A] hover:text-white transition-colors"
+              >
+                <span className="text-zinc-500 mr-1">F2</span>BKST
+              </Link>
+              <Link
+                href="/dossier/BBCA?market=id"
+                className="rounded-[3px] border border-transparent px-2.5 py-1 text-zinc-300 hover:border-[#1E2638] hover:bg-[#0D111A] hover:text-white transition-colors"
+              >
+                <span className="text-zinc-500 mr-1">F3</span>DOSS
+              </Link>
+              <span className="hidden sm:inline-flex items-center gap-1.5 rounded-[3px] border border-emerald-900/50 bg-emerald-950/30 px-2 py-0.5 text-[10px] font-bold text-emerald-400 ml-1">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" /> LIVE
+              </span>
             </nav>
           </div>
         </header>
-        <main id="main" className="mx-auto max-w-[1360px] px-4 py-6 md:px-6 md:py-8">{children}</main>
-        <footer className="border-t border-[#24242e]/60 py-6">
-          <div className="mx-auto max-w-[1360px] px-4 md:px-6">
-            <div className="flex flex-col gap-2 text-xs leading-relaxed text-zinc-500 md:flex-row md:items-center md:justify-between">
-              <span>Bukan rekomendasi investasi — informasi &amp; analisis saja · Sectors CORE · Kronos 400→20 · 30/20/30/20 · CompositeCache L1+L2</span>
-              <span className="flex gap-3 font-mono text-[11px]"><a href="/api/v1/health" className="hover:text-zinc-300">/health</a><span className="text-zinc-700">·</span><span>schema 1.0.0</span></span>
+
+        <main id="main" className="mx-auto max-w-[1440px] px-3 sm:px-4 md:px-6 py-4 md:py-6">
+          {children}
+        </main>
+
+        <footer className="border-t border-[#1E2638] bg-[#07090E] py-4 text-[11px] text-zinc-500">
+          <div className="mx-auto flex max-w-[1440px] flex-col gap-2 px-3 sm:px-4 md:flex-row md:items-center md:justify-between md:px-6">
+            <div>
+              <span className="font-semibold text-zinc-400">Bukan rekomendasi investasi</span> — Informasi &amp; analisis saja · Sectors CORE · Kronos 400→20 · CompositeCache L1+L2
+            </div>
+            <div className="flex items-center gap-3 font-mono text-[10px]">
+              <a href="/api/v1/health" className="hover:text-zinc-300 transition-colors">
+                SYS: /health
+              </a>
+              <span className="text-zinc-700">·</span>
+              <span>SCHEMA 1.0.0</span>
+              <span className="text-zinc-700">·</span>
+              <span className="text-amber-400/90 font-bold">BLOOMBERG × TRADINGVIEW</span>
             </div>
           </div>
         </footer>
