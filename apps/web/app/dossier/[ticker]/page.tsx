@@ -195,13 +195,29 @@ export default async function DossierPage({
               dossier={
                 {
                   ticker,
+                  name: prof?.name,
+                  desc: prof?.desc,
+                  sector: data.sector ?? prof?.sector,
+                  rank: data.rank,
+                  close: data.close,
                   market,
                   lang,
                   score: data.score,
                   breakdown: data.breakdown,
-                  peerComparison: peers,
+                  peerComparison: peers.map((p) => {
+                    const pp = profileOf(p.ticker);
+                    return {
+                      ticker: p.ticker,
+                      name: pp?.name,
+                      score: p.score,
+                      market: p.market,
+                      qvDistance: p.qvDistance,
+                    };
+                  }),
                   kronos: data.kronos,
                   research: data.research,
+                  anomaly: data.anomaly,
+                  degraded: !data.kronos?.chartPoints?.length,
                   disclaimer: data.disclaimer,
                 } as never
               }
