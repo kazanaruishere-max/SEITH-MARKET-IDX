@@ -25,6 +25,7 @@
 | # | Section | Purpose |
 |---|---|---|
 | 0 | [Overview & TOC](#0-overview) | One-line product + navigation |
+| 0b | [Requirements for Jury](#0b-requirements-for-jury) | 1-page checklist (what/ports/models/health) |
 | 1 | [Positioning & Thesis](#1-positioning) | Why SEITH wins Reveal |
 | 2 | [What is Market Intelligence](#2-what-is-mi) | Track definition vs trader vs value |
 | 3 | [Six Derived Proofs](#3-six-derived-proofs) | Live mapping to `What qualifies` |
@@ -52,7 +53,7 @@ SEITH is a **Market Intelligence engine for IDX** — Track 3 Reveal. One workfl
 - **Delivery:** Hybrid — Rust Axum API (`:8181`) + `seith-cli` (`clap`) + Next.js 14 web (`:3000`) share `crates/seith-core` + envelope `{success,data,error,pagination}`.
 - **Constraint:** No auto trade execution. `Bukan rekomendasi investasi` on every view. Repo public within build window 19 Aug–30 Sep 2026, freeze at submit.
 
-**Navigate:** [EN §0a 60s for Jury](#0a-60s-for-jury) · [§1 Positioning](#1-positioning) · [§4 Workflow](#4-eight-gate-workflow) · [§8 Metrics](#8-metrics) · [§9 API](#9-api-contract) · [§12a Requirements](#12a-requirements) · [ID Mirror](#indonesia)
+**Navigate:** [EN §0a 60s for Jury](#0a-60s-for-jury) · [§0b Requirements for Jury](#0b-requirements-for-jury) · [§1 Positioning](#1-positioning) · [§4 Workflow](#4-eight-gate-workflow) · [§8 Metrics](#8-metrics) · [§9 API](#9-api-contract) · [§12a Requirements](#12a-requirements) · [ID Mirror](#indonesia)
 
 ---
 
@@ -70,6 +71,37 @@ SEITH is a **Market Intelligence engine for IDX** — Track 3 Reveal. One workfl
 | **6 — (optional) Evidence** | API direct | `curl http://127.0.0.1:8181/api/v1/tickers/BBCA/dossier?market=id&format=json` → `research.fundamentalMemo` contains `ROE 20.4%`, `synthesizerMemo` ends `Verdict: buy.` — not `Skor ...` generic. |
 
 **Fallback:** If `data/seith.db` is empty, ranking still serves from `research/backtest-100.json` pinned `as_of 2026-09-13`. If Kronos `:8001` cold, dossier still renders with `degraded:false` chartPoints (20 pre-computed). 9router `:20128` never kill.
+
+---
+
+### 0b. Requirements for Jury — 1-Page Checklist
+
+> **What judges must run. No hidden dependency. If a service is down, the product still works in degraded mode — but you should verify the health check first.**
+
+| # | Service | Port | Required? | If it is down, what happens | Health check | Model / dependency |
+|---|---|---|---|---|---|---|
+| 1 | **9router** | `:20128` | Optional (Track 3) | Top-10 memos fall back to deterministic `template` (`degraded:true`) — MI still qualifies (LLM optional). Ranking/peer still valid. | `scripts/check-9router.ps1` → `Invoke-WebRequest http://localhost:20128/v1/models` → `200` · NEVER kill (Do Not Kill Tier-0) | LLM proxy `nvidia/nemotron-3.5-lightning:free` combo `SEITH-MARKET-IDX` (OpenAI-compatible `POST /v1/chat/completions`) · `LLM_BASE_URL=http://localhost:20128/v1` |
+| 2 | **Kronos-base** | `:8001` | Optional (has fallback) | `chartPoints 20` served pre-computed from `research/backtest-100.json` (`degraded:false` honest). Real forecast 400→20 only needs `torch` 102.3M cold 2-3m CPU. | `Invoke-WebRequest http://localhost:8001/health` → `ok` · `KRONOS_MOCK=1` for jury without GPU (CI path). `scripts/check-kronos.ps1` | `NeoQuasar/Kronos-base 102.3M` + `Kronos-Tokenizer-base` · HF `102.3M` · `max_context 512` `400→20` `T1.0 top_p0.9` · `docs/kronos-notes.md` + `2508.02739v1.pdf` |
+| 3 | **Rust API** | `:8181` | **Required** | Web `:3000` shows `API offline` banner, ranking/backtest/dossier empty. No fallback — API is the contract. | `Invoke-WebRequest http://127.0.0.1:8181/health` → `200 {"status":"ok","schema":"1.0.0"}`. `SEITH_API_BIND=0.0.0.0:8181` (8080 occupied). `scripts/fast-boot.ps1` boots it. | Rust `1.94` Axum + Tokio · `CompositeCache moka L1 + SQLite L2 data/seith.db WAL` |
+| 4 | **Analysis** | `:8002` | Optional (batch) | Top-10 LLM memos not regenerated, pinned `research/memos_top10.json` reused. | `scripts/check-9router.ps1` (covers `:8002 → :20128`) | `TradingAgents-Lite` copy-workflow → 9router `:20128` · `httpx` · `SECTORS_API_KEY` server-only |
+| 5 | **Web** | `:3000` | **Required for demo** | Requires `:8181`. `NEXT_PUBLIC_API_BASE` or `rewrites → 127.0.0.1:8181`. | `Invoke-WebRequest http://localhost:3000` → `200` · `pnpm --dir apps/web dev` | Next.js 14 App Router + TS + Tailwind + shadcn + Zod + `recharts 2.12.7` + `@react-pdf/renderer 3.4.4` |
+| 6 | **Sectors API** | HTTPS | **Required once** | 296 credits already burned (`research/backtest-100.json` pinned `as_of 2026-09-13`). Offline demo works via `data/seith.db` + pinned JSON. | `SECTORS_API_KEY` in `.env` server-only (never to client/log/error). Check: `sqlite3 data/seith.db "SELECT count(*) FROM ohlcv;"` | `Sectors REST /v2/daily/{symbol}/` + `/v2/sgx/daily/` · 1000 credits budget · `CompositeCache` |
+
+**Offline demo (jury with no GPU / no 9router):**
+
+```powershell
+# 1 — offline demo works out of the box (no 9router, no Kronos GPU needed)
+# ranking + dossier + backtest + PDF still serve from pinned research/backtest-100.json
+cargo run -p seith-api --bin serve          # :8181 — requires no 9router/kronos
+pnpm --dir apps/web dev                     # :3000 — rewrites → :8181
+
+# 2 — optional: verify optional services (juri bisa skip)
+.\scripts\check-9router.ps1                 # expects localhost:20128 (LLM) — if down, Top-10 memos fall back to template
+.\scripts\check-kronos.ps1                  # expects localhost:8001 (Kronos 102M) — if down, 20 chartPoints served pre-computed
+# with KRONOS_MOCK=1, sidecar returns mock forecast in <1s (CI path, no GPU)
+```
+
+**AI models (for §12a reference):** `Kronos-base 102.3M` (forecast) + `Kronos-Tokenizer-base` (hierarchical K-line tokenizer, 45+ exchanges, AAAI 2026) from `2508.02739v1.pdf` — `docs/kronos-notes.md`. `Nemotron 3.5 Lightning` via 9router `:20128/v1` — combo `SEITH-MARKET-IDX` (`SEITH_API_KEY` in `.env`). Neither model is downloaded during `cargo test`/`pnpm build` — model weights are sidecar-only (`apps/kronos-sidecar/.venv` + `torch`).
 
 ---
 
@@ -581,6 +613,8 @@ Cleansing exclude is not a global error — ticker appears under `excluded` with
 
 ### 12. Quick Start — 6 Steps
 
+> **For jury:** run `§0b Requirements for Jury` checklist first (health + models + ports), then the 6 steps. `§0b` has the offline-demo path when 9router/Kronos are not available — no setup wasted.
+
 ```powershell
 # 0 clone — submodules depth 1 (vendor pinned)
 git clone --recurse-submodules --depth 1 https://github.com/kazanaruishere-max/SEITH-MARKET-IDX.git
@@ -633,8 +667,9 @@ pnpm --dir apps/web dev   # :3000 rewrites → :8181 · Bloomberg #0B0E14
 | Requirement | Value |
 |---|---|
 | **OS (tested)** | **Windows 11 + PowerShell 7** (primary) · **WSL2 / Ubuntu 22.04+** · **macOS 13+** (Rust/Python portable). CI: `ubuntu-latest`. |
-| **Hardware** | 8 GB RAM (Kronos-base 102M cold 2-3m CPU), 500 MB disk, `data/seith.db` grows with cache |
+| **Hardware** | 8 GB RAM (Kronos-base 102.3M cold 2-3m CPU), 500 MB disk, `data/seith.db` grows with cache |
 | **Runtime** | Rust `1.94` (`Cargo.toml` edition 2021) · Python `3.12+` + `uv` · Node `20` + `pnpm 10` |
+| **AI models** | `NeoQuasar/Kronos-base 102.3M` + `Kronos-Tokenizer-base` (hierarchical K-line, 45+ exchanges, `2508.02739v1.pdf` §4 Gate 3) · `nvidia/nemotron-3.5-lightning:free` via 9router `:20128/v1` combo `SEITH-MARKET-IDX` (`SEITH_API_KEY` in `.env`). Neither downloaded during `cargo test`/`pnpm build` — weights only in `apps/kronos-sidecar/.venv` (`torch`). Jury without GPU/key: `KRONOS_MOCK=1` + `research/backtest-100.json` pinned fallback — MI still qualifies (Track 3 LLM optional). See `§0b Requirements for Jury` for health checks + offline demo. |
 | **Network** | `SECTORS_API_KEY` server-only (never to client/log) · 296 credits pre-burned (`research/backtest-100.json`) · offline demo works via `data/seith.db` + `backtest-100.json` pinned + 9router degraded fallback |
 | **Ports** | `:8181` API (Axum) · `:3000` Web (Next) · `:8001` Kronos · `:8002` Analysis · `:20128` 9router — `SEITH_API_BIND=0.0.0.0:8181` (8080 occupied by httpd, see §12) |
 | **Shell** | PowerShell 7 `pwsh` primary (all `§12` commands are `powershell` blocks). Bash variant for Linux/WSL/macOS: replace `Copy-Item` → `cp`, `Set-Location` → `cd`, `Invoke-WebRequest` → `curl`. |
