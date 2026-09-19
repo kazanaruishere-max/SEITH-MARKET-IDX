@@ -203,15 +203,15 @@ export default async function Page() {
         })}
       </div>
 
-      {/* Main Grid: Treemap + Sidebars */}
-      <div className="grid gap-3 lg:grid-cols-3">
-        <div className="lg:col-span-2">
-          <Heatmap100 items={items as never} />
-        </div>
-        <div className="space-y-3">
-          <TopLeaks items={leaks} />
-          <MetricsTable m={metrics} />
-        </div>
+      {/* Full-Width Market Treemap Map<GO> */}
+      <section className="w-full">
+        <Heatmap100 items={items as never} />
+      </section>
+
+      {/* Anomaly Radar & Validation Metrics Below Treemap */}
+      <div className="grid gap-3 lg:grid-cols-2">
+        <TopLeaks items={leaks} />
+        <MetricsTable m={metrics} />
       </div>
 
       {/* Top 10 Preview Data Grid */}
