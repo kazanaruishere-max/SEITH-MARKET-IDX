@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 export type TapeItem = {
   ticker: string;
   close?: number;
@@ -15,7 +17,7 @@ export default function TickerTape({ items }: { items: TapeItem[] }) {
     <div className="border-b border-[#1E2638] bg-[#07090E] px-3 py-1 font-mono text-[11px] leading-tight text-zinc-300">
       <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-4">
         <div className="flex shrink-0 items-center gap-2 border-r border-[#1E2638] pr-3">
-          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse motion-reduce:animate-none" />
           <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">IDX FEED</span>
         </div>
         <div className="flex flex-1 items-center gap-5 overflow-x-auto no-scrollbar scroll-smooth whitespace-nowrap py-0.5">
@@ -27,7 +29,7 @@ export default function TickerTape({ items }: { items: TapeItem[] }) {
                 ? "text-amber-400"
                 : "text-red-400";
             return (
-              <a
+              <Link
                 key={it.ticker}
                 href={`/dossier/${it.ticker}?market=id`}
                 className="inline-flex items-center gap-2 hover:opacity-80 transition-opacity"
@@ -45,7 +47,7 @@ export default function TickerTape({ items }: { items: TapeItem[] }) {
                   </span>
                 ) : null}
                 <span className="text-zinc-700">│</span>
-              </a>
+              </Link>
             );
           })}
         </div>

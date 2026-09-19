@@ -1,6 +1,7 @@
 import dynamic from "next/dynamic";
+import Link from "next/link";
+import { notFound } from "next/navigation";
 import { fetchDossier } from "@/lib/api";
-import ScoreBadge from "@/components/ScoreBadge";
 import DossierKronosChart from "@/components/DossierKronosChart";
 import { profileOf } from "@/data/companyProfiles";
 
@@ -63,7 +64,11 @@ export default async function DossierPage({
   params: { ticker: string };
   searchParams: { market?: string; lang?: string };
 }) {
-  const ticker = params.ticker.toUpperCase().split(".")[0];
+  const cleanTicker = params.ticker.toUpperCase().split(".")[0].replace(/[^A-Z0-9]/g, "");
+  if (!/^[A-Z0-9]{3,6}$/.test(cleanTicker)) {
+    notFound();
+  }
+  const ticker = cleanTicker;
   const market = searchParams.market ?? "id";
   const lang = searchParams.lang ?? "id";
   const prof = profileOf(ticker);
@@ -86,13 +91,13 @@ export default async function DossierPage({
       {/* Breadcrumb Navigation */}
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#1E2638] pb-2 font-mono text-[11px] text-zinc-400">
         <div className="flex items-center gap-1.5">
-          <a href="/" className="text-zinc-500 hover:text-zinc-300 transition-colors">
+          <Link href="/" className="text-zinc-500 hover:text-zinc-300 transition-colors">
             SEITH // TERMINAL
-          </a>
+          </Link>
           <span className="text-zinc-600">&gt;</span>
-          <a href="/ranking" className="text-zinc-500 hover:text-zinc-300 transition-colors">
+          <Link href="/ranking" className="text-zinc-500 hover:text-zinc-300 transition-colors">
             SCREENER
-          </a>
+          </Link>
           <span className="text-zinc-600">&gt;</span>
           <span className="font-bold text-amber-400">DOSSIER</span>
           <span className="text-zinc-600">&gt;</span>
@@ -202,18 +207,18 @@ export default async function DossierPage({
               }
             />
           ) : null}
-          <a
+          <Link
             href={`/ranking?market=${market}`}
             className="terminal-btn border-[#1E2638] bg-[#07090E] text-zinc-300 hover:border-zinc-500 hover:text-white"
           >
             ← KEMBALI KE SCREENER
-          </a>
-          <a
+          </Link>
+          <Link
             href={`/backtest?market=${market}`}
             className="terminal-btn border-[#1E2638] bg-[#07090E] text-zinc-300 hover:border-zinc-500 hover:text-white"
           >
             STRATEGY TESTER →
-          </a>
+          </Link>
         </div>
       </section>
 
@@ -267,12 +272,12 @@ export default async function DossierPage({
                             {p.qvDistance !== undefined ? p.qvDistance.toFixed(2) : "-"}
                           </td>
                           <td className="px-3 py-2 text-center">
-                            <a
+                            <Link
                               href={`/dossier/${p.ticker}?market=${p.market}`}
                               className="rounded-[2px] border border-[#1E2638] bg-[#131824] px-2 py-0.5 text-[10px] text-zinc-300 hover:border-zinc-500 hover:text-white transition-colors"
                             >
                               DOSSIER ↗
-                            </a>
+                            </Link>
                           </td>
                         </tr>
                       );
@@ -341,7 +346,7 @@ export default async function DossierPage({
                   SYNTHESIZER VERDICT
                 </div>
                 <p className="mt-1 text-xs leading-relaxed text-zinc-200 font-sans">
-                  {data.research?.synthesizerMemo ?? "Thesis ringkas: skor komposit derivatif terverifikasi."}
+                  {data.research?.synthesizerMemo ?? "-"}
                 </p>
               </div>
 

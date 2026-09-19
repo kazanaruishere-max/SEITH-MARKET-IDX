@@ -87,7 +87,7 @@ export default async function Page() {
           <span className="text-zinc-400">IDX OVERVIEW</span>
         </div>
         <div className="flex items-center gap-3 text-[10px]">
-          <span>AS OF: {asOf || "2026-09-13"}</span>
+          <span>AS OF: {asOf || "-"}</span>
           <span className="text-zinc-700">│</span>
           <span className={degraded ? "text-amber-400" : "text-emerald-400"}>
             STATUS: {degraded ? "DEGRADED (FALLBACK)" : "LIVE"}
@@ -134,7 +134,7 @@ export default async function Page() {
             {universe}
           </div>
           <div className="mt-0.5 font-mono text-[10px] text-zinc-400">
-            5 Sektor · 296 Credits Sectors
+            5 Sektor · CompositeCache L1+L2
           </div>
         </div>
 
@@ -237,7 +237,7 @@ export default async function Page() {
 
       {/* Disclaimer */}
       <div className="font-mono text-[10px] text-zinc-500 leading-relaxed border-t border-[#1E2638] pt-2">
-        Bukan rekomendasi investasi — Informasi &amp; analisis saja · Sectors CORE · Kronos 400→20 · 30ER/20|Z|/30QV/20SM · Top-10 Nemutron · Data resmi emiten idx.co.id ↗
+        Bukan rekomendasi investasi — Informasi &amp; analisis saja · Sectors CORE · Kronos 400→20 · 30ER/20|Z|/30QV/20SM · Top-10 Nemotron · Data resmi emiten idx.co.id ↗
       </div>
     </div>
   );

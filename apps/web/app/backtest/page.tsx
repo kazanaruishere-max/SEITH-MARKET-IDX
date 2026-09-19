@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { fetchBacktest } from "@/lib/api";
 import BacktestChart, { type EquityPoint } from "@/components/BacktestChart";
 import MetricsTable, { type Metrics } from "@/components/MetricsTable";
@@ -48,9 +49,9 @@ export default async function BacktestPage({
       {/* Breadcrumb & Navigation */}
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#1E2638] pb-2 font-mono text-[11px] text-zinc-400">
         <div className="flex items-center gap-1.5">
-          <a href="/" className="text-zinc-500 hover:text-zinc-300 transition-colors">
+          <Link href="/" className="text-zinc-500 hover:text-zinc-300 transition-colors">
             SEITH // TERMINAL
-          </a>
+          </Link>
           <span className="text-zinc-600">&gt;</span>
           <span className="font-bold text-amber-400">STRATEGY TESTER</span>
           <span className="text-zinc-600">&gt;</span>
@@ -89,12 +90,12 @@ export default async function BacktestPage({
           </div>
 
           <div className="flex items-center gap-2">
-            <a
+            <Link
               href={`/ranking?market=${market}`}
               className="terminal-btn border-[#1E2638] bg-[#07090E] text-zinc-300 hover:border-zinc-500 hover:text-white"
             >
               SCREENER RANKING →
-            </a>
+            </Link>
           </div>
         </div>
 
@@ -174,7 +175,7 @@ export default async function BacktestPage({
       {/* Main Dual Charts */}
       <div className="grid gap-3 lg:grid-cols-3">
         <div className="lg:col-span-2">
-          <BacktestChart points={equity} />
+          <BacktestChart points={equity} range={range} />
         </div>
         <MetricsTable m={m} />
       </div>

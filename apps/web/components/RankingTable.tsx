@@ -1,3 +1,4 @@
+import Link from "next/link";
 import ScoreBadge from "./ScoreBadge";
 import { profileOf } from "@/data/companyProfiles";
 
@@ -37,16 +38,16 @@ export default function RankingTable({
 
   return (
     <div className="overflow-x-auto no-scrollbar font-mono text-xs">
-      <table className="w-full text-left border-collapse">
+      <table className="w-full text-left border-collapse" aria-label="Tabel Pemeringkatan Emiten IDX">
         <thead className="sticky top-0 z-10 border-b border-[#1E2638] bg-[#0A0D15] text-[10px] uppercase tracking-wider text-zinc-400">
           <tr>
-            <th className="px-3 py-2 font-bold w-12">#</th>
-            <th className="px-3 py-2 font-bold min-w-[200px]">EMITEN / TIKER</th>
-            <th className="px-3 py-2 font-bold min-w-[100px]">SEKTOR</th>
-            <th className="px-3 py-2 text-right font-bold min-w-[100px]">CLOSE RP</th>
-            <th className="px-3 py-2 font-bold min-w-[160px]">MISPRICING SCORE</th>
-            <th className="px-3 py-2 text-right font-bold min-w-[80px]">|Z| SCORE</th>
-            <th className="px-3 py-2 text-center font-bold min-w-[90px]">STATUS</th>
+            <th scope="col" className="px-3 py-2 font-bold w-12">#</th>
+            <th scope="col" className="px-3 py-2 font-bold min-w-[200px]">EMITEN / TIKER</th>
+            <th scope="col" className="px-3 py-2 font-bold min-w-[100px]">SEKTOR</th>
+            <th scope="col" className="px-3 py-2 text-right font-bold min-w-[100px]">CLOSE RP</th>
+            <th scope="col" className="px-3 py-2 font-bold min-w-[160px]">MISPRICING SCORE</th>
+            <th scope="col" className="px-3 py-2 text-right font-bold min-w-[80px]">|Z| SCORE</th>
+            <th scope="col" className="px-3 py-2 text-center font-bold min-w-[90px]">STATUS</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-[#1E2638]/50 bg-[#07090E]">
@@ -80,7 +81,7 @@ export default function RankingTable({
                       </span>
                     </div>
                   ) : (
-                    <a
+                    <Link
                       href={`/dossier/${r.ticker}?market=${r.market ?? "id"}`}
                       className="block group"
                       title={`${r.ticker} — ${p?.name ?? r.ticker} — ${p?.desc ?? ""} (idx.co.id ↗)`}
@@ -98,7 +99,7 @@ export default function RankingTable({
                           {p.name}
                         </div>
                       ) : null}
-                    </a>
+                    </Link>
                   )}
                 </td>
 
@@ -209,12 +210,12 @@ export default function RankingTable({
                       PREV
                     </span>
                   ) : (
-                    <a
+                    <Link
                       href={pageHref(pagination.page - 1)}
                       className="rounded-[2px] border border-[#1E2638] bg-[#131824] px-2 py-0.5 text-zinc-300 hover:border-zinc-500 hover:text-white transition-colors"
                     >
                       PREV
-                    </a>
+                    </Link>
                   )
                 ) : null}
 
@@ -224,12 +225,12 @@ export default function RankingTable({
                       NEXT
                     </span>
                   ) : (
-                    <a
+                    <Link
                       href={pageHref(pagination.page + 1)}
                       className="rounded-[2px] border border-[#1E2638] bg-[#131824] px-2 py-0.5 text-zinc-300 hover:border-zinc-500 hover:text-white transition-colors"
                     >
                       NEXT
-                    </a>
+                    </Link>
                   )
                 ) : null}
               </div>

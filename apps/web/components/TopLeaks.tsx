@@ -1,3 +1,4 @@
+import Link from "next/link";
 import ScoreBadge from "./ScoreBadge";
 import { profileOf } from "@/data/companyProfiles";
 
@@ -49,12 +50,12 @@ export default function TopLeaks({ items }: { items: LeakItem[] }) {
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2 min-w-0">
                   <span className="text-zinc-500 font-bold">#{i + 1}</span>
-                  <a
+                  <Link
                     href={`/dossier/${r.ticker}?market=id`}
                     className="font-bold text-zinc-100 hover:text-amber-400 hover:underline transition-colors"
                   >
                     {r.ticker}
-                  </a>
+                  </Link>
                   <span className="text-[10px] text-zinc-400 border border-[#1E2638] px-1 py-0.2 rounded-[2px] bg-[#07090E]">
                     {r.sector ?? "-"}
                   </span>
@@ -112,8 +113,9 @@ export default function TopLeaks({ items }: { items: LeakItem[] }) {
         ) : null}
       </div>
 
-      <div className="border-t border-[#1E2638] bg-[#0A0D15] px-3 py-1.5 font-mono text-[9px] text-zinc-500">
-        ALGORITHM: Z = (ACTUAL - KRONOS FORECAST) / VOLATILITY · |Z|&gt;2 FLAG
+      <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#1E2638] bg-[#0A0D15] px-3 py-1.5 font-mono text-[9px] text-zinc-500">
+        <span>ALGORITHM: Z = (ACTUAL - KRONOS FORECAST) / VOLATILITY · |Z|&gt;2 FLAG</span>
+        <span>Bukan rekomendasi investasi</span>
       </div>
     </div>
   );

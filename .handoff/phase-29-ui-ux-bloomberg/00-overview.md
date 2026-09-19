@@ -36,6 +36,26 @@ Merombak antarmuka web SEITH (`apps/web`) menjadi **Bloomberg Terminal × Tradin
 - **Out**:
   - Backend Rust / sidecar Python / SQLite schema / API endpoints (tetap utuh).
 
+## Hasil Audit & Hardening (code-reviewer & security-reviewer)
+
+1. **Zero Data Fabrication (`DossierKronosChart`)**:
+   - Jika `chartPoints` kosong atau inferensi Kronos tidak tersedia, komponen menampilkan banner `DEGRADED / NO INFERENCE DATA`.
+   - Fallback 20 titik flat sintetis dihapus total untuk menjamin integritas data (zero fabrication).
+
+2. **Routing & Navigasi**:
+   - Seluruh tautan internal di `apps/web` (`<a>`) dimigrasikan ke Next.js `<Link>`.
+   - Navigasi antar-halaman berjalan instan via client-side routing tanpa full page reload.
+
+3. **Aksesibilitas (a11y)**:
+   - `Heatmap100`: Sel kecil dilengkapi elemen `<span className="sr-only">` dan atribut `aria-label` lengkap (ticker, nama emiten, harga, skor) untuk screen reader.
+   - `RankingTable`: Header kolom tabel memakai `scope="col"` pada setiap elemen `<th>`, dan kontainer tabel diberi `aria-label="Tabel Ranking Emiten IDX"`.
+
+4. **Keamanan & Validasi Input**:
+   - `QuickSearch`: Validasi ticker ketat via regex `^[A-Z0-9]{1,6}$` dan pembatasan input `maxLength={6}` untuk mencegah malformed parameter / path traversal client-side.
+   - `companyProfiles`: Lookup profil emiten menggunakan `Object.hasOwn(companyProfiles, ticker)` untuk mencegah prototype pollution.
+   - `DossierClient`: Error handling eksplisit dengan boundary state, dan pembentukan query URL via `URLSearchParams`.
+   - `fetchEnvelope`: Pengecekan HTTP status eksplisit (`res.ok`) sebelum parsing payload JSON envelope.
+
 ## Tasks Breakdown
 | # | Task | Scope | Status |
 |---|---|---|---|

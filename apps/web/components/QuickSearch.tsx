@@ -9,7 +9,7 @@ export default function QuickSearch() {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const clean = ticker.trim().toUpperCase().replace(/[^A-Z0-9]/g, "");
-    if (clean) {
+    if (clean.length >= 3 && clean.length <= 6) {
       router.push(`/dossier/${clean}?market=id`);
       setTicker("");
     }
@@ -21,6 +21,7 @@ export default function QuickSearch() {
         <span className="font-mono text-[10px] font-bold text-amber-400 mr-1.5">&gt;</span>
         <input
           type="text"
+          maxLength={6}
           value={ticker}
           onChange={(e) => setTicker(e.target.value)}
           placeholder="TICKER <GO> (e.g. BBCA)"

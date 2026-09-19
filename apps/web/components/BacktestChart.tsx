@@ -25,7 +25,13 @@ function maxDrawdown(points: EquityPoint[]) {
   return worst;
 }
 
-export default function BacktestChart({ points }: { points: EquityPoint[] }) {
+export default function BacktestChart({
+  points,
+  range,
+}: {
+  points: EquityPoint[];
+  range?: string;
+}) {
   const dd = maxDrawdown(points);
   const empty = !points || points.length === 0;
 
@@ -132,6 +138,12 @@ export default function BacktestChart({ points }: { points: EquityPoint[] }) {
                   stroke="#EF4444"
                   strokeDasharray="4 4"
                   strokeOpacity={0.4}
+                  label={{
+                    value: "Max Drawdown Ref (-8%)",
+                    fill: "#EF4444",
+                    fontSize: 9,
+                    position: "insideBottomRight",
+                  }}
                 />
               </ComposedChart>
             </ResponsiveContainer>
@@ -142,7 +154,7 @@ export default function BacktestChart({ points }: { points: EquityPoint[] }) {
       {/* Footer Status */}
       <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#1E2638] bg-[#0A0D15] px-3 py-1.5 font-mono text-[9px] text-zinc-500">
         <span>Bukan rekomendasi investasi · Metrik ER-based cross-sectional Top-20 · DB 500 baris</span>
-        <span>RENTANG SIMULASI: 2025-09-21 → 2026-09-13 (52 PEKAN)</span>
+        <span>RENTANG SIMULASI: {range || "52 PEKAN"}</span>
       </div>
     </div>
   );

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { fetchRanking } from "@/lib/api";
 import RankingTable from "@/components/RankingTable";
 import Heatmap100 from "@/components/Heatmap100";
@@ -63,13 +64,15 @@ export default async function RankingPage({
   const pageHref = (p: number) =>
     `/ranking?market=${market}${sector ? `&sector=${sector}` : ""}&sort=${sort}&order=${order}&page=${p}&pageSize=${pageSize}`;
 
-  const scatterItems = allForCharts.map((it) => ({
-    ticker: it.ticker,
-    er: it.components?.expected_return ?? 50,
-    z: it.anomaly?.z ?? it.anomalyZ ?? 0,
-    close: it.close ?? 1000,
-    flag: it.anomaly?.flag ?? it.anomalyFlag ?? false,
-  }));
+  const scatterItems = allForCharts
+    .filter((it) => it.components?.expected_return !== undefined && it.close !== undefined)
+    .map((it) => ({
+      ticker: it.ticker,
+      er: it.components!.expected_return,
+      z: it.anomaly?.z ?? it.anomalyZ ?? 0,
+      close: it.close!,
+      flag: it.anomaly?.flag ?? it.anomalyFlag ?? false,
+    }));
 
   const stackItems = allForCharts
     .filter((x) => x.components)
@@ -85,9 +88,9 @@ export default async function RankingPage({
       {/* Breadcrumb & Navigation */}
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#1E2638] pb-2 font-mono text-[11px] text-zinc-400">
         <div className="flex items-center gap-1.5">
-          <a href="/" className="text-zinc-500 hover:text-zinc-300 transition-colors">
+          <Link href="/" className="text-zinc-500 hover:text-zinc-300 transition-colors">
             SEITH // TERMINAL
-          </a>
+          </Link>
           <span className="text-zinc-600">&gt;</span>
           <span className="font-bold text-amber-400">SCREENER</span>
           <span className="text-zinc-600">&gt;</span>
@@ -129,7 +132,7 @@ export default async function RankingPage({
           <span className="text-[10px] uppercase tracking-wider text-zinc-500 mr-1 font-bold">
             SEKTOR:
           </span>
-          <a
+          <Link
             href={`/ranking?market=${market}&sort=${sort}&order=${order}&pageSize=${pageSize}`}
             className={`rounded-[3px] border px-2.5 py-1 text-xs font-bold transition-all ${
               !sector
@@ -138,9 +141,9 @@ export default async function RankingPage({
             }`}
           >
             ALL
-          </a>
+          </Link>
           {SECTORS.map((s) => (
-            <a
+            <Link
               key={s}
               href={`/ranking?market=${market}&sector=${s}&sort=${sort}&order=${order}&pageSize=${pageSize}`}
               className={`rounded-[3px] border px-2.5 py-1 text-xs font-bold transition-all ${
@@ -150,7 +153,7 @@ export default async function RankingPage({
               }`}
             >
               {s}
-            </a>
+            </Link>
           ))}
 
           <span className="mx-1 hidden h-4 w-px bg-[#1E2638] md:block" />
@@ -158,7 +161,7 @@ export default async function RankingPage({
           <span className="text-[10px] uppercase tracking-wider text-zinc-500 mr-1 font-bold">
             SORT:
           </span>
-          <a
+          <Link
             href={link("mispricing")}
             className={`rounded-[3px] border px-2.5 py-1 text-xs font-bold transition-all ${
               sort === "mispricing"
@@ -167,8 +170,8 @@ export default async function RankingPage({
             }`}
           >
             MISPRICING
-          </a>
-          <a
+          </Link>
+          <Link
             href={link("anomaly")}
             className={`rounded-[3px] border px-2.5 py-1 text-xs font-bold transition-all ${
               sort === "anomaly"
@@ -177,7 +180,7 @@ export default async function RankingPage({
             }`}
           >
             ANOMALY |Z|
-          </a>
+          </Link>
         </div>
       </section>
 

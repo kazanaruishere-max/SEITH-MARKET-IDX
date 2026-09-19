@@ -13,6 +13,14 @@ Implementasi halaman riset ekuitas per emiten `/dossier/[ticker]` berstandar Blo
   - `DossierKronosChart.tsx`: Grafik koridor kuantitatif Kronos foundation model 20-titik proyeksi riil (garis amber putus-putus) dengan terowongan volatilitas `±2σ` (area shading transparan merah), tooltip interaktif IDR, dan status horison 400→20 hari bursa.
 - Out: Perubahan backend dossier composer.
 
+## Catatan Audit & Hardening (code-reviewer & security-reviewer)
+- **Zero Data Fabrication (`DossierKronosChart`)**: Jika data `chartPoints` kosong atau tidak ada inferensi, komponen wajib menampilkan banner `DEGRADED / NO INFERENCE DATA`. Dilarang menginjeksikan 20 titik flat/sintetis dummy.
+- **Routing Client-Side**: Semua link navigasi internal (peer emiten, tombol kembali ke terminal) menggunakan `<Link>` Next.js agar transisi instan tanpa reload browser.
+- **Keamanan & Penanganan Error**:
+  - Validasi objek profil menggunakan `Object.hasOwn(companyProfiles, ticker)` untuk mencegah prototype pollution.
+  - Penanganan parameter query pada `DossierClient` via `URLSearchParams` dan pengecekan status HTTP (`res.ok`) sebelum parsing envelope.
+  - Error state ditangani secara eksplisit tanpa membocorkan stack trace ke UI.
+
 ## Verification
 ```powershell
 pnpm --dir apps/web lint -> 0

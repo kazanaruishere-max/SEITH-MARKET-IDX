@@ -18,6 +18,9 @@ function baseUrl() {
 
 async function fetchEnvelope<T>(path: string, schema: z.ZodType<T>): Promise<{ data: T; pagination?: { page: number; pageSize: number; total: number } }> {
   const r = await fetch(`${baseUrl()}${path}`, { cache: "no-store" });
+  if (!r.ok) {
+    throw new Error(`Upstream HTTP ${r.status} (${r.statusText})`);
+  }
   const j = await r.json();
   const e = envSchema.parse(j);
   if (!e.success) throw new Error((e.error?.message ?? "request failed") + ` [${e.error?.code ?? "UNKNOWN"}]`);

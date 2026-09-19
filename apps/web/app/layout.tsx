@@ -21,8 +21,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       rank: x.rank,
       anomalyFlag: x.anomalyFlag,
     }));
-  } catch {
-    // fallback if offline
+  } catch (err) {
+    if ((err as { digest?: string })?.digest !== "DYNAMIC_SERVER_USAGE") {
+      console.error("[RootLayout] Failed to fetch ticker tape items:", err);
+    }
   }
 
   return (
@@ -85,7 +87,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                 <span className="text-zinc-500 mr-1">F3</span>DOSS
               </Link>
               <span className="hidden sm:inline-flex items-center gap-1.5 rounded-[3px] border border-emerald-900/50 bg-emerald-950/30 px-2 py-0.5 text-[10px] font-bold text-emerald-400 ml-1">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" /> LIVE
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse motion-reduce:animate-none" /> LIVE
               </span>
             </nav>
           </div>

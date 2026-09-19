@@ -16,22 +16,12 @@ type Pt = { date: string; value: number; upper: number; lower: number };
 
 export default function DossierKronosChart({
   kronos,
-  close,
+  close: _close,
 }: {
   kronos?: { forecastReturn?: number; volatility?: number; chartPoints?: Pt[] };
   close?: number;
 }) {
   const pts: Pt[] = kronos?.chartPoints ?? [];
-  const hist: Pt[] = pts.length
-    ? pts
-    : close
-    ? Array.from({ length: 20 }, (_, i) => ({
-        date: `D+${i + 1}`,
-        value: close,
-        upper: close * 1.02,
-        lower: close * 0.98,
-      }))
-    : [];
 
   const fr =
     kronos?.forecastReturn !== undefined
@@ -39,6 +29,29 @@ export default function DossierKronosChart({
       : "-";
   const vol =
     kronos?.volatility !== undefined ? `${(kronos.volatility * 100).toFixed(2)}%` : "-";
+
+  if (!pts.length) {
+    return (
+      <div className="terminal-card overflow-hidden">
+        <div className="flex items-center justify-between border-b border-[#1E2638] bg-[#0A0D15] px-3 py-2 font-mono text-xs">
+          <span className="font-bold uppercase tracking-wider text-amber-400">
+            KRONOS QUANT PROJECTION CORRIDOR (400→20)
+          </span>
+          <span className="rounded-[2px] border border-amber-500/40 bg-amber-500/10 px-1.5 py-0.5 text-[9px] text-amber-300">
+            DEGRADED / NO INFERENCE DATA
+          </span>
+        </div>
+        <div className="p-8 text-center font-mono text-xs text-zinc-500 bg-[#07090E]">
+          KRONOS INFERENCE UNAVAILABLE — PROJECTION CORRIDOR NOT COMPUTED (ZERO FABRICATION)
+        </div>
+        <div className="border-t border-[#1E2638] bg-[#0A0D15] px-3 py-1.5 font-mono text-[9px] text-zinc-500">
+          Bukan rekomendasi investasi · Data riil tidak tersedia untuk horizon 20 hari ke depan
+        </div>
+      </div>
+    );
+  }
+
+  const hist: Pt[] = pts;
 
   return (
     <div className="terminal-card overflow-hidden">

@@ -1,5 +1,7 @@
 "use client";
 
+import { useMemo } from "react";
+import Link from "next/link";
 import { profileOf } from "@/data/companyProfiles";
 
 export type HeatItem = {
@@ -21,6 +23,11 @@ const SECTOR_COLOR: Record<string, string> = {
 
 function sectorBadgeBg(sector?: string) {
   return SECTOR_COLOR[sector ?? "OTHER"] ?? "#475569";
+}
+
+function itemWeight(x: HeatItem) {
+  if (x.marketCapHint && x.marketCapHint > 0) return x.marketCapHint;
+  return Math.max(1, Math.abs(x.mispricingScore - 50) * 2 + 6);
 }
 
 function gradient(score: number) {
@@ -104,6 +111,21 @@ export default function Heatmap100({ items }: { items: HeatItem[] }) {
   const filtered = items.filter((x) => x.ticker && x.ticker !== "-" && x.ticker !== "—");
   const sorted = [...filtered].sort((a, b) => (a.rank ?? 999) - (b.rank ?? 999));
 
+  const { bySector, sectorRects } = useMemo(() => {
+    const groups = ["FINANCE", "ENERGY", "CONSUMER", "INFRA", "OTHER"]
+      .map((sec) => ({ sec, list: sorted.filter((x) => x.sector === sec) }))
+      .filter((g) => g.list.length > 0);
+
+    const bs = groups.map((g) => ({
+      ...g,
+      totalW: g.list.reduce((s, x) => s + itemWeight(x), 0),
+    }));
+
+    const sectorWeights = bs.map((g) => g.totalW);
+    const sRects = getRects(sectorWeights, 0, 0, 100, 100);
+    return { bySector: bs, sectorRects: sRects };
+  }, [sorted]);
+
   if (!sorted.length) {
     return (
       <div className="terminal-card flex h-[480px] items-center justify-center p-6 text-center font-mono text-xs text-zinc-500">
@@ -111,23 +133,6 @@ export default function Heatmap100({ items }: { items: HeatItem[] }) {
       </div>
     );
   }
-
-  const weight = (x: HeatItem) => {
-    if (x.marketCapHint && x.marketCapHint > 0) return x.marketCapHint;
-    return Math.max(1, Math.abs(x.mispricingScore - 50) * 2 + 6);
-  };
-
-  const groups = ["FINANCE", "ENERGY", "CONSUMER", "INFRA", "OTHER"]
-    .map((sec) => ({ sec, list: sorted.filter((x) => x.sector === sec) }))
-    .filter((g) => g.list.length > 0);
-
-  const bySector = groups.map((g) => ({
-    ...g,
-    totalW: g.list.reduce((s, x) => s + weight(x), 0),
-  }));
-
-  const sectorWeights = bySector.map((g) => g.totalW);
-  const sectorRects = getRects(sectorWeights, 0, 0, 100, 100);
 
   return (
     <div className="terminal-card overflow-hidden">
@@ -159,7 +164,7 @@ export default function Heatmap100({ items }: { items: HeatItem[] }) {
           const sr = sectorRects[si];
           if (!sr) return null;
 
-          const vals = list.map((x) => weight(x));
+          const vals = list.map((x) => itemWeight(x));
           const rects = getRects(vals, 0, 0, 100, 100);
           const avg = list.reduce((s, x) => s + x.mispricingScore, 0) / list.length;
 
@@ -203,10 +208,11 @@ export default function Heatmap100({ items }: { items: HeatItem[] }) {
                   } | idx.co.id ↗`;
 
                   return (
-                    <a
+                    <Link
                       key={t.ticker}
                       href={`/dossier/${t.ticker}?market=id`}
                       title={title}
+                      aria-label={`${t.ticker}: Skor Mispricing ${t.mispricingScore.toFixed(1)}, Sektor ${sec}`}
                       className="absolute flex flex-col items-center justify-center overflow-hidden border border-[#07090E]/80 p-0.5 text-center transition-all hover:z-20 hover:border-amber-400 hover:shadow-lg"
                       style={{
                         left: `${r.x}%`,
@@ -216,6 +222,7 @@ export default function Heatmap100({ items }: { items: HeatItem[] }) {
                         background: bg,
                       }}
                     >
+                      <span className="sr-only">{t.ticker}</span>
                       {isLarge ? (
                         <>
                           <span
@@ -250,7 +257,7 @@ export default function Heatmap100({ items }: { items: HeatItem[] }) {
                           {t.ticker}
                         </span>
                       ) : null}
-                    </a>
+                    </Link>
                   );
                 })}
               </div>
@@ -262,7 +269,7 @@ export default function Heatmap100({ items }: { items: HeatItem[] }) {
       {/* Terminal Status Bar */}
       <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#1E2638] bg-[#0A0D15] px-3 py-1.5 font-mono text-[10px] text-zinc-400">
         <span>STATUS: PROPORTIONAL GLOBAL SQUARIFY · FINANCE 25 &gt; OTHER 15</span>
-        <span className="text-zinc-500">DATA SOURCE: SECTORS BATCH · 296 CREDITS · LIVE</span>
+        <span className="text-zinc-500">Bukan rekomendasi investasi · Data riil Sectors API</span>
       </div>
     </div>
   );

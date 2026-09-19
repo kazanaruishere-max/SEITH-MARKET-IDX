@@ -91,14 +91,13 @@ export default function ScatterERvsZ({ items }: { items: ScatterItem[] }) {
                 ]}
               />
               <Scatter data={data} fill="#64748B">
-                {data.map((e, i) => (
+                {data.map((e) => (
                   <Cell
-                    key={i}
+                    key={e.ticker}
                     fill={e.flag ? "#F23645" : e.y > 2 ? "#F59E0B" : "#475569"}
                   />
                 ))}
               </Scatter>
-              {flagged.length ? <Scatter data={flagged} fill="#F23645" /> : null}
             </ScatterChart>
           </ResponsiveContainer>
         </div>
