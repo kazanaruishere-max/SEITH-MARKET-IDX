@@ -14,6 +14,7 @@ export default async function Page() {
   let universe = 100;
   let asOf = "";
   let degraded: boolean | undefined;
+  let error: string | null = null;
   try {
     const [r, b, a] = await Promise.all([
       fetchRanking({ market: "id", pageSize: 100 }),
@@ -27,7 +28,7 @@ export default async function Page() {
     asOf = bd.as_of ?? "";
     degraded = bd.degraded;
     leaks = ((a.data as { items: typeof leaks }).items ?? []) as typeof leaks;
-  } catch { }
+  } catch (e: unknown) { error = e instanceof Error ? e.message : String(e); }
   const flagged = items.filter((x) => x.anomalyFlag ?? x.anomaly?.flag).length;
   const avg = items.length ? (items.reduce((s, x) => s + x.mispricingScore, 0) / items.length).toFixed(1) : "-";
   const top10 = [...items].sort((x, y) => y.mispricingScore - x.mispricingScore).slice(0, 10) as never[];
@@ -40,6 +41,22 @@ export default async function Page() {
       <nav className="flex items-center gap-1.5 text-[11px] tracking-wide text-zinc-500">
         <span className="font-mono font-semibold text-zinc-300">IDX</span><span className="text-zinc-700">›</span><span>Sectors 100</span><span className="text-zinc-700">›</span><span className="text-zinc-400">Market Intelligence</span><span className="ml-2 hidden rounded-full border border-zinc-800 bg-[#11151F] px-2 py-0.5 font-mono text-[10px] md:inline">as_of {asOf || "live"} · {degraded ? "degraded" : "live"}</span>
       </nav>
+
+      {error ? (
+        <div role="alert" className="flex flex-col gap-2 rounded-[14px] border border-red-900/60 bg-red-950/40 px-4 py-3 md:flex-row md:items-center md:justify-between">
+          <div className="flex items-start gap-3">
+            <span className="mt-0.5 h-2 w-2 shrink-0 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.7)]" />
+            <div className="min-w-0">
+              <div className="text-sm font-semibold text-red-200">API offline — data tidak dapat dimuat</div>
+              <div className="mt-0.5 font-mono text-[11px] leading-relaxed text-red-300/80 break-all">ranking · backtest · anomalies dari http://127.0.0.1:8181 — {error}</div>
+            </div>
+          </div>
+          <div className="flex shrink-0 items-center gap-2 md:pl-4">
+            <span className="hidden font-mono text-[10px] text-red-300/60 md:inline">./scripts/fast-boot.ps1</span>
+            <a href="/" className="rounded-full border border-red-800/60 bg-red-900/30 px-3 py-1 text-xs font-medium text-red-200 hover:bg-red-900/60 transition-colors">Retry ↻</a>
+          </div>
+        </div>
+      ) : null}
 
       <section className="overflow-hidden rounded-[16px] border border-[#24242e] bg-gradient-to-br from-[#11151F] via-[#11151F] to-[#0f1320] p-5 md:p-6 shadow-card">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">

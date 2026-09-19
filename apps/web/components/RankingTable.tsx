@@ -6,7 +6,7 @@ function flagDot(flag?: boolean, z?: number) {
   return <span className="inline-flex h-2 w-2 rounded-full bg-zinc-700" title="no flag" />;
 }
 function barWidth(s: number) { return `${Math.max(6, Math.min(100, s))}%`; }
-export default function RankingTable({ items, pagination }: { items: RankingItem[]; pagination?: { page: number; pageSize: number; total: number } }) {
+export default function RankingTable({ items, pagination, pageHref }: { items: RankingItem[]; pagination?: { page: number; pageSize: number; total: number }; pageHref?: (p: number) => string }) {
   const sorted = [...items].sort((a, b) => b.mispricingScore - a.mispricingScore);
   return (
     <div className="overflow-hidden rounded-xl border border-[#24242e] bg-[#11151F] shadow-card">
@@ -42,7 +42,7 @@ export default function RankingTable({ items, pagination }: { items: RankingItem
           </tbody>
         </table>
       </div>
-      {pagination ? <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#24242e] bg-[#0B0E14]/50 px-4 py-3 text-xs text-zinc-400"><span className="font-mono">page {pagination.page} · {pagination.pageSize}/page · total {pagination.total}</span><span className="flex items-center gap-2"><span className="hidden md:inline">Bukan rekomendasi investasi · sumber emiten idx.co.id ↗</span><span className="hidden h-3 w-px bg-zinc-800 md:block" /><span className="font-mono text-zinc-500">tap ticker → dossier</span></span></div> : <div className="border-t border-[#24242e] bg-[#0B0E14]/50 px-4 py-2.5 text-center text-xs text-zinc-500">Bukan rekomendasi investasi — informasi & analisis saja · profil emiten idx.co.id ↗</div>}
+      {pagination ? (() => { const totalPages = Math.max(1, Math.ceil((pagination.total || 100) / pagination.pageSize)); const isFirst = pagination.page <= 1; const isLast = pagination.page >= totalPages; return (<div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#24242e] bg-[#0B0E14]/50 px-4 py-3"><span className="font-mono text-xs text-zinc-400">page {pagination.page}/{totalPages} · {pagination.pageSize}/page · total {pagination.total}</span><span className="flex items-center gap-2">{pageHref ? (isFirst ? <span className="rounded-full border border-zinc-800 px-3 py-1 text-xs font-medium text-zinc-600">← Prev</span> : <a href={pageHref(pagination.page - 1)} className="rounded-full border border-zinc-700 bg-[#11151F] px-3 py-1 text-xs font-medium text-zinc-200 hover:bg-[#151a2a] hover:text-white">← Prev</a>) : null}{pageHref ? (isLast ? <span className="rounded-full border border-zinc-800 px-3 py-1 text-xs font-medium text-zinc-600">Next →</span> : <a href={pageHref(pagination.page + 1)} className="rounded-full border border-zinc-700 bg-[#11151F] px-3 py-1 text-xs font-medium text-zinc-200 hover:bg-[#151a2a] hover:text-white">Next →</a>) : null}</span></div>); })() : <div className="border-t border-[#24242e] bg-[#0B0E14]/50 px-4 py-2.5 text-center text-xs text-zinc-500">Bukan rekomendasi investasi — informasi & analisis saja · profil emiten idx.co.id ↗</div>}
     </div>
   );
 }
