@@ -7,7 +7,23 @@ export const anomaliesDataSchema = z.object({ market: z.string(), sector: z.stri
 const backtestItem = z.object({ ticker: z.string(), market: z.string(), sector: z.string().optional(), close: z.number().optional(), mispricingScore: z.number(), components: z.unknown().optional(), anomaly: z.unknown().optional(), rank: z.number().nullable().optional() });
 export const backtestDataSchema = z.object({ as_of: z.string().optional(), universe: z.number(), market: z.string(), items: z.array(backtestItem), metrics: z.unknown().optional(), equity_curve: z.array(z.unknown()).optional(), excluded: z.array(z.unknown()).optional(), degraded: z.boolean().optional(), disclaimer: z.string() });
 export const scoreDataSchema = z.object({ ticker: z.string(), market: z.string(), mispricingScore: z.number(), components: z.unknown().optional(), anomaly: z.unknown().optional(), disclaimer: z.string() });
-export const dossierDataSchema = z.object({ ticker: z.string(), market: z.string(), lang: z.string().optional(), score: z.number().optional(), breakdown: z.unknown().optional(), peerComparison: z.array(z.unknown()).optional(), kronos: z.unknown().optional(), research: z.unknown().optional(), anomaly: z.unknown().optional(), sector: z.string().optional(), rank: z.number().nullable().optional(), disclaimer: z.string() });
+export const dossierDataSchema = z.object({
+  ticker: z.string(),
+  market: z.string(),
+  lang: z.string().optional(),
+  score: z.number().optional(),
+  close: z.number().nullable().optional(),
+  as_of: z.string().optional(),
+  breakdown: z.unknown().optional(),
+  peerComparison: z.array(z.unknown()).optional(),
+  kronos: z.unknown().optional(),
+  research: z.unknown().optional(),
+  anomaly: z.unknown().optional(),
+  sector: z.string().optional(),
+  rank: z.number().nullable().optional(),
+  degraded: z.boolean().optional(),
+  disclaimer: z.string(),
+});
 
 function baseUrl() {
   const env = process.env.NEXT_PUBLIC_API_BASE;

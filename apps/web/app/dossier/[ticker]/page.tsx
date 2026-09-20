@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { fetchDossier } from "@/lib/api";
 import DossierKronosChart from "@/components/DossierKronosChart";
 import { profileOf } from "@/data/companyProfiles";
+import { computeDisplayScore, ComponentBreakdown } from "@/lib/scoring";
 
 const DossierClient = dynamic(() => import("./DossierClient"), { ssr: false });
 
@@ -13,6 +14,7 @@ type Peer = {
   market: string;
   sector?: string;
   qvDistance?: number;
+  components?: ComponentBreakdown;
 };
 
 type DossierData = {
@@ -35,8 +37,10 @@ type DossierData = {
   research?: { fundamentalMemo?: string; technicalMemo?: string; synthesizerMemo?: string };
   anomaly?: { z?: number; flag?: boolean; reason?: string };
   sector?: string;
-  rank?: number;
-  close?: number;
+  rank?: number | null;
+  close?: number | null;
+  as_of?: string;
+  degraded?: boolean;
   disclaimer: string;
 };
 
@@ -85,6 +89,11 @@ export default async function DossierPage({
 
   const peers = data?.peerComparison ?? [];
   const b = data?.breakdown;
+  const er = b?.expected_return !== undefined ? Number(b.expected_return.toFixed(1)) : null;
+  const z = b?.anomaly_z !== undefined ? Number(b.anomaly_z.toFixed(1)) : null;
+  const qv = b?.quality_value !== undefined ? Number(b.quality_value.toFixed(1)) : null;
+  const sm = b?.sector_mom !== undefined ? Number(b.sector_mom.toFixed(1)) : null;
+  const displayScore = computeDisplayScore(data?.score, b);
 
   return (
     <div className="space-y-4">
@@ -169,7 +178,7 @@ export default async function DossierPage({
                 MISPRICING SCORE
               </div>
               <div className="text-2xl sm:text-3xl font-black text-amber-400 tracking-tight">
-                {data?.score !== undefined ? data.score.toFixed(1) : "-"}
+                {data?.score !== undefined ? displayScore.toFixed(1) : "-"}
                 <span className="text-xs text-zinc-500 font-normal ml-1">/ 100</span>
               </div>
             </div>
@@ -200,24 +209,26 @@ export default async function DossierPage({
                   sector: data.sector ?? prof?.sector,
                   rank: data.rank,
                   close: data.close,
+                  as_of: data.as_of,
                   market,
                   lang,
-                  score: data.score,
+                  score: displayScore,
                   breakdown: data.breakdown,
                   peerComparison: peers.map((p) => {
                     const pp = profileOf(p.ticker);
                     return {
                       ticker: p.ticker,
                       name: pp?.name,
-                      score: p.score,
-                      market: p.market,
+                      score: computeDisplayScore(p.score, p.components),
+                      market: p.market ?? market,
+                      sector: p.sector,
                       qvDistance: p.qvDistance,
                     };
                   }),
                   kronos: data.kronos,
                   research: data.research,
                   anomaly: data.anomaly,
-                  degraded: !data.kronos?.chartPoints?.length,
+                  degraded: data.degraded,
                   disclaimer: data.disclaimer,
                 } as never
               }
@@ -248,7 +259,10 @@ export default async function DossierPage({
         <div className="grid gap-3 lg:grid-cols-3">
           {/* Left Column: Kronos Quant Chart + Peer Benchmark Matrix */}
           <div className="lg:col-span-2 space-y-3">
-            <DossierKronosChart kronos={data.kronos as never} close={data.close} />
+            <DossierKronosChart
+              kronos={data.kronos as never}
+              close={data.close ?? undefined}
+            />
 
             {/* Peer Benchmark Matrix */}
             <section className="terminal-card overflow-hidden font-mono">
@@ -271,6 +285,7 @@ export default async function DossierPage({
                   <tbody className="divide-y divide-[#1E2638]/50 bg-[#07090E]">
                     {peers.map((p) => {
                       const pp = profileOf(p.ticker);
+                      const peerScore = computeDisplayScore(p.score, p.components);
                       return (
                         <tr key={p.ticker} className="hover:bg-[#10141E] transition-colors">
                           <td className="px-3 py-2">
@@ -282,7 +297,7 @@ export default async function DossierPage({
                             ) : null}
                           </td>
                           <td className="px-3 py-2 text-right font-bold text-amber-400">
-                            {p.score.toFixed(1)}
+                            {peerScore.toFixed(1)}
                           </td>
                           <td className="px-3 py-2 text-right text-zinc-400">
                             {p.qvDistance !== undefined ? p.qvDistance.toFixed(2) : "-"}
@@ -340,6 +355,17 @@ export default async function DossierPage({
                   pct={b?.sector_mom ?? 0}
                 />
               </div>
+              {er !== null && z !== null && qv !== null && sm !== null ? (
+                <div className="mt-2.5 rounded border border-[#1E2638] bg-[#07090E] px-2 py-1.5 font-mono text-[10px] text-amber-300/90">
+                  <div className="text-zinc-500 text-[9px] mb-0.5 uppercase tracking-wider">
+                    KOMPUTASI DETERMINISTIK // 30/20/30/20:
+                  </div>
+                  <div>
+                    0.30×{er.toFixed(1)} + 0.20×{z.toFixed(1)} + 0.30×{qv.toFixed(1)} + 0.20×{sm.toFixed(1)} ={" "}
+                    <span className="font-bold text-amber-400">{displayScore.toFixed(1)}</span>
+                  </div>
+                </div>
+              ) : null}
               <div className="mt-3 text-[10px] text-zinc-500 border-t border-[#1E2638] pt-2">
                 Total tertimbang menghasilkan skor mispricing komposit 0→100.
               </div>
@@ -385,6 +411,28 @@ export default async function DossierPage({
           </div>
         </div>
       ) : null}
+
+      {/* Verification Commands (cURL & CLI) */}
+      <details className="terminal-card px-3 py-2 font-mono text-[11px] text-zinc-400 group">
+        <summary className="font-bold text-amber-400/90 hover:text-amber-300 cursor-pointer flex items-center justify-between">
+          <span>&gt; VERIFIKASI VIA CURL / RUST CLI</span>
+          <span className="text-[10px] text-zinc-500 group-open:rotate-90 transition-transform">▸</span>
+        </summary>
+        <div className="mt-2 space-y-2 pt-2 border-t border-[#1E2638] text-[10px] font-mono select-all">
+          <div>
+            <div className="text-zinc-500"># Direct backend Rust Axum endpoint:</div>
+            <div className="bg-[#07090E] p-1.5 rounded border border-[#1E2638] text-emerald-400">
+              {`curl http://127.0.0.1:8181/api/v1/tickers/${cleanTicker}/dossier`}
+            </div>
+          </div>
+          <div>
+            <div className="text-zinc-500"># Seith native Rust CLI verification:</div>
+            <div className="bg-[#07090E] p-1.5 rounded border border-[#1E2638] text-emerald-400">
+              {`cargo run -p seith-cli -- score ${cleanTicker} --market id`}
+            </div>
+          </div>
+        </div>
+      </details>
 
       {/* Disclaimer */}
       <div className="font-mono text-[10px] text-zinc-500 leading-relaxed border-t border-[#1E2638] pt-2">

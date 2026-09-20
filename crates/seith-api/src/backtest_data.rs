@@ -158,7 +158,14 @@ fn sort_peers(mut peers: Vec<(f64, f64, Value)>) -> Vec<(f64, f64, Value)> {
 }
 
 fn peer_json(t_qv: f64, it: &Value) -> Value {
-    json!({"ticker": str_of(it, "ticker"), "score": f64_of(it, "mispricingScore"), "market": str_of(it, "market"), "sector": str_of(it, "sector"), "qvDistance": (qv_of(it) - t_qv).abs()})
+    json!({
+        "ticker": str_of(it, "ticker"),
+        "score": f64_of(it, "mispricingScore"),
+        "components": it.get("components").cloned().unwrap_or(json!({})),
+        "market": str_of(it, "market"),
+        "sector": str_of(it, "sector"),
+        "qvDistance": (qv_of(it) - t_qv).abs()
+    })
 }
 
 pub fn peer_five(v: &Value, target: &Value) -> Vec<Value> {

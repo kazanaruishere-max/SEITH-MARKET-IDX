@@ -100,7 +100,7 @@ export default function ScatterERvsZ({ items }: { items: ScatterItem[] }) {
       x: xVal,
       y: Math.abs(d.z),
       zVal: d.z,
-      size: Math.max(30, Math.min(800, Math.sqrt(d.close) * 2)),
+      size: d.flag ? 140 : 65,
       ticker: d.ticker,
       score: d.score ?? 50,
       er: d.er,
@@ -184,7 +184,7 @@ export default function ScatterERvsZ({ items }: { items: ScatterItem[] }) {
                 axisLine={{ stroke: "#1E2638" }}
                 tickFormatter={(v: number) => `${v.toFixed(1)}σ`}
               />
-              <ZAxis dataKey="size" range={[45, 260]} />
+              <ZAxis dataKey="size" range={[65, 140]} />
 
               {/* Reference Threshold at |Z| = 2.0 */}
               <ReferenceLine

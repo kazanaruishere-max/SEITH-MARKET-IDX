@@ -241,6 +241,7 @@ flowchart LR
 | SM 20% | Sector momentum — median sector + relative strength per market |
 | Example | LPPF `ER 50.02 Z 99.91 QV 100 SM 76.58 = 80.3 rank 1` · UNVR `50.35/99.35/100/67.07=78.39 rank 2` · TPIA `50.35/99.51/100/52.34=75.48 rank 3` |
 | Immutability | Returns new object, no mutate · `fn <50 file 200-400` |
+| Note (SSOT) | "PDF blob" (server-generated) dan `seith-cli` output menggunakan raw backend score tanpa post-rounding-consistency; "PDF vector" (browser download) dan Web UI menggunakan SSOT displayScore. Selisih maksimal 0.1 mungkin muncul antara kedua sumber pada sebagian kecil ticker — bukan bug data, murni floating-point rounding presentation layer. (ponytail: ceiling presentation-layer rounding, upgrade path via unified fixed-point decimal in Rust core). |
 
 #### Gate 5 — Ranking + Flag
 

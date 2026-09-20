@@ -382,7 +382,32 @@ pub async fn dossier(
         .map(|a| a.is_empty())
         .unwrap_or(true);
     let kronos_degraded = chart_empty;
-    let data = json!({"ticker": t, "market": market.as_str(), "lang": lang, "score": bd::f64_of(&it, "mispricingScore"), "breakdown": it.get("components").cloned().unwrap_or(json!({})), "peerComparison": peers, "kronos": kronos_val, "research": {"fundamentalMemo": fund_memo, "technicalMemo": tech_memo, "synthesizerMemo": synth_memo}, "anomaly": it.get("anomaly").cloned().unwrap_or(json!({})), "sector": bd::str_of(&it, "sector"), "rank": it.get("rank").cloned().unwrap_or(json!(0)), "degraded": kronos_degraded, "disclaimer": DISCLAIMER});
+    let as_of_str = loaded
+        .as_ref()
+        .and_then(|v| v.get("as_of"))
+        .and_then(|v| v.as_str())
+        .unwrap_or("2026-09-13");
+    let data = json!({
+        "ticker": t,
+        "market": market.as_str(),
+        "lang": lang,
+        "score": bd::f64_of(&it, "mispricingScore"),
+        "close": it.get("close").cloned().unwrap_or(json!(null)),
+        "as_of": as_of_str,
+        "breakdown": it.get("components").cloned().unwrap_or(json!({})),
+        "peerComparison": peers,
+        "kronos": kronos_val,
+        "research": {
+            "fundamentalMemo": fund_memo,
+            "technicalMemo": tech_memo,
+            "synthesizerMemo": synth_memo
+        },
+        "anomaly": it.get("anomaly").cloned().unwrap_or(json!({})),
+        "sector": bd::str_of(&it, "sector"),
+        "rank": it.get("rank").cloned().unwrap_or(json!(0)),
+        "degraded": kronos_degraded,
+        "disclaimer": DISCLAIMER
+    });
     with_schema(ok_body(data), StatusCode::OK)
 }
 
