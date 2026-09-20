@@ -22,7 +22,7 @@
 <a id="english"></a>
 ## English — Technical Product Specification
 
-### Contents — 15 Sections
+### Contents — 16 Sections
 
 | # | Section | Purpose |
 |---|---|---|
@@ -43,6 +43,7 @@
 | 13 | [Project Structure — 7 Zones](#13-structure) | File placement + violation rule |
 | 14 | [Verification & Testing](#14-verification) | Gates, test counts, CI contexts |
 | 15 | [Limitations, Provenance, References, License](#15-limitations) | Ceilings, lineage, whitepaper, freeze |
+| 16 | [Critical Engineering Q&A](#16-critical-engineering-qa) | 10 architectural & technical decisions explained |
 
 ---
 
@@ -784,12 +785,11 @@ research/universe-100.json 100 stratified (25/20/20/20/15)
                 → dossier peer5 + kronos 20 chartPoints via regen_backtest_100.py
 ```
 
-**References:**
+**References & Vendor Repositories:**
 
-- Whitepaper `2508.02739v1.pdf` — Kronos K-line foundation model (AAAI 2026, hierarchical tokenizer, decoder-only, 45 exchanges) → distilled `docs/kronos-notes.md`.
-- Sectors API — `docs.sectors.app` REST `GET /v2/daily/{symbol}/` + `/v2/sgx/daily/` · `market.rs base_path()` drift removed `X-API-Key` and `?ticker=`.
-- TradingAgents — `github.com/TauricResearch/TradingAgents` `9dee508 Apache-2.0` · 3-agent Lite copy `Analyst→Synthesizer` (ADR 0002).
-- Kronos — `github.com/shchur/Kronos` `67b630e MIT` · HF `NeoQuasar/Kronos-base` + `Tokenizer-base` 102.3M.
+- **[Kronos (GitHub Repo)](https://github.com/shiyu-coder/Kronos)** (`67b630e` MIT) + **[NeoQuasar/Kronos-base (Hugging Face)](https://huggingface.co/NeoQuasar/Kronos-base)** (102.3M) — K-line Foundation Model for hierarchical candlestick time-series forecasting. Whitepaper: AAAI 2026 `2508.02739v1.pdf` (distilled in `docs/kronos-notes.md`).
+- **[TradingAgents (GitHub Repo)](https://github.com/TauricResearch/TradingAgents)** (`9dee508` Apache-2.0) — Multi-agent trading research workflow framework (adapted as clean-room 3-agent Lite in `apps/analysis`, ADR 0002).
+- **[Sectors Financial API](https://sectors.app)** — REST API `docs.sectors.app` (`GET /v2/daily/{symbol}/` + `/v2/sgx/daily/`). Core data provider.
 - SSOT docs — `docs/prd.md` · `docs/spec.md` · `docs/api-spec.md` · `docs/tdd-plan.md` · `docs/adr/0001-stack.md 0002-contracts` · `docs/kronos-notes.md`.
 
 **Security:**
@@ -815,6 +815,75 @@ Build window 19 Aug–30 Sep 2026 23:59 WIB · freeze at submit · no commit aft
 **License:** `AGPL-3.0` — source-available, NOT community until founder opens. See `LICENSE` + `CONTRIBUTING.md`. Harness: `.opencode/agents/seith-pm` veto.
 
 **Disclaimer:** `Bukan rekomendasi investasi. Informasi & analisis saja.` — on every insight view and response `disclaimer` field. No auto trade execution on any track.
+
+---
+
+### 16. Critical Engineering Q&A (10 Tanya-Jawab Rekayasa Kritis)
+
+Pertanyaan kritis seputar keputusan arsitektur, pemilihan teknologi, dan integritas data SEITH:
+
+#### Q1: Kenapa backend dan engine skoring menggunakan Rust, bukan TypeScript (Node.js) atau Python murni?
+**A:** Verifiabilitas deterministik dan integritas numerik finansial.
+- **Tanpa Garbage Collection Pause & Floating Drift:** Perhitungan multi-faktor kuantitatif (formula 30/20/30/20) dan persentil sektor wajib deterministik hingga desimal terkecil. Rust menjamin *zero-cost abstraction* tanpa risiko GC pause atau floating-point coercion tak terduga.
+- **Shared Core antara REST API & CLI:** Crate `seith-core` dipakai bersama oleh backend REST Axum (`seith-api`) dan CLI terminal (`seith-cli`). Juri dapat memverifikasi skor emiten langsung di terminal tanpa perantara browser, dengan jaminan bahwa logika matematis yang dieksekusi adalah biner yang identik.
+- **Strict Compile-Time Boundary:** Penggunaan `serde(deny_unknown_fields)` dan validasi boundary mencegah *silent schema corruption* di level kompilasi.
+
+#### Q2: Kenapa arsitektur hybrid Rust DAN Python—kenapa tidak salah satunya saja?
+**A:** Prinsip *Right Tool for the Job* dan isolasi resiliensi (*Separation of Concerns*):
+- **Mengapa tidak Python saja?** Python tidak dirancang untuk melayani API berlatensi mikro (<5ms), rawan *runtime type error*, dan tidak praktis dikompilasi menjadi single-file binary CLI portabel untuk pengujian independen.
+- **Mengapa tidak Rust saja?** Ekosistem Deep Learning untuk model fondasi K-line 102.3M parameter (PyTorch, safetensors, Hugging Face Tokenizers) berpusat di Python. Memaksa menulis ulang loader model PyTorch ke Rust murni (tch-rs/candle) berisiko tinggi terhadap kompatibilitas bobot model.
+- **Pola Sidecar Terisolasi:** Rust berperan sebagai orchestrator utama, penyimpanan cache, dan gerbang validasi (port `:8181`). Python diisolasi sebagai HTTP sidecar ringan via loopback (`:8001` untuk Kronos quant dan `:8002` untuk TradingAgents-Lite research). Jika sidecar bermasalah, server utama Rust tidak pernah crash (*zero panic*) dan langsung mengeksekusi fallback *graceful degradation*.
+
+#### Q3: Kenapa memilih model Kronos untuk forecasting, bukan model klasik seperti ARIMA, LSTM, atau XGBoost?
+**A:** Kronos adalah **K-line Foundation Model pertama di dunia** ([Paper AAAI 2026: arXiv:2508.02739](https://arxiv.org/abs/2508.02739)), dilatih secara *self-supervised* pada 12 miliar token candlestick intra-day dari 45 bursa global:
+- **K-Line Hierarchical Tokenizer:** Model klasik (ARIMA/LSTM/XGBoost) umumnya hanya memproses 1 dimensi data (harga Close), sehingga kehilangan informasi mikro intra-day (Open, High, Low) dan dinamika rentang volatilitas harian.
+- **Probabilistic Forecasting:** Kronos memprediksi lintasan candlestick 20 hari ke depan sekaligus menghasilkan koridor volatilitas $\pm 2\sigma$. Deviasi aktual terhadap koridor Kronos inilah yang menjadi dasar matematis perhitungan *Anomaly Z-Score*, bukan sekadar tebakan tren linear.
+
+#### Q4: Bagaimana integrasi SEITH dengan dua repositori open-source: [TradingAgents](https://github.com/TauricResearch/TradingAgents) dan [Kronos](https://github.com/shiyu-coder/Kronos)?
+**A:** Kedua repositori dipin di `vendor/` dan diintegrasikan secara *clean-room copy workflow* (ADR 0002) tanpa mencemari basis kode inti:
+1. **[Kronos (GitHub Repo)](https://github.com/shiyu-coder/Kronos)**:
+   - Arsitektur model diadopsi ke `apps/kronos-sidecar` dengan checkpoint resmi [NeoQuasar/Kronos-base](https://huggingface.co/NeoQuasar/Kronos-base) (102.3M parameter).
+   - Melayani endpoint `POST /predict_batch` dengan lookback 400 hari $\rightarrow$ 20 hari prediksi per emiten.
+2. **[TradingAgents (GitHub Repo)](https://github.com/TauricResearch/TradingAgents)**:
+   - Pola multi-agen `Analyst → Synthesizer` disederhanakan menjadi **TradingAgents-Lite 3-Agent** (`apps/analysis`): Fundamental Agent, Technical Agent, dan Synthesizer Agent.
+   - Terhubung ke model LLM lokal via 9router (`localhost:20128/v1/chat/completions`).
+   - Komponen eksekutor order beli/jual pada repositori asli dibuang total agar 100% patuh terhadap regulasi Track 3 (tanpa auto-trading).
+
+#### Q5: Apa yang terjadi jika model Kronos (:8001) atau LLM 9router (:20128) mati/down? Apakah sistem crash?
+**A:** Sistem tetap hidup 100% (*zero panic, graceful degradation*):
+- Sesuai kriteria Track 3, LLM dan peramalan kuantitatif adalah komponen pendukung (*derived insight enrichment*).
+- Jika Kronos timeout (>30s) atau 9router tidak merespons, pipeline Rust otomatis mengaktifkan fallback `degraded: true`.
+- Skor Mispricing tetap dihitung dari pilar fundamental dan momentum yang tersedia. Memo riset beralih ke template analitis berbasis aturan deterministik dengan stempel disclaimer resmi. Pengguna tetap mendapatkan dossier utuh tanpa pemadaman layanan.
+
+#### Q6: Mengapa memilih CompositeCache (Moka L1 + SQLite L2) dan menolak Redis?
+**A:** Keterbatasan memori cloud free-tier dan kebutuhan *offline verifiability*:
+- **Alasan Penolakan Redis:** Data mentah 100 emiten IDX (~45MB) melampaui batas paket gratis cloud Redis (30MB).
+- **Arsitektur CompositeCache SEITH:**
+  - **L1 Moka (In-Memory RAM):** Latensi baca `<1ms` untuk emiten yang sering diakses.
+  - **L2 SQLite WAL (`data/seith.db`):** Latensi `~2ms`, 100% gratis, data persisten lintas *restart*, dan memungkinkan juri menguji seluruh fungsi sistem secara offline tanpa menghabiskan kuota kredit Sectors API.
+
+#### Q7: Mengapa SEITH sama sekali tidak menyediakan eksekusi order beli/jual otomatis (auto-trading)?
+**A:** Kepatuhan hukum dan integritas etika pasar modal:
+1. **Regulasi Hackathon:** Semua track Sectors Hackathon 2026 secara tegas melarang pembuatan bot trading otomatis.
+2. **Regulasi OJK & BEI:** Penyaluran order transaksi ke bursa efek Indonesia wajib melalui perantara pedagang efek (PPE) berlisensi resmi.
+3. **Esensi Market Intelligence:** Tujuan SEITH adalah memecahkan asimetri informasi bagi analis dan investor sebelum mengambil keputusan (*pre-trade decision support*), bukan menjadi algo-trader spekulatif.
+
+#### Q8: Bagaimana SEITH menyelesaikan masalah inkonsistensi pembulatan angka (Single Source of Truth / SSOT)?
+**A:** Menggunakan utilitas terpusat `computeDisplayScore` (`apps/web/lib/scoring.ts`):
+- Pada dashboard finansial konvensional, sering timbul *dual-rounding drift*: 4 pilar dibulatkan ke 1 desimal (misal ER: 49.6, |Z|: 99.7, QV: 91.3, SM: 51.7), namun skor total dibulatkan dari float raw di backend sehingga muncul selisih 0.1 di layar (72.6 vs 72.5).
+- SEITH memastikan skor total di header dossier, formula breakdown kartu, tabel ranking, matriks perbandingan peer, dan ekspor PDF diturunkan dari nilai komponen yang sama persis. Juri yang menghitung formula di layar dengan kalkulator manual dijamin mendapatkan hasil yang 100% identik.
+
+#### Q9: Bagaimana SEITH membuktikan bahwa data yang disajikan nyata dan bukan fabrikasi (zero data fabrication)?
+**A:** Integritas metodologi dan auditabilitas terbuka:
+- Seluruh harga harian, laporan keuangan, dan profil emiten bersumber dari data riil bursa efek via Sectors API (`/v2/daily/{ticker}/`).
+- Pada grafik ekuitas 52-minggu (`/backtest`), kami menolak memalsukan data 10 tahun: kami secara transparan mencantumkan status *52-WEEK SYNTHETIC PROJECTION* dan mengakui secara jujur bahwa database lokal saat ini memuat 500 baris historis (20 hari bursa). Sinyal live diuji secara *cross-sectional* riil (akurasi sinyal 85%).
+- Setiap halaman dossier menyertakan blok perintah terminal (cURL & CLI) yang dapat langsung dijalankan oleh juri untuk memverifikasi data mentah langsung dari engine Rust.
+
+#### Q10: Apakah arsitektur SEITH dapat diskalakan ke bursa regional lain (misalnya SGX Singapura)?
+**A:** Sudah terpasang sejak fondasi awal (`crates/seith-core`).
+- Menggunakan enum `Market { Id, Sg }` di seluruh layer domain, client HTTP, dan handler API.
+- Parameter opsional `?market=sg` atau flag CLI `--market sg` langsung mengarahkan rute data ke endpoint bursa Singapura (`/v2/sgx/daily/`).
+- Yang terpenting: perhitungan persentil Quality/Value ($QV$) dan Sector Momentum ($SM$) diisolasi per bursa, sehingga emiten Singapura tidak mendistorsi median sektor emiten Indonesia.
 
 ---
 
@@ -1002,6 +1071,10 @@ Lihat **EN §14 Verification** — `cargo fmt --check + clippy -- -D warnings + 
 **Provenance (lineage):** `research/universe-100.json 100 stratified (25/20/20/20/15) → Sectors batch 98×19 OHLCV + 98×valuation = 296 kredit → CompositeCache moka L1 + SQLite L2 500 rows/25 tickers (20 hari, honest) → Kronos-base real 19→20 T1.0 top_p0.9 (scores_98.json) → scoring 30/20/30/20 (Rank 1 LPPF 80.3) → ranking |Z| tie-break + flag |Z|>2 → Top-10 Nemotron memos (analysis :8002 → 9router :20128) → research/backtest-100.json 100 items · 52 minggu synthetic forecast-based 2025-09-21→2026-09-13 · 2 excluded (BMRG/MFIN) → dossier peer5 + kronos 20 chartPoints via regen_backtest_100.py`
 
 Lihat **EN §15 Limitations** penuh — ceiling 100 pinned, Top-10 LLM, CPU cold, degraded true, rank nullable, SQLite single-file, **backtest equity 52w synthetic honest**, STI opt-in; whitepaper `2508.02739v1.pdf`; vendor pin `67b630e MIT + 9dee508 Apache-2.0`; **Security 3 lapis** gitleaks/redact `0843 revoked`; **Judging 40/30/30**; **License AGPL-3.0** source-available; freeze 30 Sep + `scripts/freeze-check.sh`; **Disclaimer tiap view.**
+
+### 16. Tanya-Jawab Rekayasa Kritis (Q&A)
+
+Lihat **[EN §16 Critical Engineering Q&A](#16-critical-engineering-qa)** untuk 10 pembahasan mendalam seputar keputusan arsitektur Rust vs Python, model Kronos, integrasi repositori vendor ([TradingAgents](https://github.com/TauricResearch/TradingAgents) & [Kronos](https://github.com/shiyu-coder/Kronos)), CompositeCache, SSOT pembulatan, dan integritas data.
 
 ---
 
