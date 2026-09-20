@@ -123,7 +123,8 @@ export type PdfDossier = {
   desc?: string;
   sector?: string;
   rank?: number | null;
-  close?: number;
+  close?: number | null | undefined;
+  as_of?: string;
   market: string;
   lang?: string;
   score?: number;
@@ -382,7 +383,7 @@ export function DossierDoc({ d }: { d: PdfDossier }) {
           </View>
 
           <View style={s.headerMeta}>
-            <Text>AS OF: 2026-09-13 · SCHEMA: 1.0.0 · DATA LINEAGE: SECTORS REST & KRONOS-BASE</Text>
+            <Text>AS OF: {d.as_of ?? "2026-09-13"} · SCHEMA: 1.0.0 · DATA LINEAGE: SECTORS REST & KRONOS-BASE</Text>
             <Text style={{ color: isAnomaly ? "#F23645" : "#10B981" }}>
               STATUS: {isAnomaly ? "ANOMALY FLAGGED (|Z| > 2.0)" : "NORMAL VALUATION RANGE"}
             </Text>
@@ -415,7 +416,7 @@ export function DossierDoc({ d }: { d: PdfDossier }) {
         <View style={s.card}>
           <KronosVectorChartPDF
             pts={pts}
-            close={d.close}
+            close={d.close ?? undefined}
             fr={d.kronos?.forecastReturn}
             vol={d.kronos?.volatility}
           />
@@ -442,7 +443,7 @@ export function DossierDoc({ d }: { d: PdfDossier }) {
                 <Text style={[s.td, { width: 60, textAlign: "right", color: "#64748B" }]}>
                   {p.qvDistance !== undefined ? p.qvDistance.toFixed(2) : "±0.00"}
                 </Text>
-                <Text style={[s.td, { width: 60, textAlign: "center", color: "#94A3B8" }]}>{p.market.toUpperCase()}</Text>
+                <Text style={[s.td, { width: 60, textAlign: "center", color: "#94A3B8" }]}>{(p.market ?? "ID").toUpperCase()}</Text>
               </View>
             ))
           ) : (

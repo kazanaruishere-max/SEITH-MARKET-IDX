@@ -1,6 +1,7 @@
 import Link from "next/link";
 import ScoreBadge from "./ScoreBadge";
 import { profileOf } from "@/data/companyProfiles";
+import { computeDisplayScore } from "@/lib/scoring";
 
 export type RankingItem = {
   ticker: string;
@@ -34,7 +35,13 @@ export default function RankingTable({
   pagination?: { page: number; pageSize: number; total: number };
   pageHref?: (p: number) => string;
 }) {
-  const sorted = [...items].sort((a, b) => b.mispricingScore - a.mispricingScore);
+  const sorted = [...items].sort((a, b) => {
+    const sB = computeDisplayScore(b.mispricingScore, b.components);
+    const sA = computeDisplayScore(a.mispricingScore, a.components);
+    const diff = sB - sA;
+    if (diff !== 0) return diff;
+    return b.mispricingScore - a.mispricingScore;
+  });
 
   return (
     <div className="overflow-x-auto no-scrollbar font-mono text-xs">
@@ -120,23 +127,28 @@ export default function RankingTable({
                   {isExcluded ? (
                     <span className="text-zinc-500 text-[10px]">CLEANSED // NO SCORE</span>
                   ) : (
-                    <div className="flex items-center gap-2">
-                      <ScoreBadge score={r.mispricingScore} anomaly={r.anomalyFlag} />
-                      <div className="hidden sm:block h-1.5 w-20 rounded-[1px] bg-[#1E2638] overflow-hidden">
-                        <div
-                          className="h-full"
-                          style={{
-                            width: barWidth(r.mispricingScore),
-                            background:
-                              r.mispricingScore > 70
-                                ? "#089981"
-                                : r.mispricingScore >= 40
-                                ? "#F59E0B"
-                                : "#F23645",
-                          }}
-                        />
-                      </div>
-                    </div>
+                    (() => {
+                      const displayScore = computeDisplayScore(r.mispricingScore, r.components);
+                      return (
+                        <div className="flex items-center gap-2">
+                          <ScoreBadge score={displayScore} anomaly={r.anomalyFlag} />
+                          <div className="hidden sm:block h-1.5 w-20 rounded-[1px] bg-[#1E2638] overflow-hidden">
+                            <div
+                              className="h-full"
+                              style={{
+                                width: barWidth(displayScore),
+                                background:
+                                  displayScore > 70
+                                    ? "#089981"
+                                    : displayScore >= 40
+                                    ? "#F59E0B"
+                                    : "#F23645",
+                              }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })()
                   )}
                 </td>
 

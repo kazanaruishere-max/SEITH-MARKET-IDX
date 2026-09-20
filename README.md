@@ -9,7 +9,7 @@
 [![Market: IDX](https://img.shields.io/badge/market-IDX%20primary-10b981)](docs/api-spec.md)
 [![Rust](https://img.shields.io/badge/core-Rust_Axum-orange)](Cargo.toml)
 [![Kronos-base](https://img.shields.io/badge/quant-Kronos--base_102M-blue)](docs/kronos-notes.md)
-[![100% Gratis](https://img.shields.io/badge/infra-100%25_gratis-27272a)](docs/adr/0001-stack.md)
+[![100% Gratis (Hackathon-Scale Infra)](https://img.shields.io/badge/infra-100%25_gratis_(hackathon--scale)-27272a)](docs/adr/0001-stack.md)
 
 [English](#english) | [Indonesia](#indonesia)
 
@@ -130,7 +130,7 @@ Non-persona: trader requiring auto-execution. All tracks prohibit it. SEITH neve
 |---|---|---|
 | 40% Usability | Can a user understand ranking in 60s today? | Web + CLI same contract, heatmap treemap 5×, table bar, dossier 1-page |
 | 30% Video | Story + working capture | Teaser 1m (CLI+Web live) + judging 3m (problem→workflow→proof) |
-| 30% Tech depth | Sectors as core, verifiable in repo | Batch+CompositeCache, Kronos 102.3M 400→20, scoring Rust, 9router Nemotron, 100% gratis infra |
+| 30% Tech depth | Sectors as core, verifiable in repo | Batch+CompositeCache, Kronos 102.3M 400→20, scoring Rust, 9router Nemotron, 100% gratis (infra hackathon-scale: SQLite local + free-tier LLM rotation; tidak termasuk biaya API key pribadi atau compute produksi) |
 
 ---
 
@@ -241,6 +241,7 @@ flowchart LR
 | SM 20% | Sector momentum — median sector + relative strength per market |
 | Example | LPPF `ER 50.02 Z 99.91 QV 100 SM 76.58 = 80.3 rank 1` · UNVR `50.35/99.35/100/67.07=78.39 rank 2` · TPIA `50.35/99.51/100/52.34=75.48 rank 3` |
 | Immutability | Returns new object, no mutate · `fn <50 file 200-400` |
+| Note (SSOT) | "PDF blob" (server-generated) dan `seith-cli` output menggunakan raw backend score tanpa post-rounding-consistency; "PDF vector" (browser download) dan Web UI menggunakan SSOT displayScore. Selisih maksimal 0.1 mungkin muncul antara kedua sumber pada sebagian kecil ticker — bukan bug data, murni floating-point rounding presentation layer. (ponytail: ceiling presentation-layer rounding, upgrade path via unified fixed-point decimal in Rust core). |
 
 #### Gate 5 — Ranking + Flag
 
@@ -270,7 +271,7 @@ flowchart LR
 | Compose | `score + breakdown 4 + peerComparison 5 + kronos {forecastReturn, volatility, chartPoints 20, volBand ±2σ} + research 3 memo → JSON` |
 | Peer 5 | Same sector+market, sorted by `|QV - target_QV|` + `\|Z\|` tie-break, cap band `close ±50%`, fallback `same_sector loose cap → cross_sector` · `backtest_data.rs:108-175 peer_pool/sort` |
 | Kronos | 20 `chartPoints` per ticker deterministic via `research/regen_backtest_100.py` · `value/upper/lower` per day `2026-09-14→2026-10-03` · Area ±2σ |
-| PDF | `POST /api/v1/tickers/BBCA/dossier?format=pdf&lang=id` → `@react-pdf/renderer` vector `612×792` A4 · 9-section 2-page (P1 Cover/Executive/Mispricing/Valuation/Peer+cap/Anomaly + P2 Catalyst/Methodology/Annex) · disclaimer per footer `Bukan rekomendasi` · `@react-pdf/renderer 3.4.4` |
+| PDF | `POST /api/v1/tickers/BBCA/dossier?format=pdf&lang=id` → `@react-pdf/renderer` vector `595×842` A4 · 9-section 2-page (P1 Cover/Executive/Mispricing/Valuation/Peer+cap/Anomaly + P2 Catalyst/Methodology/Annex) · disclaimer per footer `Bukan rekomendasi` · `@react-pdf/renderer 3.4.4` |
 | JSON | `GET /api/v1/tickers/BBCA/dossier?format=json&lang=id` → same data as PDF |
 
 #### Gate 8 — Hybrid Delivery
@@ -327,7 +328,7 @@ Sectors REST/MCP (1000 credits, CompositeCache, batch) ─┐
 | **Rust** | `crates/*` — Core, Sectors-client, API, CLI | Contract, scoring, cache, handlers, CLI — the verifiable backbone (see Rust function map below) |
 | **Python** | `apps/kronos-sidecar` `:8001` · `apps/analysis` `:8002` | Quant: Kronos-base `400→20 T1.0 top_p0.9` predict_batch; Research: Lite `Fund/Tech/Synth → 9router` |
 | **TypeScript** | `apps/web` `:3000` | Next.js 14 App Router + Tailwind + recharts + react-pdf — consumes Rust API via rewrites `:8181` |
-| **SQL** | `data/seith.db` (SQLite WAL) | L2 persistent cache `ohlcv/fundamentals/ranking_cache` — 100% gratis, survives restart |
+| **SQL** | `data/seith.db` (SQLite WAL) | L2 persistent cache `ohlcv/fundamentals/ranking_cache` — 100% gratis (infra hackathon-scale: SQLite local + free-tier LLM rotation; tidak termasuk biaya API key pribadi atau compute produksi), survives restart |
 
 **Rust function map — what each crate does (for jury & devs new to Rust):**
 
@@ -507,7 +508,7 @@ curl "http://127.0.0.1:8181/api/v1/tickers/BBCA/score?market=id"
 ```
 Query: market? (default id) · format?="json"|"pdf" (default json) · lang?="id"|"en" (default id)
 → json {ticker,market,lang,score,breakdown 30ER/20|Z|/30QV/20SM,peerComparison Vec 5 QV+cap±50%,kronos{forecastReturn,volatility,chartPoints 20 ±2σ},research{memo 3},anomaly,sector,rank,degraded,disclaimer}
-→ pdf  Content-Type application/pdf 2 pages A4 612×792 Bloomberg #0B0E14
+→ pdf  Content-Type application/pdf 2 pages A4 595×842 Bloomberg #0B0E14
 CLI: cargo run -p seith-cli -- dossier BBCA --market id --pdf
 ```
 
@@ -765,6 +766,9 @@ Invoke-WebRequest http://localhost:20128/v1/models -UseBasicParsing  # 9router l
 | Backtest equity | 52w synthetic forecast-based (2025-09-21→2026-09-13) — DB only 500 rows/25 tickers (20 hari), not 98×400 realized — synthetic honest, not realized 1y | Fill DB to 40k rows + nightly rolling equity for realized; ponytail until credits/DB full |
 | Cache | Single-file SQLite WAL — not multi-instance | Supabase deferred H5 for cloud multi-instance |
 | STI | Stretch H5, not default — saves 1000 credits | Promote to dual-market when credits allow |
+| Score display | Web UI (ranking, dossier, peer table) & PDF vector use SSOT `displayScore` (recomputed from 1-decimal rounded components) | PDF blob (server-generated) and `seith-cli` output still use raw backend score (max 0.1 rounding difference on ~13% of tickers) | Fixed-point integer/decimal SSOT across all consumers if multi-platform expanded |
+
+- **Score display consistency:** Web UI (ranking, dossier, peer table) dan PDF vector (browser download) menggunakan SSOT `displayScore` — dihitung dari komponen yang sudah dibulatkan 1 desimal, konsisten di semua halaman. PDF blob (server-generated) dan `seith-cli` output masih menggunakan raw backend score. Selisih maksimal 0.1 mungkin muncul antara kedua sumber ini pada sebagian kecil ticker (floating-point rounding), bukan bug data.
 
 **Provenance (lineage):**
 
@@ -902,7 +906,7 @@ Sectors Batch+Cache (Composite, market=id) → Cleansing Gate (OHLC wajib exclud
 - **G4** `score=0.30ER(z)+0.20(100-|Z|)+0.30QV(percentile)+0.20SM clamp` simpan 4 komponen stacked.
 - **G5** Sort desc + flag `|Z|>2` atau `vol>2σ` + reason · `anomalies?minZ=2 Top5`.
 - **G6** LangGraph Lite 3 agen Fund/Tech/Synth via `httpx → 9router :20128 combo SEITH-MARKET-IDX` hanya Top-10 hemat, fallback template degraded tetap lolos MI.
-- **G7** Compose `score+breakdown+peer5+chart 20+research 3 memo → JSON → PDF vector 9-section 2 halaman 612×792 #0B0E14`.
+- **G7** Compose `score+breakdown+peer5+chart 20+research 3 memo → JSON → PDF vector 9-section 2 halaman 595×842 #0B0E14`.
 - **G8** Hybrid same contract `Axum :8181 envelope x-schema-version + clap + Next rewrites :8181` no drift.
 
 Untuk tabel penuh `IN→transform→OUT→latency→error/degraded` lihat EN §4.

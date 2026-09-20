@@ -13,66 +13,13 @@ export type HeatItem = {
   marketCapHint?: number;
 };
 
-// Prominent IDX Big-Caps Market Weightings (in Trillion IDR)
-// Allows realistic Finviz-style visual hierarchy (large pillars vs smaller caps)
-const IDX_CAPS: Record<string, number> = {
-  // Finance
-  BBCA: 110,
-  BBRI: 70,
-  BMRI: 60,
-  BBNI: 20,
-  BRIS: 13,
-  BNGA: 8,
-  BDMN: 6,
-  BBTN: 5,
-  NISP: 5,
-  BFIN: 4,
-  PNBN: 3,
-  // Energy
-  TPIA: 18,
-  ADRO: 12,
-  UNTR: 10,
-  PGAS: 4,
-  PTBA: 4,
-  ANTM: 4,
-  MEDC: 3.5,
-  ITMG: 3,
-  AKRA: 3,
-  HRUM: 2.5,
-  PTRO: 2,
-  // Consumer
-  ICBP: 13,
-  UNVR: 11,
-  KLBF: 8,
-  CPIN: 7,
-  INDF: 6,
-  MYOR: 5,
-  GGRM: 3.5,
-  SIDO: 2.5,
-  ADES: 2,
-  // Infra
-  TLKM: 30,
-  ISAT: 8,
-  TOWR: 5,
-  TBIG: 4,
-  JSMR: 3.5,
-  EXCL: 3,
-  // Other
-  AMMN: 25,
-  ASII: 20,
-  MDKA: 6,
-  BRMS: 5,
-  MIKA: 4,
-  SILO: 3,
-  HEAL: 2.5,
-  LPPF: 2,
-};
-
+// Data-driven linear weighting based on quant rank (1..100)
+// Higher-ranked tickers receive proportionally larger visual area (3.3x spread [1.2, 4.0])
+// to display full ticker, score, and company profile without extreme visual distortion.
 function itemWeight(x: HeatItem): number {
   if (x.marketCapHint && x.marketCapHint > 0) return x.marketCapHint;
-  const cap = IDX_CAPS[x.ticker.toUpperCase()];
-  if (cap) return cap;
-  return Math.max(1.2, Math.min(3.5, (x.close ?? 1000) / 1000));
+  const rank = x.rank ?? 50;
+  return Number((1.2 + ((100 - Math.min(100, Math.max(1, rank))) / 99) * 2.8).toFixed(2));
 }
 
 // Finviz Green-Red only color palette (matching real Mispricing Score vs Universe Median)
