@@ -20,6 +20,11 @@ export type RankingItem = {
     quality_value?: number;
     sector_mom?: number;
   };
+  anomaly?: {
+    z?: number | null;
+    flag?: boolean;
+    reason?: string;
+  };
 };
 
 function barWidth(s: number) {
@@ -62,8 +67,9 @@ export default function RankingTable({
             const p = profileOf(r.ticker);
             const isExcluded = !!r.excluded;
             const reason = r.reason || (r.excluded ? "excluded" : "");
-            const z = r.anomalyZ ?? 0;
+            const z = r.anomalyZ ?? r.anomaly?.z ?? 0;
             const absZ = Math.abs(z);
+            const isFlagged = r.anomalyFlag ?? r.anomaly?.flag ?? absZ >= 2.0;
             const rankDisplay = isExcluded ? "—" : r.rank ?? idx + 1;
 
             return (
@@ -131,7 +137,7 @@ export default function RankingTable({
                       const displayScore = computeDisplayScore(r.mispricingScore, r.components);
                       return (
                         <div className="flex items-center gap-2">
-                          <ScoreBadge score={displayScore} anomaly={r.anomalyFlag} />
+                          <ScoreBadge score={displayScore} anomaly={isFlagged} />
                           <div className="hidden sm:block h-1.5 w-20 rounded-[1px] bg-[#1E2638] overflow-hidden">
                             <div
                               className="h-full"
@@ -177,7 +183,7 @@ export default function RankingTable({
                     <span className="rounded-[2px] border border-amber-900/60 bg-amber-950/40 px-1.5 py-0.2 text-[9px] font-bold text-amber-300">
                       EXCLUDED
                     </span>
-                  ) : r.anomalyFlag ? (
+                  ) : isFlagged ? (
                     <span
                       className="rounded-[2px] border border-red-800/60 bg-red-950/60 px-1.5 py-0.2 text-[9px] font-bold text-red-300"
                       title="Anomaly Flagged (|Z|>2 or Volume Spike)"
